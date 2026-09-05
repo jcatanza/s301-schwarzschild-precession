@@ -317,11 +317,14 @@ dataset does not yet have.
 
 Measuring Sgr A\*'s spin is explicitly out of scope. Spin causes
 frame-dragging: a drift in the orbit's inclination and node, distinct
-from the Schwarzschild precession modeled here. Real astronomers say
-measuring it needs a decade or more of observations across several
-periapsis passages, plus a way to separate the spin signal from ordinary
-"Newtonian confusion" — other, unrelated mass near Sgr A\* can produce a
-similar-looking drift. This project's two-passage precession
+from the Schwarzschild precession modeled here. The discovery team's own
+follow-up paper on the spin measurement itself,
+["S301 and friends: Measuring the spin of Sgr A\*"](https://arxiv.org/abs/2607.24931)
+(Piran et al., arXiv:2607.24931), says measuring it needs a decade or more
+of observations across several periapsis passages, plus a way to separate
+the spin signal from ordinary "Newtonian confusion" — other, unrelated
+mass near Sgr A\* can produce a similar-looking drift. This project's
+two-passage precession
 measurement is a genuine, correctly-modeled precursor to that
 measurement, not the measurement itself. Attempting the full spin
 measurement here, without a real spin value to inject, would mean
