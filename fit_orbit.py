@@ -1,8 +1,9 @@
 """
 Recover S301's orbital elements from the synthetic noisy two-instrument
 campaign (output/synthetic_observations.csv, produced by campaign.py:
-GRAVITY+/VLTI for astrometry, ERIS/VLT for RV+photometry), and compare the
-recovered values against both the injected truth and the real published
+GRAVITY+/VLTI for astrometry+photometry, ERIS/VLT for radial velocity), and
+compare the recovered values against both the injected truth and the real
+published
 solution (they're the same thing here: constants.TRUTH IS the paper's
 Solution 1) -- this checks that the fitting pipeline itself is sound.
 
@@ -51,6 +52,8 @@ os.environ.setdefault("MPLBACKEND", "Agg")
 # matplotlib's backend must be set (above) before pyplot is imported.
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.collections import LineCollection
+from matplotlib.colors import Normalize
 from scipy.optimize import least_squares
 
 import campaign
@@ -187,12 +190,20 @@ def build_plot_epoch_grid(epoch_min, epoch_max, period_yr, t_peri_yr, n_coarse=2
 
 def _plot_sky_track(fig, ax, data, dense_epochs, ra_fit, dec_fit):
     """Sky-plane track panel. The orbit precesses and is sampled over
-    ~1.5 periods, so the 2D track legitimately crosses itself -- a single
-    solid line for the fitted curve makes that look like a rendering
-    error rather than real orbital motion at different times. Color both
-    the data and the model curve by epoch instead, so same-time points
-    can be compared directly without needing to trace a crossing line."""
-    ax.plot(ra_fit, dec_fit, color="gray", lw=0.6, alpha=0.5, zorder=1, label="fitted orbit (path)")
+    ~1.5 periods, so the 2D track legitimately crosses itself near
+    apoapsis -- each precessing loop's far side crosses the other's, real
+    orbital geometry rather than a rendering error. A flat single-color
+    line still makes those crossings look like stray artifact lines, so
+    the path itself is colored by epoch (matching the data/model
+    scatter), not just the sparse epoch-colored markers -- that way a
+    crossing reads immediately as "two different times," not a glitch."""
+    points = np.column_stack([ra_fit, dec_fit]).reshape(-1, 1, 2)
+    segments = np.concatenate([points[:-1], points[1:]], axis=1)
+    path_lc = LineCollection(segments, cmap="viridis", norm=Normalize(dense_epochs.min(), dense_epochs.max()),
+                              linewidths=0.9, alpha=0.6, zorder=1)
+    path_lc.set_array(dense_epochs[:-1])
+    ax.add_collection(path_lc)
+    ax.plot([], [], color="#440154", lw=1.5, label="fitted orbit (path, colored by epoch)")
     model_scatter = ax.scatter(ra_fit[::15], dec_fit[::15], c=dense_epochs[::15], cmap="viridis",
                                 s=8, marker="x", zorder=2, label="fitted orbit (epoch-colored)")
     ax.errorbar(data["ra_offset_mas"], data["dec_offset_mas"],
@@ -200,11 +211,11 @@ def _plot_sky_track(fig, ax, data, dense_epochs, ra_fit, dec_fit):
                 fmt="none", ecolor="black", elinewidth=1.0, capsize=2, zorder=2)
     ax.scatter(data["ra_offset_mas"], data["dec_offset_mas"], c=data["epoch_yr"], cmap="viridis",
                s=20, edgecolors="black", linewidths=0.4, zorder=3,
-               label="synthetic GRAVITY+/ERIS data")
+               label="synthetic GRAVITY+ data")
     ax.plot(0, 0, "k*", ms=12, label="Sgr A*", zorder=4)
     ax.set_xlabel("RA offset (mas)")
     ax.set_ylabel("Dec offset (mas)")
-    ax.set_title("S301 sky-plane track: synthetic data vs. fitted orbit")
+    ax.set_title("S301 sky-plane track (GRAVITY+/VLTI astrometry): synthetic data vs. fitted orbit")
     # GRAVITY+'s real ~100 uas precision is ~1500x smaller than this
     # panel's ~150 mas span -- the error bars above are real and drawn at
     # true scale, but will look like a hairline or vanish entirely next
@@ -223,11 +234,11 @@ def _plot_sky_track(fig, ax, data, dense_epochs, ra_fit, dec_fit):
 def _plot_rv_curve(ax, data, dense_epochs, rv_fit):
     """Radial-velocity panel: synthetic data (with error bars) vs. fit."""
     ax.errorbar(data["epoch_yr"], data["rv_kms"], yerr=data["sigma_rv_kms"],
-                fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466", label="synthetic GRAVITY+/ERIS data")
+                fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466", label="synthetic ERIS data")
     ax.plot(dense_epochs, rv_fit, color="#d62728", lw=1.2, label="fitted orbit")
     ax.set_xlabel("Epoch (year)")
     ax.set_ylabel("Radial velocity (km/s)")
-    ax.set_title("S301 radial velocity: synthetic data vs. fitted orbit")
+    ax.set_title("S301 radial velocity (ERIS/VLT spectroscopy): synthetic data vs. fitted orbit")
     ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
 
@@ -246,7 +257,7 @@ def _plot_rv_residuals(ax, data, best_fit):
     ax.axhline(0, color="gray", lw=0.8)
     ax.set_xlabel("Epoch (year)")
     ax.set_ylabel("RV residual (km/s)")
-    ax.set_title("Radial-velocity fit residuals")
+    ax.set_title("Radial-velocity fit residuals (ERIS/VLT)")
     ax.grid(alpha=0.3)
     lo, hi = np.percentile(rv_residual, [1, 99])
     pad = 0.2 * (hi - lo)
@@ -258,13 +269,13 @@ def _plot_photometry(ax, data, dense_epochs, dmag_true_dense):
     injected truth. Not fit -- see module docstring."""
     ax.errorbar(data["epoch_yr"], data["dmag_K"], yerr=data["sigma_dmag"],
                 fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466",
-                label="synthetic GRAVITY+/ERIS data")
+                label="synthetic GRAVITY+ data")
     ax.plot(dense_epochs, dmag_true_dense, color="gray", lw=1.0,
             label="injected truth (not fit)")
     ax.invert_yaxis()
     ax.set_xlabel("Epoch (year)")
     ax.set_ylabel("Delta magnitude (fainter down)")
-    ax.set_title("K-band photometry: synthetic data (not used in the fit)")
+    ax.set_title("K-band photometry (GRAVITY+/VLTI): synthetic data (not used in the fit)")
     ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
 

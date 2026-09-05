@@ -107,7 +107,9 @@ def make_plots(t, state, one_plus_z, dmag, outpath):
     """Three-panel figure: full-orbit light curve, periapsis zoom, and the
     relativistic-vs-classical spectral shift comparison."""
     t_days = t / 86400
-    _, axes = plt.subplots(3, 1, figsize=(9, 11), sharex=False)
+    fig, axes = plt.subplots(3, 1, figsize=(9, 11), sharex=False)
+    fig.suptitle("Simulated as observed by GRAVITY+/VLTI (K-band, 1.98-2.40 um bandpass)",
+                 fontsize=10, color="dimgray")
 
     ax = axes[0]
     ax.plot(t / k.year, dmag, color="#1f77b4", lw=1.2)
