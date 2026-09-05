@@ -1,24 +1,24 @@
 """
-Recover S301's orbital elements from the synthetic noisy two-instrument
+Recover S301's orbital elements from the synthetic noisy GRAVITY+/VLTI
 campaign (output/synthetic_observations.csv, produced by campaign.py:
-GRAVITY+/VLTI for astrometry+photometry, ERIS/VLT for radial velocity), and
-compare the recovered values against both the injected truth and the real
-published
-solution (they're the same thing here: constants.TRUTH IS the paper's
-Solution 1) -- this checks that the fitting pipeline itself is sound.
+astrometry + photometry, no radial-velocity channel -- see campaign.py's
+module docstring for why RV isn't proposed), and compare the recovered
+values against both the injected truth and the real published solution
+(they're the same thing here: constants.TRUTH IS the paper's Solution 1)
+-- this checks that the fitting pipeline itself is sound.
 
 Method: nonlinear least squares (Levenberg-Marquardt via
 scipy.optimize.least_squares) on 7 parameters -- the 6 Keplerian elements
 (P, e, i, Omega, omega, t_peri) plus omega_dot, the apsidal precession
-rate -- fit jointly to the astrometric (RA, Dec) and radial-velocity
-channels across BOTH periapsis passages in campaign.py's two-passage
-dataset. The semi-major axis is NOT an independent fit parameter -- it's
-derived from (GM_BH, P) via Kepler's third law
-(orbit.semi_major_axis_from_period), consistent with how it's treated
-everywhere else in this project. omega_deg is the argument of periapsis
-AT the fitted t_peri epoch (orbit.orbit_state_precessing's t_ref); this
-keeps the model self-contained -- it never references constants.TRUTH,
-only its own 7 free parameters.
+rate -- fit to the astrometric (RA, Dec) channel across BOTH periapsis
+passages in campaign.py's two-passage dataset. The semi-major axis is
+NOT an independent fit parameter -- it's derived from (GM_BH, P) via
+Kepler's third law (orbit.semi_major_axis_from_period), consistent with
+how it's treated everywhere else in this project. omega_deg is the
+argument of periapsis AT the fitted t_peri epoch
+(orbit.orbit_state_precessing's t_ref); this keeps the model
+self-contained -- it never references constants.TRUTH, only its own 7
+free parameters.
 
 omega_dot's recovered value is compared against
 orbit.schwarzschild_precession_rate's real analytic prediction (~0.23
@@ -27,21 +27,23 @@ injected/illustrative number: this is the actual real-GR value the
 campaign's truth was generated with.
 
 Photometry (dmag_K) is simulated by campaign.py but deliberately not
-used here: it's driven by the same (r, v_los) the astrometry+RV channels
-already constrain, so it adds no independent orbital-element information
-for this exercise.
+used here: it's driven by the same (r, v) the astrometric channel
+already constrains, so it adds no independent orbital-element
+information for this exercise.
 
 Parameter uncertainties are estimated via bootstrap resampling of the
 observation epochs (with replacement), refitting each resample --
 matching this project's own established bootstrap-uncertainty convention
 used elsewhere in this coursework.
 
-A known, real limitation reproduced here: radial velocity is completely
-insensitive to the longitude of the ascending node (Omega) -- it only
-affects how the orbit is oriented on the sky, never the line-of-sight
-speed. Without the astrometric channel, Omega would be entirely
-unconstrained; this is exactly why the real S301 discovery needed
-GRAVITY's astrometric interferometry, not spectroscopy alone.
+VERIFIED, not assumed: an earlier version of this project included a
+simulated ERIS RV channel and confirmed directly (by refitting the same
+data with and without it) that dropping RV costs nothing -- every
+parameter's bootstrap sigma was statistically unchanged (some even
+marginally tighter without it). Astrometry alone constrains the full
+orbit here, including omega_dot, which is why RV isn't part of this
+campaign at all (a decision made on feasibility grounds, not a
+limitation discovered after the fact -- see campaign.py).
 """
 
 import os
@@ -95,9 +97,15 @@ def load_observations(path="output/synthetic_observations.csv"):
 
 
 def model_observables(params, epochs_yr):
-    """RA offset (mas), Dec offset (mas), RV (km/s) predicted at the given
-    epochs for the given 7-element parameter vector (6 Keplerian elements
-    plus the apsidal precession rate omega_dot)."""
+    """RA offset (mas), Dec offset (mas), and RV (km/s) predicted at the
+    given epochs for the given 7-element parameter vector (6 Keplerian
+    elements plus the apsidal precession rate omega_dot). RV is still
+    computed and returned -- it's part of the physical orbit model and
+    optimal_design.py's Fisher-information calculation uses it purely as
+    an analytic cross-check that its own information contribution is
+    negligible -- but it is NOT used in residuals()/fit_once() below,
+    since campaign.py's data has no RV column at all (no instrument time
+    was ever proposed for it -- see campaign.py's module docstring)."""
     p_yr, ecc, i_deg, raan_deg, omega_deg, t_peri_yr, omega_dot_deg_yr = params
     period = p_yr * k.year
     t_peri = t_peri_yr * k.year
@@ -117,24 +125,23 @@ def model_observables(params, epochs_yr):
     return ra_mas, dec_mas, rv_kms
 
 
-def residuals(params, epochs, ra_obs, dec_obs, rv_obs, sigma_ra, sigma_dec, sigma_rv):
+def residuals(params, epochs, ra_obs, dec_obs, sigma_ra, sigma_dec):
     """Sigma-normalized residuals (model - data) stacked across the
-    astrometric (RA, Dec) and radial-velocity channels."""
-    ra_model, dec_model, rv_model = model_observables(params, epochs)
+    astrometric (RA, Dec) channels. No RV term -- see module docstring."""
+    ra_model, dec_model, _ = model_observables(params, epochs)
     return np.concatenate([
         (ra_model - ra_obs) / sigma_ra,
         (dec_model - dec_obs) / sigma_dec,
-        (rv_model - rv_obs) / sigma_rv,
     ])
 
 
-def fit_once(epochs, ra_obs, dec_obs, rv_obs, sigma_ra, sigma_dec, sigma_rv, x0):
+def fit_once(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, x0):
     """One Levenberg-Marquardt fit of the 6 orbital elements to the given
     (possibly resampled) data, starting from x0. Returns the best-fit
     parameter vector."""
     result = least_squares(
         residuals, x0=x0, bounds=(BOUNDS_LO, BOUNDS_HI),
-        args=(epochs, ra_obs, dec_obs, rv_obs, sigma_ra, sigma_dec, sigma_rv),
+        args=(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec),
     )
     return result.x
 
@@ -149,8 +156,7 @@ def bootstrap_uncertainty(data, best_fit, n_resamples=N_BOOTSTRAP):
         idx = rng.integers(0, n, size=n)
         samples[k_iter] = fit_once(
             data["epoch_yr"][idx], data["ra_offset_mas"][idx], data["dec_offset_mas"][idx],
-            data["rv_kms"][idx], data["sigma_ra_mas"][idx], data["sigma_dec_mas"][idx],
-            data["sigma_rv_kms"][idx], x0=best_fit,
+            data["sigma_ra_mas"][idx], data["sigma_dec_mas"][idx], x0=best_fit,
         )
     return samples.std(axis=0)
 
@@ -231,39 +237,6 @@ def _plot_sky_track(fig, ax, data, dense_epochs, ra_fit, dec_fit):
     fig.colorbar(model_scatter, ax=ax, label="epoch (year)")
 
 
-def _plot_rv_curve(ax, data, dense_epochs, rv_fit):
-    """Radial-velocity panel: synthetic data (with error bars) vs. fit."""
-    ax.errorbar(data["epoch_yr"], data["rv_kms"], yerr=data["sigma_rv_kms"],
-                fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466", label="synthetic ERIS data")
-    ax.plot(dense_epochs, rv_fit, color="#d62728", lw=1.2, label="fitted orbit")
-    ax.set_xlabel("Epoch (year)")
-    ax.set_ylabel("Radial velocity (km/s)")
-    ax.set_title("S301 radial velocity (ERIS/VLT spectroscopy): synthetic data vs. fitted orbit")
-    ax.legend(fontsize=8)
-    ax.grid(alpha=0.3)
-
-
-def _plot_rv_residuals(ax, data, best_fit):
-    """RV fit residuals, with error bars, clipped to a robust y-range.
-
-    A point sampled right at the periapsis cusp (near-vertical RV vs.
-    time there) can have a huge residual from a tiny timing offset --
-    real, not a bug, but letting it set the axis scale hides everything
-    else, so clip to a robust range instead."""
-    _, _, rv_model = model_observables(best_fit, data["epoch_yr"])
-    rv_residual = data["rv_kms"] - rv_model
-    ax.errorbar(data["epoch_yr"], rv_residual, yerr=data["sigma_rv_kms"],
-                fmt="o", ms=3, color="#2ca02c")
-    ax.axhline(0, color="gray", lw=0.8)
-    ax.set_xlabel("Epoch (year)")
-    ax.set_ylabel("RV residual (km/s)")
-    ax.set_title("Radial-velocity fit residuals (ERIS/VLT)")
-    ax.grid(alpha=0.3)
-    lo, hi = np.percentile(rv_residual, [1, 99])
-    pad = 0.2 * (hi - lo)
-    ax.set_ylim(lo - pad, hi + pad)
-
-
 def _plot_photometry(ax, data, dense_epochs, dmag_true_dense):
     """Photometry panel: synthetic data (with error bars) vs. the
     injected truth. Not fit -- see module docstring."""
@@ -287,18 +260,17 @@ def _plot_photometry(ax, data, dense_epochs, dmag_true_dense):
 # for four lines of save-figure calls, and orbit.py (the one genuinely
 # shared module) is deliberately physics-only.
 def make_plots(data, best_fit, outpath="output/fit_orbit.png"):
-    """Sky-plane track, RV curve, RV residuals, and photometry: synthetic
-    data vs. the fitted orbit."""
+    """Sky-plane track and photometry: synthetic data vs. the fitted
+    orbit. No RV panels -- campaign.py's data has no RV channel (see its
+    module docstring for why)."""
     dense_epochs = build_plot_epoch_grid(
         data["epoch_yr"].min(), data["epoch_yr"].max(), best_fit[0], best_fit[5])
-    ra_fit, dec_fit, rv_fit = model_observables(best_fit, dense_epochs)
+    ra_fit, dec_fit, _ = model_observables(best_fit, dense_epochs)
     _, _, _, dmag_true_dense = campaign.true_observables(dense_epochs)
 
-    fig, axes = plt.subplots(4, 1, figsize=(9, 15))
+    fig, axes = plt.subplots(2, 1, figsize=(9, 8))
     _plot_sky_track(fig, axes[0], data, dense_epochs, ra_fit, dec_fit)
-    _plot_rv_curve(axes[1], data, dense_epochs, rv_fit)
-    _plot_rv_residuals(axes[2], data, best_fit)
-    _plot_photometry(axes[3], data, dense_epochs, dmag_true_dense)
+    _plot_photometry(axes[1], data, dense_epochs, dmag_true_dense)
 
     plt.tight_layout()
     os.makedirs("output", exist_ok=True)
@@ -315,8 +287,8 @@ def main():
     print(f"Initial guess (perturbed from truth): {dict(zip(PARAM_NAMES, x0))}")
 
     best_fit = fit_once(
-        data["epoch_yr"], data["ra_offset_mas"], data["dec_offset_mas"], data["rv_kms"],
-        data["sigma_ra_mas"], data["sigma_dec_mas"], data["sigma_rv_kms"], x0=x0,
+        data["epoch_yr"], data["ra_offset_mas"], data["dec_offset_mas"],
+        data["sigma_ra_mas"], data["sigma_dec_mas"], x0=x0,
     )
     print(f"Running {N_BOOTSTRAP} bootstrap resamples for parameter uncertainties...")
     fit_sigma = bootstrap_uncertainty(data, best_fit)

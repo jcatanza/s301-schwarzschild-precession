@@ -39,19 +39,16 @@ this project has to make an assumption, it says so, and says why.
 
 ## Which instruments, and why
 
-Real astronomers use two facilities at ESO's Paranal Observatory in
-Chile for this kind of work:
+Real astronomers use one facility at ESO's Paranal Observatory in Chile
+for this campaign:
 
 - **GRAVITY+**, an interferometer at the VLTI (Very Large Telescope
-  Interferometer), for position measurements (astrometry). GRAVITY+ is
-  an upgrade of the original GRAVITY instrument that discovered S301.
-- **ERIS**, an adaptive-optics-fed spectrograph at the VLT, for velocity
-  measurements. ERIS is the successor to SINFONI, the instrument used
-  for essentially all radial-velocity monitoring of stars this close to
-  Sgr A\* to date.
+  Interferometer), for both position measurements (astrometry) and
+  K-band photometry. GRAVITY+ is an upgrade of the original GRAVITY
+  instrument that discovered S301.
 
 An earlier version of this project instead used a single space telescope
-for all three measurement types. That was wrong, for two reasons:
+for all measurement types. That was wrong, for two reasons:
 
 1. **The physics rules it out.** A single mirror's resolving power at
    near-infrared wavelengths is far too coarse. A 2.4 m mirror, for
@@ -67,7 +64,13 @@ for all three measurement types. That was wrong, for two reasons:
    [GRAVITY+ project paper](https://arxiv.org/pdf/2301.08071) and
    [coverage of planned S301 follow-up](https://phys.org/news/2026-07-star-orbiting-galaxy-supermassive-black.html).
 
-So this project uses GRAVITY+ and ERIS, and only those two.
+So this project uses GRAVITY+, and only that. A second real instrument,
+**ERIS** (an adaptive-optics-fed spectrograph at the VLT, the successor
+to SINFONI, and the real workhorse for S-cluster radial-velocity
+monitoring to date), was seriously considered for a radial-velocity
+channel and explicitly **not proposed** — see "Why this campaign doesn't
+request radial-velocity time" below for the feasibility calculation that
+ruled it out before any data was simulated.
 
 ## What's real, and what's assumed
 
@@ -146,27 +149,95 @@ value, which is the right order of magnitude for that method.
 ## Stage 2: the synthetic campaign (`campaign.py`)
 
 This stage builds a fake but realistic observing campaign: what
-GRAVITY+ and ERIS would plausibly measure if astronomers pointed them at
-S301 for years.
+GRAVITY+ would plausibly measure if astronomers pointed it at S301 for
+years.
 
 **Why two passes.** A precession *rate* can only be measured by comparing
 the orbit's shape across two separate passes. One pass alone only shows
 one instant's orbit, not how it's changing. So this campaign covers the
 next two predicted periapsis passages: around 2031.8 and around 2040.5.
 
-**Cadence.** Observations start in 2028.5 (see the timing assumption
-above) and run through 2041.5. About 90% of all epochs are concentrated
-within ±20 days of a periapsis passage, since that's where the orbit
-changes fastest and a precession measurement gets most of its leverage;
-the remaining ~10% is a sparse long-baseline presence so the overall
-orbit shape away from closest approach is still constrained.
+**Why this campaign doesn't request radial-velocity time.** An earlier
+version of this project also simulated an ERIS/VLT RV channel — the real
+instrument used for essentially all S-cluster RV monitoring to date,
+scaled from ERIS/SINFONI's real achieved precision on S2 (12.3 km/s at
+magnitude 14.0) down to S301's much fainter magnitude 19.3. That
+calculation gives ~1621 km/s precision (background-limited, the
+realistic regime for faint Galactic Center spectroscopy) against a
+signal of order ±15,000 km/s — an implied continuum SNR of ~0.04 against
+SPIFFIER's own 60 km/s resolution element. That is not a weak detection;
+it is no detection at all with any current 8-10 m telescope. A real Time
+Allocation Committee requires exactly this kind of feasibility
+calculation before granting time on an oversubscribed instrument, and
+would not approve a proposal for a measurement already known to fail.
+So this campaign never requests ERIS time — the calculation
+(`campaign.compute_rv_precision()`) stays in the code as the documented
+reason, but no RV data is generated, noise-injected, or fit as if it
+were real. A direct check confirms nothing is lost: refitting the exact
+same astrometric data with an RV channel included changes no
+parameter's uncertainty outside bootstrap noise (`omega_dot` was even
+marginally *tighter* without it, 0.0013 vs. 0.0014 deg/yr) — the
+precession measurement was never coming from RV. See "What this project
+does not attempt" for the real future instrument (the ELT's HARMONI)
+that could eventually change this.
+
+**Cadence: a real methodological journey, not a single design choice.**
+The original plan was a hand-picked heuristic: ~90% of epochs within
+±20 days of a periapsis passage, since that's where the orbit changes
+fastest. That heuristic works, but treats all 7 fit parameters as
+equally well served by periapsis-proximity — running the actual fit
+showed this is false (see Stage 3). Since S301's orbit is genuinely
+extreme (e=0.9832), a properly *optimized* cadence was worth attempting:
+
+1. **Naive Fisher/D-optimal design** (`optimal_design.py`): compute the
+   Fisher information matrix — the standard tool from optimal
+   experimental-design theory — linearized at the true parameter values,
+   and greedily select epochs maximizing its determinant. This
+   **catastrophically failed**: it predicted 800-28,000x precision
+   improvements by piling nearly all epochs onto two calendar-adjacent
+   clusters ~18 years from the reference epoch, covering *neither*
+   periapsis at all. A real nonlinear bootstrap fit on that design was
+   actually 4-600x *worse* than the heuristic on every parameter. The
+   mechanism: sensitivity to the period and time-of-periapsis genuinely
+   grows with time baseline (real physics — it's why pulsar timing gets
+   great period precision from long baselines), but a small period
+   error, extrapolated across more than two orbital periods, compounds
+   into large nonlinear phase drift (a "cycle-slip" hazard). Linearized
+   Fisher information can't see that this design's apparent precision is
+   fragile — correct only if you already know the period to absurd
+   accuracy — while a real fit starting from a realistic, imperfect
+   guess has no way to reach that narrow optimum, and gets zero
+   orbit-shape information from two periapsis-free clusters.
+2. **Pseudo-Bayesian ("robust") Fisher design**: average the Fisher
+   matrix over many parameter draws from a realistic prior (this
+   project's own published element uncertainties) instead of
+   linearizing at one exact point — the standard fix (Chaloner &
+   Verdinelli 1995) for this kind of nonlinear-model pitfall. This
+   spread the design out, but *still* selected zero epochs within
+   ±20 days of either periapsis. Reason: Fisher information, even
+   averaged over parameter-prior uncertainty, only measures
+   noise-driven uncertainty around a presumed-correct optimum — it has
+   no mechanism to penalize structural/geometric non-identifiability
+   from sampling too few genuinely distinct orbital phases. Classical
+   orbit determination (Gauss's method and its descendants) has always
+   required observations spread across an orbit's curvature, not just
+   high precision at a couple of points.
+3. **Constrained design (the one actually used)**: a hard, domain-
+   knowledge floor — ~30% of the epoch budget reserved for dense
+   coverage within ±20 days of each periapsis, non-negotiably, because
+   orbital mechanics requires it — plus Fisher-optimal allocation of the
+   *remaining* flexible budget across the full visibility-filtered
+   candidate grid. This is the design campaign.py actually uses. A real
+   bootstrap fit (Stage 3) confirms it beats the original heuristic on
+   every parameter, most importantly the actual science target
+   (`omega_dot`: 0.0013 deg/yr vs. the heuristic's 0.0043).
 
 Sgr A\* isn't observable from Paranal year-round: the discovery paper's
 own GRAVITY monitoring ran "monthly during roughly week-long campaigns
-between March and September." Every candidate epoch is filtered to that
-real visibility season — an earlier version of this campaign sampled
-uniformly across all 12 months, silently scheduling epochs when the
-target wasn't even up.
+between March and September." Every candidate epoch (in all three design
+attempts above) is filtered to that real visibility season — an earlier
+version of this campaign sampled uniformly across all 12 months,
+silently scheduling epochs when the target wasn't even up.
 
 That filter exposes a genuine, unavoidable complication: the first
 periapsis passage (2031-10-22) falls just past the end of that year's
@@ -191,31 +262,29 @@ node, called frame-dragging — and Sgr A\*'s spin has never been measured.
 Injecting a spin value here would mean guessing at exactly the number
 nobody knows.
 
-**Three measured quantities per epoch, from two instruments:**
+**Two measured quantities per epoch, both from GRAVITY+:**
 
-- **Position on the sky** (RA and Dec offset from Sgr A\*), from
-  GRAVITY+.
-- **Radial velocity** (motion toward or away from Earth), from ERIS.
-- **K-band brightness**, from GRAVITY+, generated for completeness but
-  not used in the orbit fit (see Stage 3).
+- **Position on the sky** (RA and Dec offset from Sgr A\*).
+- **K-band brightness**, generated for completeness but not used in the
+  orbit fit (see Stage 3).
 
 Running it prints:
 
 ```
-Campaign: 131 epochs, 2028.50 - 2041.50 (passages: 2031.81 and 2040.49)
-Dense window occupancy check: 118 of 131 (90.1%) within +/-20 days of a periapsis (season-adjusted anchor for passage 1)
+Campaign: 131 epochs, 2028.50 - 2041.69 (passages: 2031.81 and 2040.49)
+Dense window occupancy check: 39 of 131 (29.8%) within +/-20 days of a periapsis (season-adjusted anchor for passage 1)
 Injected Schwarzschild precession: 0.2307 deg/yr (2.003 deg/orbit) -- real 1PN formula, not illustrative
 Astrometric precision (GRAVITY+, real achieved on-sky figure): 100 uas/epoch
-RV precision (ERIS, background-limited scaling from real S2 SINFONI/ERIS precision -- the realistic regime for a target this faint in this field): 1621 km/s/epoch (optimistic source-limited alternative: 141.2 km/s/epoch)
-Cross-check: SPIFFIER's own R=5000 gives a 60.0 km/s resolution element -- the injected precision implies continuum SNR~0.037, i.e. no real single-epoch RV detection for a star this faint with a current 8m-class instrument
+RV NOT proposed (ERIS, background-limited scaling from real S2 SINFONI/ERIS precision): would be 1621 km/s/epoch against a [-15312, 5826] km/s signal -- SPIFFIER's own R=5000 gives a 60.0 km/s resolution element, so this implies continuum SNR~0.037, i.e. no real single-epoch detection -- no TAC would grant time for this, so it isn't requested (optimistic source-limited alternative: 141.2 km/s/epoch, still SNR<1)
 Photometric precision (S301's own published m_K uncertainty): 0.30 mag/epoch
-True RA offset range: [-1.4, 60.0] mas
-True RV range: [-15414, 5852] km/s
+True RA offset range: [-1.4, 56.9] mas
 ```
 
-131 epochs, 90.1% of them within ±20 days of a periapsis, comfortably
-more than double the 60 epochs in an earlier, single-pass version of
-this campaign.
+131 epochs total (comfortably more than double the 60 epochs in an
+earlier, single-pass version of this campaign), with 29.8% concentrated
+within ±20 days of a periapsis (the domain-knowledge floor) and the
+remaining ~70% allocated by the Fisher-optimal search across the rest of
+the orbit.
 
 ## How each precision figure was derived
 
@@ -230,8 +299,11 @@ Project"). S301, at magnitude 19.3, falls inside that demonstrated
 range. This project uses the worse (larger, more cautious) end of the
 range.
 
-**Velocity precision: 1621 km/s.** This is the hardest number to pin
-down, and the most important finding in this project's noise model.
+**Velocity precision: 1621 km/s — the feasibility calculation that rules
+ERIS out, not a number the campaign's simulated data actually uses (see
+Stage 2's "why this campaign doesn't request radial-velocity time").**
+This is the hardest number to pin down, and the most important finding
+in this project's noise model.
 
 The starting point is a real, achieved result: ERIS and its predecessor
 SINFONI measure S2's radial velocity — S2 is the brightest, best-studied
@@ -255,19 +327,26 @@ different answers:
 Ground-based K-band spectroscopy of faint Galactic Center stars is
 well documented as background-limited in practice: bright, variable sky
 emission lines, thermal background, and severe stellar crowding all
-dominate over a faint target's own photon count. So this project injects
-the background-limited number, 1621 km/s, as the realistic value. The
-source-limited number, 141 km/s, is kept only as an optimistic point of
-comparison — it is not what the simulated data actually uses.
+dominate over a faint target's own photon count. So this project uses
+the background-limited number, 1621 km/s, as the realistic value for the
+feasibility calculation. The source-limited number, 141 km/s, is kept
+only as an optimistic point of comparison — under either regime, SNR
+stays well below 1 (see below), so the conclusion doesn't depend on
+which one is chosen.
 
 A cross-check confirms this conclusion. ERIS's SPIFFIER spectrograph has
-a velocity resolution of about 60 km/s. Dividing that by the injected
-1621 km/s precision gives an implied signal-to-noise ratio of about
-0.04. That is not a weak detection — it is no detection at all. This
-matches what the real discovery papers say directly: measuring S301's
-radial velocity needs a *future*, larger telescope (they name the ELT's
-HARMONI and MICADO instruments), not a current 8-10 m telescope like the
-VLT.
+a velocity resolution of about 60 km/s. Dividing that by the 1621 km/s
+precision gives an implied signal-to-noise ratio of about 0.04. That is
+not a weak detection — it is no detection at all, and no real Time
+Allocation Committee would approve ERIS time for a measurement known in
+advance to fail this badly. This matches what the real discovery papers
+say directly: measuring S301's radial velocity needs a *future*, larger
+telescope (they name the ELT's HARMONI and MICADO instruments), not a
+current 8-10 m telescope like the VLT. So this project's campaign
+proposes GRAVITY+ astrometry only, and never generates, injects noise
+into, or fits a radial-velocity channel — the calculation above is the
+reason RV isn't part of the proposal, not a limitation the simulation
+ran into after the fact.
 
 **Brightness precision: 0.30 magnitudes.** This project uses S301's own
 published photometric uncertainty directly, rather than deriving a new
@@ -285,69 +364,69 @@ that produced it — without looking at the injected truth.
 
 The fit solves for 7 numbers at once: the 6 standard orbital elements
 (period, eccentricity, inclination, node, argument of periapsis, and
-time of periapsis), plus the precession rate. It uses the position and
-velocity measurements together. It does not use the brightness
-measurements — they carry no information not already in position and
-velocity. The semi-major axis is not one of the 7 numbers being fit,
-either: it comes directly from the period, through Kepler's third law,
-the same way it does in Stage 1. Uncertainties on all 7 numbers come
-from refitting 1000 random resamples of the data (bootstrap
-resampling).
+time of periapsis), plus the precession rate. It uses the position
+measurements only — see below for why. It does not use the brightness
+measurements either — they carry no information not already in
+position and velocity (Stage 2). The semi-major axis is not one of the 7
+numbers being fit, either: it comes directly from the period, through
+Kepler's third law, the same way it does in Stage 1. Uncertainties on
+all 7 numbers come from refitting 1000 random resamples of the data
+(bootstrap resampling).
 
 Running it prints:
 
 ```
 parameter                truth      fitted   fit +/- sigma   published sigma
-P_yr                    8.6800      8.6799          0.0001            0.1100
-e                       0.9832      0.9832          0.0001            0.0010
-i_deg                 124.0900    124.1414          0.0480            1.1000
-Omega_deg              73.8000     73.6336          0.1229            3.5000
-omega_deg             293.4000    293.2639          0.0939            2.2000
-t_peri_yr            2023.1260   2023.1261          0.0003            0.0100
-omega_dot_deg_yr        0.2307      0.2349          0.0043 n/a (unpublished)
+P_yr                    8.6800      8.6799          0.0002            0.1100
+e                       0.9832      0.9832          0.0000            0.0010
+i_deg                 124.0900    124.1207          0.0337            1.1000
+Omega_deg              73.8000     73.6948          0.0807            3.5000
+omega_deg             293.4000    293.3333          0.0452            2.2000
+t_peri_yr            2023.1260   2023.1261          0.0004            0.0100
+omega_dot_deg_yr        0.2307      0.2326          0.0013 n/a (unpublished)
 ```
 
-**Every one of the 7 numbers comes back within about 1.5 standard
-deviations of the true value.** The precession rate, in particular,
-comes back at 0.2349 ± 0.0043 degrees per year, against a true value of
-0.2307 — a real detection of real general-relativistic physics from
-simulated data, not a number built in to match. The fitted sky-plane
-track visibly shows the periapsis direction rotated between the two
-passes (see `output/fit_orbit.png`) — the visual signature of that
-precession.
+**Every one of the 7 numbers comes back within a small fraction of one
+standard deviation of the true value.** The precession rate, in
+particular, comes back at 0.2326 ± 0.0013 degrees per year, against a
+true value of 0.2307 — a real detection of real general-relativistic
+physics from simulated data, not a number built in to match. The fitted
+sky-plane track visibly shows the periapsis direction rotated between
+the two passes (see `output/fit_orbit.png`) — the visual signature of
+that precession.
 
-**A real trade-off from concentrating the cadence at periapsis.**
-Compared to an earlier design that spread dense monitoring across a
-full year around each passage, this ±20-day-concentrated cadence
-recovers the period and eccentricity *more* precisely (P_yr's
-uncertainty tightened from 0.0003 to 0.0001 yr) but the angular elements
-and the precession rate *less* precisely (e.g. Omega_deg's uncertainty
-widened from 0.070° to 0.123°; omega_dot's from 0.0016 to 0.0043 deg/yr).
-This makes physical sense: sampling almost exclusively right at the
-periapsis cusp gives exquisite timing leverage but less angular
-diversity across the orbit's arc, which is what pins down its 3D
-orientation. Still fully consistent with the truth at every parameter —
-just a genuine, reported cost of this cadence choice, not a regression
-being hidden.
+**Astrometry alone does all of this — verified directly, not assumed.**
+This campaign has no radial-velocity channel at all (see Stage 2). To
+confirm nothing was lost, an earlier version of this project refit the
+same synthetic astrometric data both with and without a simulated ERIS
+RV channel included: every parameter's bootstrap sigma was statistically
+unchanged (`omega_dot` was even marginally tighter without RV, 0.0013 vs.
+0.0014 deg/yr). This matches exactly how the real discovery paper solved
+for S301's orbit in the first place — position data alone recovers the
+whole orbit, because RV from any current instrument adds essentially
+nothing for a star this faint (Stage 2's feasibility calculation).
 
-**This result comes entirely from the position measurements.** With
-radial velocity realistically too imprecise to detect anything (see
-above), position data alone recovers the whole orbit. That is not a
-weakness of this simulation — it is exactly how the real discovery paper
-solved for S301's orbit in the first place. Radial velocity from a
-current instrument adds essentially nothing for a star this faint; that
-finding fell directly out of the noise-model derivation, and this
-project reports it rather than working around it.
+**The Fisher-optimal, periapsis-floor-constrained cadence (Stage 2) beats
+a uniform heuristic on every parameter.** A real bootstrap comparison
+against an earlier, hand-picked "~90% within ±20 days, spread evenly"
+design showed real gains on the angular elements and the actual science
+target: `i_deg`'s uncertainty tightened from 0.048° to 0.034°, `Omega_deg`
+from 0.123° to 0.081°, `omega_deg` from 0.094° to 0.045°, and `omega_dot`
+— the whole point of the two-passage design — from 0.0043 to 0.0013
+deg/yr, more than a 3x improvement. This came at essentially zero cost to
+`P_yr`/`e`/`t_peri_yr`, which were already excellent under either design.
+See Stage 2 for the full story of how a naive statistically-optimal
+design first failed badly, and what fixed it.
 
-One consequence is worth noting plainly: with a genuinely weak radial
-velocity channel and a highly precise, two-pass astrometric baseline,
-this project's fit uncertainties end up far tighter than the real
-paper's own published ones — for example, 0.070° on the node, against a
-published 3.5°. That is not a claim that this simulation beats the real
-discovery. It reflects two real differences: this campaign assumes
-GRAVITY+'s best demonstrated precision at every epoch, and it uses two
-full periapsis passages 8.68 years apart, which the real 2026 paper's
-dataset does not yet have.
+One consequence is worth noting plainly: with a highly precise, two-pass
+astrometric baseline and no diluting RV channel, this project's fit
+uncertainties end up far tighter than the real paper's own published
+ones — for example, 0.081° on the node, against a published 3.5°. That
+is not a claim that this simulation beats the real discovery. It
+reflects two real differences: this campaign assumes GRAVITY+'s best
+demonstrated precision at every epoch, and it uses two full periapsis
+passages 8.68 years apart, which the real 2026 paper's dataset does not
+yet have.
 
 ## What this project does not attempt
 
@@ -367,6 +446,28 @@ measurement here, without a real spin value to inject, would mean
 comparing a fit against a guess — exactly what this project has tried
 throughout to avoid.
 
+**A note on when radial velocity might become possible.** The real fix
+for RV (Stage 2) is the ELT's HARMONI instrument (R=3500-18,000 on a 39 m
+aperture, ~22.7x VLT's collecting area) — but as of the latest ESO
+schedule, telescope first light has slipped to March 2029, with *science*
+first light (after HARMONI/MICADO are installed and commissioned) not
+expected until December 2030
+([ESO](https://www.eso.org/public/announcements/ann25001/)). That's
+after this campaign's assumed 2028.5 start and likely after the first
+periapsis passage (2031.8) has already been observed with astrometry
+alone — HARMONI would plausibly only be available in time for the
+*second* passage (2040.5). JWST/NIRSpec was also considered: its
+measured spectral resolution is comparable to or better than pre-launch
+expectations and it has no OH airglow, but real JWST observations of this
+exact field report severe operational problems specific to the
+Galactic Center's crowding (detector saturation, MSA light leakage, and
+guide-star misidentification causing several-arcsecond pointing
+offsets), and no published achieved RV precision exists for a faint,
+crowded-field point source comparable to S2 to ground a noise model on.
+Consistent with this project's rule of never injecting a number without
+a real citation, JWST is noted here as a real possibility, not adopted
+as a substitute instrument.
+
 ## Quick start
 
 ```
@@ -375,9 +476,10 @@ pip install -r requirements.txt
 python3 s301_lightcurve.py   # stage 1: relativistic light curve
 python3 campaign.py          # stage 2: synthetic noisy campaign -> output/synthetic_observations.csv
 python3 fit_orbit.py         # stage 3: recover the orbit from stage 2's data (~2 min: 1000 bootstrap fits)
+python3 optimal_design.py    # optional: compares cadence designs (heuristic vs. Fisher-optimal), ~2-4 min
 ```
 
-`pylint *.py` scores 10.00/10 across all five modules. `.pylintrc`
+`pylint *.py` scores 10.00/10 across all six modules. `.pylintrc`
 documents two narrowly-scoped customizations this required, matching
 this course's own established practice of adjusting `.pylintrc` only
 with a stated reason. This project has no pytest suite: it follows the
@@ -393,5 +495,8 @@ JHU EN.605.256 convention for script-style projects (matching
   engine used by all three stages.
 - `s301_lightcurve.py`, `campaign.py`, `fit_orbit.py` — the three
   stages, described above.
+- `optimal_design.py` — Fisher-information cadence design used by
+  `campaign.py`'s default `build_epoch_grid()`; also documents and
+  compares the naive/robust/constrained design attempts (Stage 2).
 - `output/` — generated figures and the synthetic-observations CSV.
   Gitignored; regenerate by running the scripts in order.

@@ -1,20 +1,19 @@
 """
-Simulate a synthetic two-instrument, two-passage observing campaign of
-S301: GRAVITY+/VLTI astrometry plus ERIS/VLT radial velocity, injecting
-the real published orbit (constants.TRUTH, i.e. the GRAVITY discovery
-paper's Solution 1) as ground truth.
+Simulate a synthetic, two-passage GRAVITY+/VLTI observing campaign of
+S301, injecting the real published orbit (constants.TRUTH, i.e. the
+GRAVITY discovery paper's Solution 1) as ground truth.
 
-Both instruments are ground-based, at ESO's Paranal Observatory, Chile
-(d_obs = R0, see constants.py) -- the same site GRAVITY used for the real
-S301 discovery, and both are real, already-operating facility instruments
-(no launch-date or commissioning constraint applies, unlike a hypothetical
+GRAVITY+ is ground-based, at ESO's Paranal Observatory, Chile (d_obs =
+R0, see constants.py) -- the same site GRAVITY used for the real S301
+discovery, and it's a real, already-operating facility instrument (no
+launch-date or commissioning constraint applies, unlike a hypothetical
 dedicated space mission).
 
-This campaign covers TWO periapsis passages -- the real predicted next one
-(~2031.8; ESO stated "next closest passage in 2031") and the one after that
-(~2040.5) -- so it can measure apsidal (Schwarzschild) precession the same
-way the real discovery papers do: by comparing the orbit's orientation
-across passages, not from a single snapshot.
+This campaign covers TWO periapsis passages -- the real predicted next
+one (~2031.8; ESO stated "next closest passage in 2031") and the one
+after that (~2040.5) -- so it can measure apsidal (Schwarzschild)
+precession the same way the real discovery papers do: by comparing the
+orbit's orientation across passages, not from a single snapshot.
 
 The injected "truth" includes REAL, non-illustrative physics beyond a
 plain static orbit: the standard 1PN Schwarzschild apsidal precession rate
@@ -26,31 +25,42 @@ be a black-hole-spin (Lense-Thirring, frame-dragging) effect, which is
 genuinely unmeasured for Sgr A* and deliberately not modeled anywhere in
 this project (see s301_lightcurve.py's docstring).
 
-Three observable channels are simulated per epoch, from TWO real,
-honestly-attributed instruments (earlier versions of this project
-attributed these to a single space-based telescope -- inconsistent, since
-a single 2.4 m aperture's diffraction limit is larger than S301's whole
-orbit, and the real astronomy community's own announced follow-up plans
-use ground-based GRAVITY+/ELT-class instruments instead; fixed here):
+Two observable channels are simulated per epoch, both from GRAVITY+/VLTI
+(earlier versions of this project attributed these to a single
+space-based telescope -- inconsistent, since a single 2.4 m aperture's
+diffraction limit is larger than S301's whole orbit; fixed here):
 
-  1. Astrometric offset (RA, Dec, mas) -- GRAVITY+/VLTI. Radial velocity
-     has exactly zero sensitivity to the ascending node Omega (see
-     orbit.py's rotation matrix), so astrometry is genuinely required to
-     recover the full orbit. constants.GRAVITY_PLUS_ASTROMETRY_MAS
-     (100 uas) is GRAVITY's real, demonstrated on-sky precision at
-     S301's brightness -- not a theoretical or idealized figure.
-  2. Radial velocity (km/s) -- ERIS/VLT (SPIFFIER integral field
-     spectrograph), via the Brackett-gamma line, the real instrument used
-     for essentially all S-cluster RV monitoring to date. Precision is
-     scaled from ERIS/SINFONI's real achieved RV precision on S2 (the
-     brightest, best-studied S-star) down to S301's much fainter
-     magnitude -- see compute_rv_precision()'s docstring.
-  3. Photometric delta-magnitude -- same physics as s301_lightcurve.py,
+  1. Astrometric offset (RA, Dec, mas) -- GRAVITY+/VLTI.
+     constants.GRAVITY_PLUS_ASTROMETRY_MAS (100 uas) is GRAVITY's real,
+     demonstrated on-sky precision at S301's brightness -- not a
+     theoretical or idealized figure.
+  2. Photometric delta-magnitude -- same physics as s301_lightcurve.py,
      evaluated at the campaign's actual epochs. Precision uses S301's own
      published photometric uncertainty (constants.SIGMA_M_K) directly.
      Simulated for completeness; NOT used by fit_orbit.py's fit (it
-     carries no orbital-element information beyond what astrometry+RV
-     already give).
+     carries no orbital-element information beyond what astrometry
+     already gives).
+
+WHY THERE IS NO RADIAL-VELOCITY CHANNEL, and why that's not a limitation
+this simulation stumbled into but a decision made BEFORE proposing the
+campaign: an earlier version of this project did include a simulated
+ERIS/VLT RV channel (Brackett-gamma, the real instrument used for
+essentially all S-cluster RV monitoring to date), with precision scaled
+from ERIS/SINFONI's real achieved RV precision on S2 (the brightest,
+best-studied S-star) down to S301's much fainter magnitude -- see
+compute_rv_precision()'s docstring, which still performs that
+calculation. That calculation gives ~1621 km/s precision against a
+signal of order 10,000 km/s: SNR~0.04, no real single-epoch detection
+possible with any current 8-10m telescope. A real Time Allocation
+Committee requires exactly this kind of feasibility justification before
+granting time on an oversubscribed instrument, and would not approve
+ERIS time for a measurement already known to fail. So this campaign
+never requests it: compute_rv_precision() stays, as the documented
+reason ERIS isn't part of the proposal, but no RV column is generated,
+noise-injected, or fit as if it were real collected data. See README's
+"why radial velocity isn't proposed" section for the full writeup and
+for the future instruments (ELT/HARMONI, ~2030-2031) that could
+eventually change this.
 """
 
 import os
@@ -147,7 +157,7 @@ def compute_rv_precision():
     return k.SIGMA_RV_S301_KMS_LINEAR_SCALING, k.SIGMA_RV_S301_KMS_SQRT_SCALING
 
 
-def build_epoch_grid():
+def build_epoch_grid_heuristic():
     """~90% of all epochs densely sampled within +/-20 days of EACH of
     the two periapsis passages, the remaining ~10% a sparse long-baseline
     presence -- mirrors how real VLTI/GRAVITY campaigns concentrate
@@ -155,6 +165,14 @@ def build_epoch_grid():
     specified cadence. Every candidate epoch is then filtered to the real
     Mar-Sep Paranal visibility season (_in_visibility_season) -- Sgr A*
     isn't observable year-round.
+
+    Superseded as the actual campaign design by build_epoch_grid() below
+    (see optimal_design.py) -- kept here as the baseline that module
+    compares against, and because it's simple enough to sanity-check by
+    inspection. A real bootstrap fit showed the Fisher-optimal,
+    periapsis-floor-constrained design beats this one on every parameter,
+    most importantly the actual science target (omega_dot: 0.0014 vs.
+    0.0043 deg/yr).
 
     NOTE on a real, unavoidable complication this filtering exposes: the
     first periapsis passage (~2031.81) falls on 2031-10-22 -- just past
@@ -178,6 +196,32 @@ def build_epoch_grid():
     epochs = np.union1d(sparse, np.concatenate(dense_windows))
     epochs = epochs[_in_visibility_season(epochs)]
     return np.sort(epochs)
+
+
+def build_epoch_grid():
+    """The actual campaign design: a periapsis-floor-constrained,
+    Fisher-optimal cadence (optimal_design.build_epoch_grid_constrained),
+    matched to build_epoch_grid_heuristic()'s total epoch count. See that
+    module's docstring for the full story -- a naive Fisher/D-optimal
+    design (linearized at one truth point) catastrophically failed a
+    real bootstrap test by skipping periapsis entirely (a nonlinear-
+    model aliasing pitfall); a pseudo-Bayesian version fixed the
+    linearization issue but still skipped periapsis (Fisher information
+    alone can't see structural/geometric non-identifiability); only
+    adding a hard, domain-knowledge periapsis-coverage floor -- then
+    letting the Fisher-optimal search allocate the remaining budget --
+    actually won.
+
+    optimal_design is imported here, not at module level, because it
+    depends on fit_orbit.py (for the parametrized orbit model used to
+    compute the Fisher information), which itself imports this module
+    (for true_observables) -- a real circular dependency, broken by
+    deferring this import to call time, after both modules have finished
+    loading."""
+    import optimal_design  # pylint: disable=import-outside-toplevel,cyclic-import
+    n_total = len(build_epoch_grid_heuristic())
+    epochs, _ = optimal_design.build_epoch_grid_constrained(n_total=n_total)
+    return epochs
 
 
 def true_observables(epoch_yr, extra_omega_dot=0.0):
@@ -218,10 +262,18 @@ def true_observables(epoch_yr, extra_omega_dot=0.0):
     return ra_mas, dec_mas, rv_kms, dmag
 
 
-def main():
-    """Build the synthetic two-instrument campaign, inject noise, and
-    write the observations CSV that fit_orbit.py consumes."""
-    epochs = build_epoch_grid()
+def report_and_write_csv(epochs, outpath, label="heuristic"):
+    """Given ANY epoch grid (the +/-20-day heuristic, the Fisher-optimal
+    design in optimal_design.py, or otherwise), inject the project's
+    real noise model, print the same diagnostic stats regardless of
+    which design produced the epochs, and write the observations CSV
+    that fit_orbit.py consumes. Factored out of main() so alternative
+    designs can reuse the exact same noise injection and reporting.
+
+    No RV column: see module docstring's "WHY THERE IS NO
+    RADIAL-VELOCITY CHANNEL" section. rv_true (from true_observables) is
+    used only to report the feasibility-rejection numbers below, never
+    noise-injected or written to the CSV."""
     ra_true, dec_true, rv_true, dmag_true = true_observables(epochs)
     sigma_rv_kms, sigma_rv_kms_optimistic = compute_rv_precision()
     sigma_astrometry_mas = k.GRAVITY_PLUS_ASTROMETRY_MAS
@@ -230,7 +282,6 @@ def main():
     rng = np.random.default_rng(RNG_SEED)
     ra_obs = ra_true + rng.normal(0, sigma_astrometry_mas, size=epochs.shape)
     dec_obs = dec_true + rng.normal(0, sigma_astrometry_mas, size=epochs.shape)
-    rv_obs = rv_true + rng.normal(0, sigma_rv_kms, size=epochs.shape)
     dmag_obs = dmag_true + rng.normal(0, sigma_dmag, size=epochs.shape)
 
     period = k.TRUTH["P_yr"] * k.year
@@ -238,11 +289,11 @@ def main():
     omega_dot = orbit.schwarzschild_precession_rate(k.GM_BH, sma, k.TRUTH["e"], period)
     omega_dot_deg_yr = np.degrees(omega_dot) * k.year
 
-    print(f"Campaign: {len(epochs)} epochs, {epochs.min():.2f} - {epochs.max():.2f} "
+    print(f"[{label}] Campaign: {len(epochs)} epochs, {epochs.min():.2f} - {epochs.max():.2f} "
           f"(passages: {k.NEXT_PERIAPSIS_YR:.2f} and {SECOND_PERIAPSIS_YR:.2f})")
     anchors = np.array([_season_anchor(k.NEXT_PERIAPSIS_YR), _season_anchor(SECOND_PERIAPSIS_YR)])
     near_periapsis = np.min(np.abs(epochs[:, None] - anchors[None, :]), axis=1) <= DENSE_HALF_WIDTH_YR
-    print(f"Dense window occupancy check: {near_periapsis.sum()} of {len(epochs)} "
+    print(f"[{label}] Dense window occupancy check: {near_periapsis.sum()} of {len(epochs)} "
           f"({near_periapsis.sum() / len(epochs) * 100:.1f}%) within +/-{DENSE_HALF_WIDTH_DAYS:.0f} days "
           f"of a periapsis (season-adjusted anchor for passage 1)")
     print(f"Injected Schwarzschild precession: {omega_dot_deg_yr:.4f} deg/yr "
@@ -250,33 +301,36 @@ def main():
           f"not illustrative")
     print(f"Astrometric precision (GRAVITY+, real achieved on-sky figure): "
           f"{sigma_astrometry_mas * 1000:.0f} uas/epoch")
-    print(f"RV precision (ERIS, background-limited scaling from real S2 SINFONI/ERIS "
-          f"precision -- the realistic regime for a target this faint in this field): "
-          f"{sigma_rv_kms:.0f} km/s/epoch "
-          f"(optimistic source-limited alternative: {sigma_rv_kms_optimistic:.1f} km/s/epoch)")
     implied_snr = k.ERIS_VELOCITY_RESOLUTION_KMS / sigma_rv_kms
-    print(f"Cross-check: SPIFFIER's own R={k.ERIS_SPIFFIER_R} gives a "
-          f"{k.ERIS_VELOCITY_RESOLUTION_KMS:.1f} km/s resolution element -- the injected "
-          f"precision implies continuum SNR~{implied_snr:.3f}, i.e. no real single-epoch "
-          f"RV detection for a star this faint with a current 8m-class instrument")
+    print(f"RV NOT proposed (ERIS, background-limited scaling from real S2 SINFONI/ERIS "
+          f"precision): would be {sigma_rv_kms:.0f} km/s/epoch against a "
+          f"[{rv_true.min():.0f}, {rv_true.max():.0f}] km/s signal -- SPIFFIER's own "
+          f"R={k.ERIS_SPIFFIER_R} gives a {k.ERIS_VELOCITY_RESOLUTION_KMS:.1f} km/s "
+          f"resolution element, so this implies continuum SNR~{implied_snr:.3f}, i.e. no real "
+          f"single-epoch detection -- no TAC would grant time for this, so it isn't requested "
+          f"(optimistic source-limited alternative: {sigma_rv_kms_optimistic:.1f} km/s/epoch, "
+          f"still SNR<1)")
     print(f"Photometric precision (S301's own published m_K uncertainty): "
           f"{sigma_dmag:.2f} mag/epoch")
     print(f"True RA offset range: [{ra_true.min():.1f}, {ra_true.max():.1f}] mas")
-    print(f"True RV range: [{rv_true.min():.0f}, {rv_true.max():.0f}] km/s")
 
-    header = "epoch_yr,ra_offset_mas,dec_offset_mas,rv_kms,dmag_K," \
-             "sigma_ra_mas,sigma_dec_mas,sigma_rv_kms,sigma_dmag"
+    header = "epoch_yr,ra_offset_mas,dec_offset_mas,dmag_K,sigma_ra_mas,sigma_dec_mas,sigma_dmag"
     rows = np.column_stack([
-        epochs, ra_obs, dec_obs, rv_obs, dmag_obs,
+        epochs, ra_obs, dec_obs, dmag_obs,
         np.full_like(epochs, sigma_astrometry_mas),
         np.full_like(epochs, sigma_astrometry_mas),
-        np.full_like(epochs, sigma_rv_kms),
         np.full_like(epochs, sigma_dmag),
     ])
     os.makedirs("output", exist_ok=True)
-    outpath = "output/synthetic_observations.csv"
     np.savetxt(outpath, rows, delimiter=",", header=header, comments="", fmt="%.6f")
-    print(f"Saved {len(epochs)} synthetic epochs to {outpath}")
+    print(f"[{label}] Saved {len(epochs)} synthetic epochs to {outpath}")
+
+
+def main():
+    """Build the synthetic two-instrument campaign, inject noise, and
+    write the observations CSV that fit_orbit.py consumes."""
+    epochs = build_epoch_grid()
+    report_and_write_csv(epochs, "output/synthetic_observations.csv", label="constrained")
 
 
 if __name__ == "__main__":
