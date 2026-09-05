@@ -96,7 +96,12 @@ D_OBS = D_OBS_PC * pc
 # filter): 1.98-2.40 um, covering the full atmospheric K window. This is
 # the real instrument's own bandpass, used both for S301's published
 # m_K=19.3 and for the s301_lightcurve.py light-curve simulation.
-# Source: ESO VLTI/GRAVITY instrument page.
+# Source: GRAVITY Collaboration, Abuter, R., et al. 2017, A&A, 602, A94,
+# "First light for GRAVITY: Phase referencing optical interferometry for
+# the Very Large Telescope Interferometer" (arXiv:1705.02345).
+# CORRECTED 2026-09-05: previously cited only vaguely as "ESO VLTI/
+# GRAVITY instrument page" with no locatable source -- caught during the
+# same citation audit that found the SINFONI mis-citation above.
 KS_RANGE = (1.98e-6, 2.40e-6)     # m
 KS_LAMBDA0 = sum(KS_RANGE) / 2    # m, ~2.19 um
 KS_FWHM = KS_RANGE[1] - KS_RANGE[0]   # m, ~0.42 um
@@ -135,8 +140,8 @@ GRAVITY_PLUS_ASTROMETRY_MAS = 0.1   # 100 uas
 # (as opposed to its R~8000-11000 half-band modes): the full band is
 # needed here because S301's own velocity swings by ~8% c, enough to
 # Doppler-shift a line most of the way across a half-band setting.
-# Source: A&A 2023 ("The Enhanced Resolution Imager and Spectrograph
-# for the VLT").
+# Source: Davies, R. I., et al. 2023, A&A, 674, A207, "The Enhanced
+# Resolution Imager and Spectrograph for the VLT" (arXiv:2304.02343).
 ERIS_SPIFFIER_R = 5000
 ERIS_VELOCITY_RESOLUTION_KMS = (c / ERIS_SPIFFIER_R) / 1e3   # ~60 km/s per resolution element
 
