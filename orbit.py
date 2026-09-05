@@ -43,21 +43,81 @@ class OrbitalElements(NamedTuple):
 
 
 def solve_kepler(mean_anomaly, ecc, tol=1e-12, max_iter=200):
-    """Newton-Raphson solve of Kepler's equation M = E - e*sin(E) for E.
+    """Bisection-safeguarded Newton-Raphson solve of Kepler's equation
+    M = E - e*sin(E) for E.
 
     mean_anomaly: array (radians), any real value (wrapped internally).
     ecc: scalar eccentricity, 0 <= ecc < 1.
-    """
+
+    Plain, unsafeguarded Newton-Raphson from E0=M -- this function's
+    original implementation -- CATASTROPHICALLY DIVERGES for a subset of
+    ordinary (M, ecc) pairs at high eccentricity: verified directly for
+    S301's own e=0.9832 at M=0.2185 rad, an unremarkable value, where the
+    naive iteration blows up to E~1e13 and never recovers even given the
+    full 200-iteration budget, rather than converging to the true root
+    near E=1.1. This wasn't visible in this project's own campaign
+    (every real epoch's mean anomaly happened to avoid the divergent
+    region for the true orbital elements -- checked directly, residuals
+    ~1e-15), but a nonlinear optimizer exploring nearby trial parameters
+    (exactly what fitting does) can and does land on such values,
+    silently returning wrong positions with no error raised. This is a
+    well-documented failure mode of undamped Newton-Raphson on Kepler's
+    equation at high eccentricity, not specific to any one script here.
+
+    The fix: g(E) = E - e*sin(E) - M is strictly monotonic increasing
+    (g'(E) = 1 - e*cos(E) > 0 for e<1), so a bracket containing the root
+    is known a priori from M = E - e*sin(E): E lies in [M-e, M+e] since
+    |e*sin(E)| <= e. Each iteration takes a Newton step when it stays
+    within the current bracket (fast, quadratic convergence in the
+    common case) and falls back to bisection when it would not (which
+    can never fail to make progress) -- a standard, globally convergent
+    safeguard that costs nothing in the well-behaved case verified
+    elsewhere in this project (identical results to machine precision)
+    and fixes the divergent one."""
     mean_anomaly = np.asarray(mean_anomaly, dtype=float)
     wrapped = np.mod(mean_anomaly + np.pi, 2 * np.pi) - np.pi
+
+    lo = wrapped - ecc
+    hi = wrapped + ecc
     ecc_anom = wrapped.copy()
+    converged = np.zeros_like(ecc_anom, dtype=bool)
+
     for _ in range(max_iter):
-        residual = ecc_anom - ecc * np.sin(ecc_anom) - wrapped
-        slope = 1 - ecc * np.cos(ecc_anom)
-        step = residual / slope
-        ecc_anom = ecc_anom - step
-        if np.max(np.abs(step)) < tol:
+        active = ~converged
+        if not np.any(active):
             break
+        e_act = ecc_anom[active]
+        wrapped_act = wrapped[active]
+        lo_act, hi_act = lo[active], hi[active]
+
+        resid = e_act - ecc * np.sin(e_act) - wrapped_act
+        slope = 1 - ecc * np.cos(e_act)
+        newton_candidate = e_act - resid / slope
+        # Reject a Newton step that leaves the bracket OR fails to narrow it
+        # at all (the degenerate case where the bracket's own midpoint
+        # equals the current point, e.g. on the very first iteration,
+        # since lo/hi are symmetric about the initial guess) -- either way,
+        # fall back to bisection, which always narrows the bracket.
+        bisect_candidate = 0.5 * (lo_act + hi_act)
+        in_bracket = (newton_candidate > lo_act) & (newton_candidate < hi_act)
+        candidate = np.where(in_bracket, newton_candidate, bisect_candidate)
+
+        g_candidate = candidate - ecc * np.sin(candidate) - wrapped_act
+        # g monotonic increasing: g(candidate) <= 0 -> root is >= candidate (new lo);
+        # g(candidate) >= 0 -> root is <= candidate (new hi).
+        neg = g_candidate <= 0
+        lo[active] = np.where(neg, candidate, lo_act)
+        hi[active] = np.where(neg, hi_act, candidate)
+        ecc_anom[active] = candidate
+
+        # Convergence via bracket width, not step size: a bisection step
+        # can legitimately leave the point unmoved-looking in edge cases
+        # while still having narrowed (or being about to narrow) the
+        # bracket, so bracket width is the robust criterion here.
+        newly_converged = (hi[active] - lo[active]) < tol
+        idx_active = np.flatnonzero(active)
+        converged[idx_active[newly_converged]] = True
+
     # shift back by the same number of 2*pi windings removed above
     return ecc_anom + (mean_anomaly - wrapped)
 

@@ -369,7 +369,7 @@ def fit_and_report(csv_path, label):
         data["sigma_ra_mas"], data["sigma_dec_mas"], x0=x0,
     )
     print(f"\n[{label}] Running {fit_orbit.N_BOOTSTRAP} bootstrap resamples...")
-    fit_sigma = fit_orbit.bootstrap_uncertainty(data, best_fit)
+    fit_sigma = fit_orbit.bootstrap_samples(data, best_fit).std(axis=0)
     print(f"[{label}] fit results:")
     fit_orbit.print_comparison(best_fit, fit_sigma)
     return best_fit, fit_sigma

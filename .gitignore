@@ -2,3 +2,8 @@ __pycache__/
 *.pyc
 .venv/
 output/
+*.aux
+*.bbl
+*.blg
+*.log
+*.out

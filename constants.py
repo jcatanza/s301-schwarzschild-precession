@@ -180,3 +180,32 @@ M_K_S2 = 14.0   # S2's real, well-established apparent K magnitude
 _DELTA_M_S301_S2 = M_K_APPARENT - M_K_S2
 SIGMA_RV_S301_KMS_LINEAR_SCALING = SIGMA_RV_S2_KMS * 10 ** (0.4 * _DELTA_M_S301_S2)
 SIGMA_RV_S301_KMS_SQRT_SCALING = SIGMA_RV_S2_KMS * 10 ** (0.2 * _DELTA_M_S301_S2)
+
+# HARMONI/ELT RV feasibility, extending the SAME background-limited
+# regime above -- NOT a new assumption, a consistency extension of it.
+# In that regime (background flux per resolution element set by the
+# diffraction-limited PSF core, source flux set by collecting area),
+# S/N scales as aperture area (D^2) rather than sqrt(area), because a
+# larger, equally diffraction-limited aperture both collects more source
+# photons AND concentrates them into a smaller solid angle, collecting
+# proportionally less background -- the same physical mechanism already
+# invoked above to justify linear-in-flux (not sqrt) scaling with
+# magnitude. Velocity precision (~ resolution element / S/N) then scales
+# as 1/(R * D^2). D_ELT=39 m, D_ERIS=8.2 m (VLT UT); R_HARMONI=17385 is
+# the closest real match to GRAVITY's own K-band range (1.98-2.40 um),
+# using HARMONI's high-resolution K-short + K-long modes together
+# (Thatte, N., et al. 2024, Proc. SPIE, 13096, 1309614, "HARMONI at ELT:
+# project status and instrument overview," doi:10.1117/12.3018520).
+#
+# UNLIKE every other RV number in this project, this one scales a real
+# ACHIEVED result to a hypothetical FUTURE instrument, not to a fainter
+# target on already-operating hardware -- HARMONI has not observed
+# anything yet, so its actual achieved Strehl ratio, sky background, and
+# AO correction quality remain unverified assumptions, not measurements.
+# Treat this as indicative of the right order of magnitude, not a
+# proposal-ready sensitivity estimate.
+D_ERIS_M = 8.2
+D_ELT_M = 39.0
+HARMONI_K_HIGH_R = 17385
+_HARMONI_SCALING_VS_ERIS = (ERIS_SPIFFIER_R / HARMONI_K_HIGH_R) * (D_ERIS_M / D_ELT_M) ** 2
+SIGMA_RV_S301_KMS_HARMONI_ELT = SIGMA_RV_S301_KMS_LINEAR_SCALING * _HARMONI_SCALING_VS_ERIS

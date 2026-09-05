@@ -45,6 +45,12 @@ FPS = 30
 REAL_CAMPAIGN_ORBIT_INDICES = (1, 2)
 
 
+# pylint: disable=duplicate-code
+# Necessarily near-identical to s301_lightcurve.py's own
+# build_truth_elements() -- both build the same constants.TRUTH orbit --
+# differing only in that this one also returns period; no shared
+# "truth-orbit" utility module in this project is worth introducing for
+# this handful of lines, per fit_orbit.py's own duplicate-code note.
 def build_truth_elements():
     """The real published orbit (constants.TRUTH), matching every other
     script in this project."""
@@ -54,6 +60,7 @@ def build_truth_elements():
         t_peri=0.0, period=period, ecc=k.TRUTH["e"], sma=sma,
         i_deg=k.TRUTH["i_deg"], raan_deg=k.TRUTH["Omega_deg"], omega_deg=k.TRUTH["omega_deg"],
     ), sma, period
+# pylint: enable=duplicate-code
 
 
 def build_trajectory():
@@ -79,6 +86,10 @@ def build_trajectory():
     return epoch_yr, ra_mas, dec_mas, orbit_index, omega_dot
 
 
+# pylint: disable=too-many-locals
+# make_movie() sets up the whole animation (figure, artists, update
+# closure) in one place; splitting it up would scatter tightly-coupled
+# matplotlib setup across functions for no real gain in clarity.
 def make_movie(outpath="output/s301_precession.mp4"):
     """Render and save the animation."""
     epoch_yr, ra_mas, dec_mas, orbit_index, omega_dot = build_trajectory()
@@ -86,9 +97,19 @@ def make_movie(outpath="output/s301_precession.mp4"):
     is_real_campaign = np.isin(orbit_index, REAL_CAMPAIGN_ORBIT_INDICES)
 
     fig, ax = plt.subplots(figsize=(8, 8))
-    margin = 1.08
-    ax.set_xlim(np.max(ra_mas) * margin, np.min(ra_mas) * margin)   # inverted RA, like other figures
-    ax.set_ylim(np.min(dec_mas) * margin, np.max(dec_mas) * margin)
+    # Additive margin (a fraction of the actual data RANGE), not a multiplicative
+    # scaling of the raw min/max -- this orbit's Dec max is small and near zero
+    # (apoapsis-to-periapsis asymmetry means the top of the track sits just a
+    # few mas above Sgr A*), so a multiplicative margin left almost no room at
+    # the top, letting the legend sit directly on top of the periapsis
+    # convergence point and making the real, smooth cusp there look "kinked."
+    ra_range = np.max(ra_mas) - np.min(ra_mas)
+    dec_range = np.max(dec_mas) - np.min(dec_mas)
+    margin_frac = 0.08
+    ax.set_xlim(np.max(ra_mas) + margin_frac * ra_range,
+                np.min(ra_mas) - margin_frac * ra_range)   # inverted RA, like other figures
+    ax.set_ylim(np.min(dec_mas) - margin_frac * dec_range,
+                np.max(dec_mas) + margin_frac * dec_range)
     ax.set_aspect("equal")
     ax.set_xlabel("RA offset (mas)")
     ax.set_ylabel("Dec offset (mas)")
@@ -113,7 +134,11 @@ def make_movie(outpath="output/s301_precession.mp4"):
     real_lc = LineCollection([], colors="none", linewidths=3.2, alpha=0.95, zorder=3)
     ax.add_collection(real_lc)
     comet, = ax.plot([], [], "o", color="#d62728", ms=9, zorder=6, label="S301")
-    ax.legend(loc="upper right", fontsize=8)
+    # "lower right" (in data terms: least-negative RA, most-negative Dec) is
+    # empty of trajectory for this orbit's geometry, unlike "upper right"
+    # which sat directly on top of the periapsis convergence point near
+    # Sgr A* -- see the additive-margin fix above for why that mattered.
+    ax.legend(loc="lower right", fontsize=8)
 
     points = np.column_stack([ra_mas, dec_mas]).reshape(-1, 1, 2)
     segments_all = np.concatenate([points[:-1], points[1:]], axis=1)
