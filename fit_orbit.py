@@ -1,0 +1,318 @@
+"""
+Recover S301's orbital elements from the synthetic noisy two-instrument
+campaign (output/synthetic_observations.csv, produced by campaign.py:
+GRAVITY+/VLTI for astrometry, ERIS/VLT for RV+photometry), and compare the
+recovered values against both the injected truth and the real published
+solution (they're the same thing here: constants.TRUTH IS the paper's
+Solution 1) -- this checks that the fitting pipeline itself is sound.
+
+Method: nonlinear least squares (Levenberg-Marquardt via
+scipy.optimize.least_squares) on 7 parameters -- the 6 Keplerian elements
+(P, e, i, Omega, omega, t_peri) plus omega_dot, the apsidal precession
+rate -- fit jointly to the astrometric (RA, Dec) and radial-velocity
+channels across BOTH periapsis passages in campaign.py's two-passage
+dataset. The semi-major axis is NOT an independent fit parameter -- it's
+derived from (GM_BH, P) via Kepler's third law
+(orbit.semi_major_axis_from_period), consistent with how it's treated
+everywhere else in this project. omega_deg is the argument of periapsis
+AT the fitted t_peri epoch (orbit.orbit_state_precessing's t_ref); this
+keeps the model self-contained -- it never references constants.TRUTH,
+only its own 7 free parameters.
+
+omega_dot's recovered value is compared against
+orbit.schwarzschild_precession_rate's real analytic prediction (~0.23
+deg/yr for S301) -- a genuine physics check, not a fit against an
+injected/illustrative number: this is the actual real-GR value the
+campaign's truth was generated with.
+
+Photometry (dmag_K) is simulated by campaign.py but deliberately not
+used here: it's driven by the same (r, v_los) the astrometry+RV channels
+already constrain, so it adds no independent orbital-element information
+for this exercise.
+
+Parameter uncertainties are estimated via bootstrap resampling of the
+observation epochs (with replacement), refitting each resample --
+matching this project's own established bootstrap-uncertainty convention
+used elsewhere in this coursework.
+
+A known, real limitation reproduced here: radial velocity is completely
+insensitive to the longitude of the ascending node (Omega) -- it only
+affects how the orbit is oriented on the sky, never the line-of-sight
+speed. Without the astrometric channel, Omega would be entirely
+unconstrained; this is exactly why the real S301 discovery needed
+GRAVITY's astrometric interferometry, not spectroscopy alone.
+"""
+
+import os
+
+os.environ.setdefault("MPLBACKEND", "Agg")
+
+# pylint: disable=wrong-import-position
+# matplotlib's backend must be set (above) before pyplot is imported.
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import least_squares
+
+import campaign
+import constants as k
+import orbit
+# pylint: enable=wrong-import-position
+
+N_BOOTSTRAP = 1000
+RNG_SEED = 301
+
+_PERIOD_SEC = k.TRUTH["P_yr"] * k.year
+_SMA_M = orbit.semi_major_axis_from_period(k.GM_BH, _PERIOD_SEC)
+TRUE_OMEGA_DOT_DEG_YR = np.degrees(
+    orbit.schwarzschild_precession_rate(k.GM_BH, _SMA_M, k.TRUTH["e"], _PERIOD_SEC)) * k.year
+
+PARAM_NAMES = ["P_yr", "e", "i_deg", "Omega_deg", "omega_deg", "t_peri_yr", "omega_dot_deg_yr"]
+TRUTH_VECTOR = np.array([
+    k.TRUTH["P_yr"], k.TRUTH["e"], k.TRUTH["i_deg"],
+    k.TRUTH["Omega_deg"], k.TRUTH["omega_deg"], k.TRUTH["t_peri_yr"],
+    TRUE_OMEGA_DOT_DEG_YR,
+])
+# omega_dot has no published-paper sigma to compare against (not reported
+# in the press-level sources this project could access) -- NaN prints as
+# "n/a" in the comparison table.
+PUBLISHED_SIGMA = np.array([
+    k.TRUTH["sigma_P_yr"], k.TRUTH["sigma_e"], k.TRUTH["sigma_i_deg"],
+    k.TRUTH["sigma_Omega_deg"], k.TRUTH["sigma_omega_deg"], k.TRUTH["sigma_t_peri_yr"],
+    np.nan,
+])
+BOUNDS_LO = np.array([5.0, 0.5, 0.0, -180.0, -180.0, 2015.0, -5.0])
+BOUNDS_HI = np.array([15.0, 0.999, 180.0, 540.0, 540.0, 2035.0, 5.0])
+INITIAL_PERTURBATION = np.array(
+    [0.03 * TRUTH_VECTOR[0], -0.03, 10.0, -15.0, 12.0, 0.05, 0.1])
+
+
+def load_observations(path="output/synthetic_observations.csv"):
+    """Load campaign.py's synthetic observations CSV as a structured array."""
+    return np.genfromtxt(path, delimiter=",", names=True)
+
+
+def model_observables(params, epochs_yr):
+    """RA offset (mas), Dec offset (mas), RV (km/s) predicted at the given
+    epochs for the given 7-element parameter vector (6 Keplerian elements
+    plus the apsidal precession rate omega_dot)."""
+    p_yr, ecc, i_deg, raan_deg, omega_deg, t_peri_yr, omega_dot_deg_yr = params
+    period = p_yr * k.year
+    t_peri = t_peri_yr * k.year
+    sma = orbit.semi_major_axis_from_period(k.GM_BH, period)
+    elements = orbit.OrbitalElements(
+        t_peri=t_peri, period=period, ecc=ecc, sma=sma,
+        i_deg=i_deg, raan_deg=raan_deg, omega_deg=omega_deg,
+    )
+    omega_dot = np.radians(omega_dot_deg_yr) / k.year
+
+    t_sec = epochs_yr * k.year
+    state = orbit.orbit_state_precessing(t_sec, elements, omega_dot, t_ref=t_peri,
+                                          grav_param=k.GM_BH)
+
+    ra_mas, dec_mas = orbit.sky_offset_mas(state, k.D_OBS)
+    rv_kms = state["v_los"] / 1e3
+    return ra_mas, dec_mas, rv_kms
+
+
+def residuals(params, epochs, ra_obs, dec_obs, rv_obs, sigma_ra, sigma_dec, sigma_rv):
+    """Sigma-normalized residuals (model - data) stacked across the
+    astrometric (RA, Dec) and radial-velocity channels."""
+    ra_model, dec_model, rv_model = model_observables(params, epochs)
+    return np.concatenate([
+        (ra_model - ra_obs) / sigma_ra,
+        (dec_model - dec_obs) / sigma_dec,
+        (rv_model - rv_obs) / sigma_rv,
+    ])
+
+
+def fit_once(epochs, ra_obs, dec_obs, rv_obs, sigma_ra, sigma_dec, sigma_rv, x0):
+    """One Levenberg-Marquardt fit of the 6 orbital elements to the given
+    (possibly resampled) data, starting from x0. Returns the best-fit
+    parameter vector."""
+    result = least_squares(
+        residuals, x0=x0, bounds=(BOUNDS_LO, BOUNDS_HI),
+        args=(epochs, ra_obs, dec_obs, rv_obs, sigma_ra, sigma_dec, sigma_rv),
+    )
+    return result.x
+
+
+def bootstrap_uncertainty(data, best_fit, n_resamples=N_BOOTSTRAP):
+    """Parameter uncertainty via bootstrap resampling of the observation
+    epochs (with replacement), refitting from best_fit each time."""
+    rng = np.random.default_rng(RNG_SEED)
+    n = len(data["epoch_yr"])
+    samples = np.zeros((n_resamples, len(best_fit)))
+    for k_iter in range(n_resamples):
+        idx = rng.integers(0, n, size=n)
+        samples[k_iter] = fit_once(
+            data["epoch_yr"][idx], data["ra_offset_mas"][idx], data["dec_offset_mas"][idx],
+            data["rv_kms"][idx], data["sigma_ra_mas"][idx], data["sigma_dec_mas"][idx],
+            data["sigma_rv_kms"][idx], x0=best_fit,
+        )
+    return samples.std(axis=0)
+
+
+def print_comparison(best_fit, fit_sigma):
+    """Print truth vs. fitted vs. published-uncertainty for each parameter."""
+    print(f"\n{'parameter':<18}{'truth':>12}{'fitted':>12}{'fit +/- sigma':>16}"
+          f"{'published sigma':>18}")
+    for name, truth, fit_val, fit_sig, pub_sig in zip(
+            PARAM_NAMES, TRUTH_VECTOR, best_fit, fit_sigma, PUBLISHED_SIGMA):
+        pub_sig_str = "n/a (unpublished)" if np.isnan(pub_sig) else f"{pub_sig:.4f}"
+        print(f"{name:<18}{truth:>12.4f}{fit_val:>12.4f}{fit_sig:>16.4f}{pub_sig_str:>18}")
+
+
+def build_plot_epoch_grid(epoch_min, epoch_max, period_yr, t_peri_yr, n_coarse=2000, n_dense=2000):
+    """Time grid for smoothly plotting the fitted curve: a coarse
+    background grid (fine for the slow apoapsis-side motion) UNION with
+    locally dense windows around every periapsis passage the fitted
+    ephemeris implies within [epoch_min, epoch_max]. A single
+    evenly-spaced-in-time grid badly under-resolves the sharp turn near
+    periapsis (most of an ~8.7-year period's worth of angular motion
+    happens in a window of days, not years) -- without this, the plotted
+    curve visibly cuts corners right where the orbit curves fastest, even
+    though the underlying fit (evaluated only at the real data epochs) is
+    correct."""
+    coarse = np.linspace(epoch_min, epoch_max, n_coarse)
+    first_k = int(np.floor((epoch_min - t_peri_yr) / period_yr)) - 1
+    last_k = int(np.ceil((epoch_max - t_peri_yr) / period_yr)) + 1
+    dense_windows = [coarse]
+    for k_orbit in range(first_k, last_k + 1):
+        passage_yr = t_peri_yr + k_orbit * period_yr
+        if epoch_min - 0.1 <= passage_yr <= epoch_max + 0.1:
+            window = np.linspace(passage_yr - 0.1, passage_yr + 0.1, n_dense)
+            dense_windows.append(window[(window >= epoch_min) & (window <= epoch_max)])
+    return np.sort(np.concatenate(dense_windows))
+
+
+def _plot_sky_track(fig, ax, data, dense_epochs, ra_fit, dec_fit):
+    """Sky-plane track panel. The orbit precesses and is sampled over
+    ~1.5 periods, so the 2D track legitimately crosses itself -- a single
+    solid line for the fitted curve makes that look like a rendering
+    error rather than real orbital motion at different times. Color both
+    the data and the model curve by epoch instead, so same-time points
+    can be compared directly without needing to trace a crossing line."""
+    ax.plot(ra_fit, dec_fit, color="gray", lw=0.6, alpha=0.5, zorder=1, label="fitted orbit (path)")
+    model_scatter = ax.scatter(ra_fit[::15], dec_fit[::15], c=dense_epochs[::15], cmap="viridis",
+                                s=8, marker="x", zorder=2, label="fitted orbit (epoch-colored)")
+    ax.errorbar(data["ra_offset_mas"], data["dec_offset_mas"],
+                xerr=data["sigma_ra_mas"], yerr=data["sigma_dec_mas"],
+                fmt="none", ecolor="black", elinewidth=1.0, capsize=2, zorder=2)
+    ax.scatter(data["ra_offset_mas"], data["dec_offset_mas"], c=data["epoch_yr"], cmap="viridis",
+               s=20, edgecolors="black", linewidths=0.4, zorder=3,
+               label="synthetic GRAVITY+/ERIS data")
+    ax.plot(0, 0, "k*", ms=12, label="Sgr A*", zorder=4)
+    ax.set_xlabel("RA offset (mas)")
+    ax.set_ylabel("Dec offset (mas)")
+    ax.set_title("S301 sky-plane track: synthetic data vs. fitted orbit")
+    # GRAVITY+'s real ~100 uas precision is ~1500x smaller than this
+    # panel's ~150 mas span -- the error bars above are real and drawn at
+    # true scale, but will look like a hairline or vanish entirely next
+    # to the markers. Say so explicitly rather than leaving it looking
+    # like the error bars are simply missing.
+    ax.annotate(f"position error bars: +/-{data['sigma_ra_mas'][0] * 1000:.0f} uas per point\n"
+                f"(too small to see at this plot's ~150 mas scale)",
+                xy=(0.02, 0.02), xycoords="axes fraction", fontsize=7, color="dimgray")
+    ax.invert_xaxis()
+    ax.set_aspect("equal", adjustable="datalim")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+    fig.colorbar(model_scatter, ax=ax, label="epoch (year)")
+
+
+def _plot_rv_curve(ax, data, dense_epochs, rv_fit):
+    """Radial-velocity panel: synthetic data (with error bars) vs. fit."""
+    ax.errorbar(data["epoch_yr"], data["rv_kms"], yerr=data["sigma_rv_kms"],
+                fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466", label="synthetic GRAVITY+/ERIS data")
+    ax.plot(dense_epochs, rv_fit, color="#d62728", lw=1.2, label="fitted orbit")
+    ax.set_xlabel("Epoch (year)")
+    ax.set_ylabel("Radial velocity (km/s)")
+    ax.set_title("S301 radial velocity: synthetic data vs. fitted orbit")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+
+
+def _plot_rv_residuals(ax, data, best_fit):
+    """RV fit residuals, with error bars, clipped to a robust y-range.
+
+    A point sampled right at the periapsis cusp (near-vertical RV vs.
+    time there) can have a huge residual from a tiny timing offset --
+    real, not a bug, but letting it set the axis scale hides everything
+    else, so clip to a robust range instead."""
+    _, _, rv_model = model_observables(best_fit, data["epoch_yr"])
+    rv_residual = data["rv_kms"] - rv_model
+    ax.errorbar(data["epoch_yr"], rv_residual, yerr=data["sigma_rv_kms"],
+                fmt="o", ms=3, color="#2ca02c")
+    ax.axhline(0, color="gray", lw=0.8)
+    ax.set_xlabel("Epoch (year)")
+    ax.set_ylabel("RV residual (km/s)")
+    ax.set_title("Radial-velocity fit residuals")
+    ax.grid(alpha=0.3)
+    lo, hi = np.percentile(rv_residual, [1, 99])
+    pad = 0.2 * (hi - lo)
+    ax.set_ylim(lo - pad, hi + pad)
+
+
+def _plot_photometry(ax, data, dense_epochs, dmag_true_dense):
+    """Photometry panel: synthetic data (with error bars) vs. the
+    injected truth. Not fit -- see module docstring."""
+    ax.errorbar(data["epoch_yr"], data["dmag_K"], yerr=data["sigma_dmag"],
+                fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466",
+                label="synthetic GRAVITY+/ERIS data")
+    ax.plot(dense_epochs, dmag_true_dense, color="gray", lw=1.0,
+            label="injected truth (not fit)")
+    ax.invert_yaxis()
+    ax.set_xlabel("Epoch (year)")
+    ax.set_ylabel("Delta magnitude (fainter down)")
+    ax.set_title("K-band photometry: synthetic data (not used in the fit)")
+    ax.legend(fontsize=8)
+    ax.grid(alpha=0.3)
+
+
+# pylint: disable=duplicate-code
+# The tight_layout/makedirs/savefig/print tail is standard matplotlib
+# boilerplate shared with s301_lightcurve.py's make_plots -- there's no
+# shared "plotting utilities" module in this project worth introducing
+# for four lines of save-figure calls, and orbit.py (the one genuinely
+# shared module) is deliberately physics-only.
+def make_plots(data, best_fit, outpath="output/fit_orbit.png"):
+    """Sky-plane track, RV curve, RV residuals, and photometry: synthetic
+    data vs. the fitted orbit."""
+    dense_epochs = build_plot_epoch_grid(
+        data["epoch_yr"].min(), data["epoch_yr"].max(), best_fit[0], best_fit[5])
+    ra_fit, dec_fit, rv_fit = model_observables(best_fit, dense_epochs)
+    _, _, _, dmag_true_dense = campaign.true_observables(dense_epochs)
+
+    fig, axes = plt.subplots(4, 1, figsize=(9, 15))
+    _plot_sky_track(fig, axes[0], data, dense_epochs, ra_fit, dec_fit)
+    _plot_rv_curve(axes[1], data, dense_epochs, rv_fit)
+    _plot_rv_residuals(axes[2], data, best_fit)
+    _plot_photometry(axes[3], data, dense_epochs, dmag_true_dense)
+
+    plt.tight_layout()
+    os.makedirs("output", exist_ok=True)
+    plt.savefig(outpath, dpi=150)
+    print(f"Saved figure to {outpath}")
+# pylint: enable=duplicate-code
+
+
+def main():
+    """Load the campaign, fit the orbit, bootstrap uncertainties, and
+    report/plot the result."""
+    data = load_observations()
+    x0 = TRUTH_VECTOR + INITIAL_PERTURBATION
+    print(f"Initial guess (perturbed from truth): {dict(zip(PARAM_NAMES, x0))}")
+
+    best_fit = fit_once(
+        data["epoch_yr"], data["ra_offset_mas"], data["dec_offset_mas"], data["rv_kms"],
+        data["sigma_ra_mas"], data["sigma_dec_mas"], data["sigma_rv_kms"], x0=x0,
+    )
+    print(f"Running {N_BOOTSTRAP} bootstrap resamples for parameter uncertainties...")
+    fit_sigma = bootstrap_uncertainty(data, best_fit)
+
+    print_comparison(best_fit, fit_sigma)
+    make_plots(data, best_fit)
+
+
+if __name__ == "__main__":
+    main()

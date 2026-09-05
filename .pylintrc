@@ -1,0 +1,22 @@
+[BASIC]
+# Physics/astronomy notation used throughout this project mirrors the
+# source paper's own symbols (arXiv:2607.12664, Extended Data Table 2:
+# P, e, i, Omega, omega, t_peri) and standard SI/astrophysical constants
+# (G, c, h, kB, pc, year, Msun, Rsun, sigma_SB). Renaming these to verbose
+# snake_case would make the code harder to check against the equations
+# and the paper's own table, not easier.
+good-names=c,h,kB,pc,year,Msun,Rsun,sigma_SB
+
+[FORMAT]
+# Several docstrings/citations quote URLs and paper titles that read
+# better on one line; 100 was uncomfortably tight for those.
+max-line-length=110
+
+[DESIGN]
+# Orbital-mechanics functions here unpack several physically-meaningful
+# named quantities (position/velocity components, per-epoch sigmas for
+# three observation types) -- splitting further to hit the OOP-oriented
+# defaults would fragment the physics across more indirection, not less.
+max-args=8
+max-positional-arguments=8
+max-locals=25
