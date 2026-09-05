@@ -143,9 +143,16 @@ ERIS_VELOCITY_RESOLUTION_KMS = (c / ERIS_SPIFFIER_R) / 1e3   # ~60 km/s per reso
 # RV precision is NOT derived from a theoretical sensitivity table (as an
 # earlier version of this project did for a different, since-abandoned
 # instrument choice) -- it's scaled from a real ACHIEVED on-sky result:
-# SINFONI/ERIS Br-gamma radial velocities of S2 (the best-studied,
-# brightest S-star) reach a median precision of ~12.3 km/s.
-# Source: arXiv:1709.01598.
+# SINFONI radial velocities of S2 (the best-studied, brightest S-star)
+# reach a median precision of 12.3 km/s.
+# Source: GRAVITY Collaboration, Abuter, R., et al. 2018, A&A, 615, L15,
+# "Detection of the gravitational redshift in the orbit of the star S2
+# near the Galactic centre massive black hole" (arXiv:1807.09409).
+# CORRECTED 2026-09-05: previously mis-cited as arXiv:1709.01598, which
+# is an unrelated paper (Nishiyama et al., Subaru/IRCS RV of S2,
+# reporting a different, if similar-order, ~13-17 km/s precision) --
+# caught during a final citation audit; the 12.3 km/s VALUE itself was
+# already correct, only its citation was wrong.
 SIGMA_RV_S2_KMS = 12.3
 M_K_S2 = 14.0   # S2's real, well-established apparent K magnitude
 

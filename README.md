@@ -305,12 +305,18 @@ Stage 2's "why this campaign doesn't request radial-velocity time").**
 This is the hardest number to pin down, and the most important finding
 in this project's noise model.
 
-The starting point is a real, achieved result: ERIS and its predecessor
-SINFONI measure S2's radial velocity — S2 is the brightest, best-studied
-star this close to Sgr A\* — to a median precision of 12.3 km/s
-([arXiv:1709.01598](https://arxiv.org/abs/1709.01598)). S2 has an
-apparent magnitude of 14.0. S301 is much fainter, at magnitude 19.3 — a
-difference of 5.3 magnitudes, or about 130 times less light.
+The starting point is a real, achieved result: SINFONI (ERIS's direct
+predecessor at the VLT) measured S2's radial velocity — S2 is the
+brightest, best-studied star this close to Sgr A\* — to a median
+precision of 12.3 km/s (GRAVITY Collaboration et al. 2018, A&A 615, L15,
+["Detection of the gravitational redshift in the orbit of the star S2"](https://arxiv.org/abs/1807.09409),
+arXiv:1807.09409 — corrected 2026-09-05 from an earlier, wrong citation
+to arXiv:1709.01598, an unrelated Subaru/IRCS paper; the 12.3 km/s value
+itself was already correct). We assume ERIS, as SINFONI's direct
+successor, achieves comparable or better precision — a reasonable
+extrapolation, not itself a separately-demonstrated ERIS result. S2 has
+an apparent magnitude of 14.0. S301 is much fainter, at magnitude 19.3 —
+a difference of 5.3 magnitudes, or about 130 times less light.
 
 Scaling a precision measurement across that much of a brightness gap
 means picking a noise regime, and the two reasonable choices give very
@@ -453,10 +459,16 @@ schedule, telescope first light has slipped to March 2029, with *science*
 first light (after HARMONI/MICADO are installed and commissioned) not
 expected until December 2030
 ([ESO](https://www.eso.org/public/announcements/ann25001/)). That's
-after this campaign's assumed 2028.5 start and likely after the first
-periapsis passage (2031.8) has already been observed with astrometry
-alone — HARMONI would plausibly only be available in time for the
-*second* passage (2040.5). JWST/NIRSpec was also considered: its
+after this campaign's assumed 2028.5 start, but only ~10 months before
+the first periapsis passage (2031.8) — and a newly commissioned
+instrument doesn't immediately open to competitively awarded external
+proposals (guaranteed-time and verification-science programs occupy the
+first cycles first); given this project's own ~2-year proposal-to-first-
+night assumption for GRAVITY+ (see "What's real, and what's assumed"
+above), a 10-month margin is unlikely to be enough for a new S301 RV
+proposal to clear that process before passage 1. HARMONI is more
+plausibly available in time for the *second* passage (2040.5), nearly a
+decade after first light. JWST/NIRSpec was also considered: its
 measured spectral resolution is comparable to or better than pre-launch
 expectations and it has no OH airglow, but real JWST observations of this
 exact field report severe operational problems specific to the
