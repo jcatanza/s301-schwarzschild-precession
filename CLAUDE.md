@@ -28,10 +28,15 @@ epochs across both passages, and `fit_orbit.py`'s bootstrap fit recovers
 numbers already written into README.md. `output/fit_orbit.png` shows the
 expected two rotated loops. No known outstanding work on this extension.
 
-Not yet done: the repo has no git commits (fresh `.git`, no history) —
-confirm with the user whether/when to make an initial commit. Also open:
-CLAUDE.md's earlier note to confirm which paper the OneDrive reference PDF
-is before citing it further in the article.
+Done: initial git commit made (`59a4c7c`). The OneDrive folder's two
+reference PDFs were identified — arXiv:2607.12664 ("Discovery of a star
+sensitive to the spin of Sgr A*", Nature, already cited) and arXiv:2607.24931
+("S301 and friends: Measuring the spin of Sgr A*", Piran et al.) — and the
+latter is now cited in README's "What this project does not attempt"
+section (commit `07e8a69`).
+
+No known outstanding work. Next session: check with the user for new
+direction (e.g. further article polish, additional physics extensions).
 
 ## History
 The prior session ended due to a platform-side error unrelated to the
