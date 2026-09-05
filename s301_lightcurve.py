@@ -1,5 +1,5 @@
 """
-Simulated near-infrared (Ks-band) light curve of S301 orbiting Sgr A*, as
+Simulated near-infrared (K-band) light curve of S301 orbiting Sgr A*, as
 observed from Earth (ESO Paranal Observatory, Chile).
 
 S301 is a real star: GRAVITY/VLTI collaboration, announced August 2026,
@@ -116,7 +116,7 @@ def make_plots(t, state, one_plus_z, dmag, outpath):
     ax.invert_yaxis()
     ax.set_xlabel("Time from periapsis (years)")
     ax.set_ylabel("Delta magnitude (fainter down)")
-    ax.set_title("S301 simulated Ks-band light curve -- full 8.68-year orbit")
+    ax.set_title("S301 simulated K-band light curve -- full 8.68-year orbit")
     ax.grid(alpha=0.3)
 
     mask = np.abs(t_days) < 20
