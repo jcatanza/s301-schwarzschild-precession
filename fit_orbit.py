@@ -146,9 +146,13 @@ def fit_once(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, x0):
     return result.x
 
 
-def bootstrap_uncertainty(data, best_fit, n_resamples=N_BOOTSTRAP):
-    """Parameter uncertainty via bootstrap resampling of the observation
-    epochs (with replacement), refitting from best_fit each time."""
+def bootstrap_samples(data, best_fit, n_resamples=N_BOOTSTRAP):
+    """Raw bootstrap resample fits (n_resamples, 7), via resampling the
+    observation epochs with replacement and refitting from best_fit each
+    time. Returns the full samples matrix rather than just its standard
+    deviation, so callers can derive further per-resample quantities
+    (e.g. print_physics_consistency_check's analytic omega_dot check)
+    without a second, redundant resampling loop."""
     rng = np.random.default_rng(RNG_SEED)
     n = len(data["epoch_yr"])
     samples = np.zeros((n_resamples, len(best_fit)))
@@ -158,7 +162,7 @@ def bootstrap_uncertainty(data, best_fit, n_resamples=N_BOOTSTRAP):
             data["epoch_yr"][idx], data["ra_offset_mas"][idx], data["dec_offset_mas"][idx],
             data["sigma_ra_mas"][idx], data["sigma_dec_mas"][idx], x0=best_fit,
         )
-    return samples.std(axis=0)
+    return samples
 
 
 def print_comparison(best_fit, fit_sigma):
@@ -169,6 +173,38 @@ def print_comparison(best_fit, fit_sigma):
             PARAM_NAMES, TRUTH_VECTOR, best_fit, fit_sigma, PUBLISHED_SIGMA):
         pub_sig_str = "n/a (unpublished)" if np.isnan(pub_sig) else f"{pub_sig:.4f}"
         print(f"{name:<18}{truth:>12.4f}{fit_val:>12.4f}{fit_sig:>16.4f}{pub_sig_str:>18}")
+
+
+def print_physics_consistency_check(samples):
+    """Independent, non-circular check that never references the
+    published/injected truth: for each bootstrap resample, take that
+    resample's own fitted (P, e) -- fit purely from geometry, blind to
+    the 1PN formula -- and compute what Schwarzschild precession the
+    formula predicts from them. Compare that predicted omega_dot against
+    the SAME resample's own independently-fit omega_dot (the free 7th
+    parameter, also fit blind to the formula). Agreement here confirms
+    the data are self-consistent with GR using only empirical quantities
+    -- exactly the check a real discovery would need, since it wouldn't
+    have a "true" value to compare against either.
+
+    The per-resample difference is used (not a naive combination of the
+    two marginal standard deviations) because P, e, and omega_dot all
+    come from the SAME correlated resamples; treating them as
+    independent would misstate the uncertainty on their difference."""
+    p_yr, ecc, omega_dot_fit = samples[:, 0], samples[:, 1], samples[:, 6]
+    period_sec = p_yr * k.year
+    sma = orbit.semi_major_axis_from_period(k.GM_BH, period_sec)
+    omega_dot_predicted_deg_yr = np.degrees(
+        orbit.schwarzschild_precession_rate(k.GM_BH, sma, ecc, period_sec)) * k.year
+
+    diff = omega_dot_fit - omega_dot_predicted_deg_yr
+    print("\nPhysics-consistency check (references no published/injected value):")
+    print(f"  omega_dot, independent 7-parameter fit:        "
+          f"{omega_dot_fit.mean():.4f} +/- {omega_dot_fit.std():.4f} deg/yr")
+    print(f"  omega_dot, 1PN formula from that fit's own P,e: "
+          f"{omega_dot_predicted_deg_yr.mean():.4f} +/- {omega_dot_predicted_deg_yr.std():.4f} deg/yr")
+    print(f"  per-resample difference: {diff.mean():.4f} +/- {diff.std():.4f} deg/yr "
+          f"({diff.mean() / diff.std():.2f} sigma from zero)")
 
 
 def build_plot_epoch_grid(epoch_min, epoch_max, period_yr, t_peri_yr, n_coarse=2000, n_dense=2000):
@@ -291,9 +327,11 @@ def main():
         data["sigma_ra_mas"], data["sigma_dec_mas"], x0=x0,
     )
     print(f"Running {N_BOOTSTRAP} bootstrap resamples for parameter uncertainties...")
-    fit_sigma = bootstrap_uncertainty(data, best_fit)
+    samples = bootstrap_samples(data, best_fit)
+    fit_sigma = samples.std(axis=0)
 
     print_comparison(best_fit, fit_sigma)
+    print_physics_consistency_check(samples)
     make_plots(data, best_fit)
 
 
