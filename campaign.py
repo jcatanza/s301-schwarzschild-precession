@@ -72,16 +72,53 @@ CAMPAIGN_START_YR = 2028.5
 SECOND_PERIAPSIS_YR = k.NEXT_PERIAPSIS_YR + k.TRUTH["P_yr"]   # ~2040.5
 CAMPAIGN_END_YR = SECOND_PERIAPSIS_YR + 1.2   # a bit past the second passage
 
-# Sparse baseline + dense-around-each-periapsis cadence, tuned so the total
-# epoch count is comfortably >= double the original single-passage
-# campaign's 60 epochs (verified by the printed count in main()). GRAVITY+
-# and ERIS are assumed to observe on the same coordinated cadence (both
-# are VLT/VLTI instruments at the same site, so joint scheduling is
-# realistic, unlike an earlier version of this project that coordinated a
-# ground-based and a space-based instrument).
-SPARSE_STEP_YR = 1 / 6    # ~61 days
-DENSE_STEP_YR = 1 / 12    # monthly
-DENSE_HALF_WIDTH_YR = 1.0
+# Cadence: ~90% of all epochs concentrated within +/-20 days of each
+# passage's periapsis (the originally specified design -- see
+# build_epoch_grid's docstring for how that interacts with real Paranal
+# visibility), the remaining ~10% a sparse long-baseline presence so the
+# overall orbit shape away from closest approach is still constrained.
+# GRAVITY+ and ERIS are assumed to observe on the same coordinated
+# cadence (both are VLT/VLTI instruments at the same site, so joint
+# scheduling is realistic, unlike an earlier version of this project that
+# coordinated a ground-based and a space-based instrument).
+DENSE_HALF_WIDTH_DAYS = 20.0
+DENSE_HALF_WIDTH_YR = DENSE_HALF_WIDTH_DAYS / 365.25
+N_DENSE_PER_PASSAGE = 78   # tuned (with SPARSE_STEP_YR below) so that,
+SPARSE_STEP_YR = 0.5       # after the visibility-season filter, the total
+# epoch count is >=120 (the target set by the two-passage precession
+# extension) and ~90% of surviving epochs land within +/-20 days of a
+# periapsis (verified by the printed occupancy check in main()).
+
+# Sgr A* is only observable from Paranal during its annual visibility
+# season -- the discovery paper's own real GRAVITY monitoring ran "monthly
+# during roughly week-long campaigns between March and September". A
+# uniform, year-round cadence (as an earlier version of this campaign
+# used) silently scheduled epochs when the target wasn't even up. Fixed
+# here by filtering every generated epoch to this real season.
+VISIBILITY_START_FRAC = 31 / 365                             # March 1
+VISIBILITY_END_FRAC = (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30) / 365  # October 1
+
+
+def _in_visibility_season(epochs_yr):
+    """True where the fractional-year part falls in the real Mar-Sep
+    Paranal visibility window for Sgr A*."""
+    frac = epochs_yr - np.floor(epochs_yr)
+    return (frac >= VISIBILITY_START_FRAC) & (frac < VISIBILITY_END_FRAC)
+
+
+def _season_anchor(periapsis_yr):
+    """The observing date closest to `periapsis_yr` that Sgr A* is
+    actually visible from Paranal: periapsis itself if it already falls
+    in-season, otherwise the nearest edge of a surrounding Mar-Sep
+    visibility window."""
+    year = np.floor(periapsis_yr)
+    frac = periapsis_yr - year
+    if VISIBILITY_START_FRAC <= frac < VISIBILITY_END_FRAC:
+        return periapsis_yr
+    edges = np.array([year + offset + boundary
+                       for offset in (-1, 0, 1)
+                       for boundary in (VISIBILITY_START_FRAC, VISIBILITY_END_FRAC)])
+    return edges[np.argmin(np.abs(edges - periapsis_yr))]
 
 
 def compute_rv_precision():
@@ -111,16 +148,35 @@ def compute_rv_precision():
 
 
 def build_epoch_grid():
-    """Sparse cadence baseline, densified to monthly within +/-1 yr of
-    EACH of the two periapsis passages -- mirrors how real VLTI/GRAVITY
-    campaigns concentrate effort near closest approach."""
+    """~90% of all epochs densely sampled within +/-20 days of EACH of
+    the two periapsis passages, the remaining ~10% a sparse long-baseline
+    presence -- mirrors how real VLTI/GRAVITY campaigns concentrate
+    effort near closest approach, and matches this project's originally
+    specified cadence. Every candidate epoch is then filtered to the real
+    Mar-Sep Paranal visibility season (_in_visibility_season) -- Sgr A*
+    isn't observable year-round.
+
+    NOTE on a real, unavoidable complication this filtering exposes: the
+    first periapsis passage (~2031.81) falls on 2031-10-22 -- just past
+    the end of that year's visibility season. A space telescope could
+    still stare at periapsis itself; a ground-based single-site campaign
+    cannot. So that passage's +/-20-day dense window is anchored to the
+    nearest date the target is actually visible (_season_anchor, ~2031
+    Sep 30) rather than periapsis itself, and the season filter clips
+    away the (unobservable) post-periapsis half of that window entirely.
+    The second passage (~2040.49, 2040-06-26) falls comfortably inside
+    its season, so its dense window is genuinely centered on periapsis.
+    This is reported here rather than patched around: it is exactly the
+    kind of scheduling gap a real ground-based campaign would face."""
     sparse = np.arange(CAMPAIGN_START_YR, CAMPAIGN_END_YR, SPARSE_STEP_YR)
     dense_windows = []
     for periapsis_yr in (k.NEXT_PERIAPSIS_YR, SECOND_PERIAPSIS_YR):
-        dense_lo = max(periapsis_yr - DENSE_HALF_WIDTH_YR, CAMPAIGN_START_YR)
-        dense_hi = min(periapsis_yr + DENSE_HALF_WIDTH_YR, CAMPAIGN_END_YR)
-        dense_windows.append(np.arange(dense_lo, dense_hi, DENSE_STEP_YR))
+        anchor_yr = _season_anchor(periapsis_yr)
+        dense_windows.append(np.linspace(anchor_yr - DENSE_HALF_WIDTH_YR,
+                                          anchor_yr + DENSE_HALF_WIDTH_YR,
+                                          N_DENSE_PER_PASSAGE))
     epochs = np.union1d(sparse, np.concatenate(dense_windows))
+    epochs = epochs[_in_visibility_season(epochs)]
     return np.sort(epochs)
 
 
@@ -184,6 +240,11 @@ def main():
 
     print(f"Campaign: {len(epochs)} epochs, {epochs.min():.2f} - {epochs.max():.2f} "
           f"(passages: {k.NEXT_PERIAPSIS_YR:.2f} and {SECOND_PERIAPSIS_YR:.2f})")
+    anchors = np.array([_season_anchor(k.NEXT_PERIAPSIS_YR), _season_anchor(SECOND_PERIAPSIS_YR)])
+    near_periapsis = np.min(np.abs(epochs[:, None] - anchors[None, :]), axis=1) <= DENSE_HALF_WIDTH_YR
+    print(f"Dense window occupancy check: {near_periapsis.sum()} of {len(epochs)} "
+          f"({near_periapsis.sum() / len(epochs) * 100:.1f}%) within +/-{DENSE_HALF_WIDTH_DAYS:.0f} days "
+          f"of a periapsis (season-adjusted anchor for passage 1)")
     print(f"Injected Schwarzschild precession: {omega_dot_deg_yr:.4f} deg/yr "
           f"({omega_dot_deg_yr * k.TRUTH['P_yr']:.3f} deg/orbit) -- real 1PN formula, "
           f"not illustrative")

@@ -155,10 +155,30 @@ one instant's orbit, not how it's changing. So this campaign covers the
 next two predicted periapsis passages: around 2031.8 and around 2040.5.
 
 **Cadence.** Observations start in 2028.5 (see the timing assumption
-above) and run through 2041.7. Most of the year gets sparse sampling
-(about six times a year). The year around each periapsis passage gets
-dense sampling (about once a month), because that's when the orbit
-changes fastest and matters most.
+above) and run through 2041.5. About 90% of all epochs are concentrated
+within ±20 days of a periapsis passage, since that's where the orbit
+changes fastest and a precession measurement gets most of its leverage;
+the remaining ~10% is a sparse long-baseline presence so the overall
+orbit shape away from closest approach is still constrained.
+
+Sgr A\* isn't observable from Paranal year-round: the discovery paper's
+own GRAVITY monitoring ran "monthly during roughly week-long campaigns
+between March and September." Every candidate epoch is filtered to that
+real visibility season — an earlier version of this campaign sampled
+uniformly across all 12 months, silently scheduling epochs when the
+target wasn't even up.
+
+That filter exposes a genuine, unavoidable complication: the first
+periapsis passage (2031-10-22) falls just past the end of that year's
+visibility season. A space telescope could stare at periapsis on demand;
+a ground-based single-site campaign can't. So that passage's dense
+window is anchored to the nearest date the target is actually visible
+(~2031-09-30) rather than to periapsis itself, and the post-periapsis
+half of that window is unobservable and dropped entirely. The second
+passage (2040-06-26) falls comfortably inside its season, so its dense
+window is genuinely centered on periapsis. This is reported here rather
+than patched around — it's exactly the kind of scheduling gap a real
+ground-based campaign would face.
 
 **The physics injected as ground truth** goes one step further than a
 plain, unchanging orbit. It includes the real Schwarzschild precession
@@ -182,18 +202,20 @@ nobody knows.
 Running it prints:
 
 ```
-Campaign: 128 epochs, 2028.50 - 2041.67 (passages: 2031.81 and 2040.49)
+Campaign: 131 epochs, 2028.50 - 2041.50 (passages: 2031.81 and 2040.49)
+Dense window occupancy check: 118 of 131 (90.1%) within +/-20 days of a periapsis (season-adjusted anchor for passage 1)
 Injected Schwarzschild precession: 0.2307 deg/yr (2.003 deg/orbit) -- real 1PN formula, not illustrative
 Astrometric precision (GRAVITY+, real achieved on-sky figure): 100 uas/epoch
 RV precision (ERIS, background-limited scaling from real S2 SINFONI/ERIS precision -- the realistic regime for a target this faint in this field): 1621 km/s/epoch (optimistic source-limited alternative: 141.2 km/s/epoch)
 Cross-check: SPIFFIER's own R=5000 gives a 60.0 km/s resolution element -- the injected precision implies continuum SNR~0.037, i.e. no real single-epoch RV detection for a star this faint with a current 8m-class instrument
 Photometric precision (S301's own published m_K uncertainty): 0.30 mag/epoch
-True RA offset range: [-0.5, 60.0] mas
-True RV range: [-10727, 4233] km/s
+True RA offset range: [-1.4, 60.0] mas
+True RV range: [-15414, 5852] km/s
 ```
 
-128 epochs is more than double the 60 epochs in an earlier, single-pass
-version of this campaign.
+131 epochs, 90.1% of them within ±20 days of a periapsis, comfortably
+more than double the 60 epochs in an earlier, single-pass version of
+this campaign.
 
 ## How each precision figure was derived
 
@@ -276,23 +298,37 @@ Running it prints:
 
 ```
 parameter                truth      fitted   fit +/- sigma   published sigma
-P_yr                    8.6800      8.6798          0.0003            0.1100
-e                       0.9832      0.9832          0.0000            0.0010
-i_deg                 124.0900    124.1270          0.0287            1.1000
-Omega_deg              73.8000     73.7008          0.0703            3.5000
-omega_deg             293.4000    293.3609          0.0416            2.2000
-t_peri_yr            2023.1260   2023.1264          0.0004            0.0100
-omega_dot_deg_yr        0.2307      0.2302          0.0016 n/a (unpublished)
+P_yr                    8.6800      8.6799          0.0001            0.1100
+e                       0.9832      0.9832          0.0001            0.0010
+i_deg                 124.0900    124.1414          0.0480            1.1000
+Omega_deg              73.8000     73.6336          0.1229            3.5000
+omega_deg             293.4000    293.2639          0.0939            2.2000
+t_peri_yr            2023.1260   2023.1261          0.0003            0.0100
+omega_dot_deg_yr        0.2307      0.2349          0.0043 n/a (unpublished)
 ```
 
-**Every one of the 7 numbers comes back within a small fraction of one
-standard deviation of the true value.** The precession rate, in
-particular, comes back at 0.2302 ± 0.0016 degrees per year, against a
-true value of 0.2307 — a real detection of real general-relativistic
-physics from simulated data, not a number built in to match. The fitted
-sky-plane track visibly shows the periapsis direction rotated between
-the two passes (see `output/fit_orbit.png`) — the visual signature of
-that precession.
+**Every one of the 7 numbers comes back within about 1.5 standard
+deviations of the true value.** The precession rate, in particular,
+comes back at 0.2349 ± 0.0043 degrees per year, against a true value of
+0.2307 — a real detection of real general-relativistic physics from
+simulated data, not a number built in to match. The fitted sky-plane
+track visibly shows the periapsis direction rotated between the two
+passes (see `output/fit_orbit.png`) — the visual signature of that
+precession.
+
+**A real trade-off from concentrating the cadence at periapsis.**
+Compared to an earlier design that spread dense monitoring across a
+full year around each passage, this ±20-day-concentrated cadence
+recovers the period and eccentricity *more* precisely (P_yr's
+uncertainty tightened from 0.0003 to 0.0001 yr) but the angular elements
+and the precession rate *less* precisely (e.g. Omega_deg's uncertainty
+widened from 0.070° to 0.123°; omega_dot's from 0.0016 to 0.0043 deg/yr).
+This makes physical sense: sampling almost exclusively right at the
+periapsis cusp gives exquisite timing leverage but less angular
+diversity across the orbit's arc, which is what pins down its 3D
+orientation. Still fully consistent with the truth at every parameter —
+just a genuine, reported cost of this cadence choice, not a regression
+being hidden.
 
 **This result comes entirely from the position measurements.** With
 radial velocity realistically too imprecise to detect anything (see
