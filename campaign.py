@@ -179,12 +179,12 @@ def build_epoch_grid_heuristic():
     isn't observable year-round.
 
     Superseded as the actual campaign design by build_epoch_grid() below
-    (see optimal_design.py) -- kept here as the baseline that module
-    compares against, and because it's simple enough to sanity-check by
-    inspection. A real bootstrap fit showed the Fisher-optimal,
-    periapsis-floor-constrained design beats this one on every parameter,
-    most importantly the actual science target (omega_dot: 0.0014 vs.
-    0.0043 deg/yr).
+    (see optimal_design.py) -- kept here as Design A, the baseline that
+    module compares against, and because it's simple enough to sanity-
+    check by inspection. Concentrating ~90% of the budget at periapsis
+    starves the fit of angular diversity: its bootstrap sigma(omega_dot)
+    is ~4x worse than any of the Fisher-based designs
+    (results/optimal_design.json).
 
     NOTE on a real, unavoidable complication this filtering exposes: the
     first periapsis passage (~2031.81) falls on 2031-10-22 -- just past
@@ -214,15 +214,14 @@ def build_epoch_grid():
     """The actual campaign design: a periapsis-floor-constrained,
     Fisher-optimal cadence (optimal_design.build_epoch_grid_constrained),
     matched to build_epoch_grid_heuristic()'s total epoch count. See that
-    module's docstring for the full story -- a naive Fisher/D-optimal
-    design (linearized at one truth point) catastrophically failed a
-    real bootstrap test by skipping periapsis entirely (a nonlinear-
-    model aliasing pitfall); a pseudo-Bayesian version fixed the
-    linearization issue but still skipped periapsis (Fisher information
-    alone can't see structural/geometric non-identifiability); only
-    adding a hard, domain-knowledge periapsis-coverage floor -- then
-    letting the Fisher-optimal search allocate the remaining budget --
-    actually won.
+    module's docstring for the design comparison: with the current code
+    (visibility-filtered candidate grid, bracketed Kepler solver) the
+    naive and pseudo-Bayesian D-optimal designs (B, C) perform as well
+    as this constrained design (D) on omega_dot and place a substantial
+    fraction of epochs near periapsis on their own; D is adopted because
+    its hard periapsis floor guarantees that coverage regardless of how
+    the search behaves, and complete periapsis coverage is what pins down
+    P and t_peri (cadence_alternatives.py).
 
     optimal_design is imported here, not at module level, because it
     depends on fit_orbit.py (for the parametrized orbit model used to

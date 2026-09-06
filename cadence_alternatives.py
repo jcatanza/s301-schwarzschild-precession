@@ -13,8 +13,9 @@ The tests below move or replace one of those groups at a time, keeping
 the total epoch count fixed unless stated otherwise:
 
   reallocate2032  Move the flexible-middle epochs into the single visible
-                  window right after passage 1's solar conjunction
-                  (2032.09-2032.74). Tests whether "observe as soon as the
+                  window right after passage 1's solar conjunction (the
+                  first full season, from campaign.py's season filter).
+                  Tests whether "observe as soon as the
                   star re-emerges" would beat the optimizer's spread.
   complete_p1     Hypothetical: pretend passage 1 were fully observable
                   and centre its dense cluster on the true periapsis
@@ -51,7 +52,6 @@ N_MC_REALIZATIONS = 30
 MC_SEED_BASE = 1000
 FLEXIBLE_START_YR = 2030.0
 FLEXIBLE_END_YR = 2039.5
-REALLOCATE_WINDOW_YR = (2032.09, 2032.74)   # first visible window after passage 1's conjunction
 SCAN_CENTERS_YR = (2032.3, 2033.0, 2034.5, 2036.0, 2037.5)
 SCAN_HALF_WIDTH_YR = 0.3
 SCAN_TAGS = "abcde"
@@ -131,16 +131,33 @@ def replace_epochs(epochs, drop_mask, new_epochs):
     return np.sort(np.concatenate([epochs[~drop_mask], new_epochs]))
 
 
+def first_season_after_periapsis_one():
+    """(start, end) in decimal years of the first full visibility season
+    after passage 1's periapsis, taken from campaign.py's own season
+    filter rather than hardcoded, so the window follows the season
+    definition if it changes."""
+    fine = np.arange(k.NEXT_PERIAPSIS_YR, k.NEXT_PERIAPSIS_YR + 1.5, 1.0 / 365.25)
+    visible = fine[campaign._in_visibility_season(fine)]  # pylint: disable=protected-access
+    start = visible[0]
+    gap = np.flatnonzero(np.diff(visible) > 2.0 / 365.25)
+    end = visible[gap[0]] if len(gap) else visible[-1]
+    return start, end
+
+
 def test_reallocate_2032(base_epochs, base_sigma_omega_dot):
-    """(i) Move the flexible middle into the 2032 post-conjunction window."""
+    """(i) Move the flexible middle into the first visible window after
+    passage 1's conjunction."""
     move = flexible_middle_mask(base_epochs)
-    new = np.linspace(REALLOCATE_WINDOW_YR[0], REALLOCATE_WINDOW_YR[1], int(move.sum()))
+    start, end = first_season_after_periapsis_one()
+    new = np.linspace(start, end, int(move.sum()))
     sigma = fit_and_bootstrap(replace_epochs(base_epochs, move, new), "reallocate2032")
     ratio = sigma[OMEGA_DOT_INDEX] / base_sigma_omega_dot
-    print(f"[reallocate2032] moved {move.sum()} epochs; sigma(omega_dot) ratio to base = {ratio:.2f} "
-          f"({(ratio - 1) * 100:+.0f}%)")
+    print(f"[reallocate2032] moved {move.sum()} epochs into {start:.2f}-{end:.2f}; "
+          f"sigma(omega_dot) ratio to base = {ratio:.2f} ({(ratio - 1) * 100:+.0f}%)")
     return {
         "reallocate_n_moved": int(move.sum()),
+        "reallocate_window_start": (start, ".2f"),
+        "reallocate_window_end": (end, ".2f"),
         "reallocate_sigma_omega_dot": (sigma[OMEGA_DOT_INDEX], ".5f"),
         "reallocate_ratio": (ratio, ".2f"),
         "reallocate_pct_change": ((ratio - 1) * 100, ".0f"),
