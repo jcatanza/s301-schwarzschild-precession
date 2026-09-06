@@ -15,7 +15,6 @@ as the simulation's injected truth.
 Sources:
   - https://www.eso.org/public/news/eso2612/
   - https://www.mpe.mpg.de/8219735/news20260819
-  - https://www.sci.news/astronomy/s301-star-spin-sagittarius-a-15004.html
   - https://arxiv.org/abs/2607.24931 ("S301 and friends")
 """
 

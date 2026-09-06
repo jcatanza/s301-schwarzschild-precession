@@ -1,13 +1,28 @@
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
+.claude/
+
+# output/ is ignored as a whole: it holds scratch products (the synthetic
+# observation CSVs, downloaded source images, per-design intermediates).
+# The manuscript's own artefacts under output/ -- fit_orbit.png,
+# s301_lightcurve.png, s301_field_context.png, sgra_eht_shadow.jpg and
+# s301_precession.mp4 -- are nevertheless force-tracked (`git add -f`) on
+# purpose: they are exactly what article.tex \includegraphics's, and a fresh
+# clone must compile the manuscript without re-running the ~1 h pipeline.
 output/
+
+# NOT ignored, deliberately: results/*.json (every number an analysis script
+# produced) and numbers.tex (the LaTeX macros make_numbers.py builds from
+# them). They are the auditable record of every figure the paper quotes.
+
+# LaTeX build byproducts
 *.aux
 *.bbl
 *.blg
 *.log
 *.out
-.claude/
 
 # arxiv/article.bbl is a deliberate, committed submission artifact
 # (pre-built bibliography so arXiv's compile never needs to run bibtex),

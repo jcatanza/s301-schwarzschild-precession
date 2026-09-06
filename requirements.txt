@@ -1,4 +1,10 @@
-numpy
-scipy
-matplotlib
-pylint
+# Python >= 3.12 required (developed and tested with CPython 3.12.3).
+# Exact versions from `pip freeze` in the reference environment; the
+# bootstrap and campaign noise streams (numpy.random.default_rng, seed 301)
+# reproduce results/*.json bit-for-bit under these pins.
+numpy==2.5.2
+scipy==1.18.1
+matplotlib==3.11.1
+astropy==8.0.1
+pylint==4.0.8
+pytest==9.1.1
