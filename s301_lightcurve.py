@@ -188,10 +188,10 @@ def main():
     # the manuscript quotes.
     excess_pp = ((one_plus_z - 1) - state["beta_r"])[mask] * 100
     results_io.write_results("s301_lightcurve", {
-        "a_AU": (sma / k.AU, ".1f"),
-        "a_AU_published": (k.TRUTH["a_mas"] / 1000 * k.R0_PC, ".1f"),
-        "rp_Rs": (r_p_check / k.Rs, ".1f"),
-        "rp_Rs_published": k.TRUTH["r_p_Rs"],
+        "a_au": (sma / k.AU, ".1f"),
+        "a_au_published": (k.TRUTH["a_mas"] / 1000 * k.R0_PC, ".1f"),
+        "rp_rs": (r_p_check / k.Rs, ".1f"),
+        "rp_rs_published": k.TRUTH["r_p_Rs"],
         "vp_pct_c": (v_p / k.c * 100, ".2f"),
         "one_plus_z_min": (one_plus_z.min(), ".4f"),
         "one_plus_z_max": (one_plus_z.max(), ".4f"),

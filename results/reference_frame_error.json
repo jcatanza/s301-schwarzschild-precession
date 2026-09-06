@@ -1,0 +1,109 @@
+{
+  "injected_offset_component_cons": {
+    "fmt": ".1f",
+    "value": 70.71067811865476
+  },
+  "injected_offset_component_fid": {
+    "fmt": ".1f",
+    "value": 35.35533905932738
+  },
+  "jitter0_ratio": {
+    "fmt": ".2f",
+    "value": 1.033272690814562
+  },
+  "jitter0_sigma": {
+    "fmt": ".4f",
+    "value": 0.0011551894345293242
+  },
+  "jitter100_ratio": {
+    "fmt": ".2f",
+    "value": 1.0332764350955688
+  },
+  "jitter100_sigma": {
+    "fmt": ".4f",
+    "value": 0.0011551936206013044
+  },
+  "jitter50_ratio": {
+    "fmt": ".2f",
+    "value": 1.0332588153749696
+  },
+  "jitter50_sigma": {
+    "fmt": ".4f",
+    "value": 0.001155173921914543
+  },
+  "joint_offset_x_cons": {
+    "fmt": ".1f",
+    "value": 74.75113359110928
+  },
+  "joint_offset_x_fid": {
+    "fmt": ".1f",
+    "value": 37.56148386945456
+  },
+  "joint_offset_y_cons": {
+    "fmt": ".1f",
+    "value": 73.18909918857855
+  },
+  "joint_offset_y_fid": {
+    "fmt": ".1f",
+    "value": 34.758400636367185
+  },
+  "joint_residual_pct_cons": {
+    "fmt": ".3f",
+    "value": 0.021775774343030303
+  },
+  "joint_residual_pct_fid": {
+    "fmt": ".3f",
+    "value": 0.007996420092638854
+  },
+  "joint_sigma_cons": {
+    "fmt": ".4f",
+    "value": 0.001163172500029481
+  },
+  "joint_sigma_fid": {
+    "fmt": ".4f",
+    "value": 0.0011618634453300365
+  },
+  "joint_sigma_ratio_cons": {
+    "fmt": ".2f",
+    "value": 1.040413237052034
+  },
+  "joint_sigma_ratio_fid": {
+    "fmt": ".2f",
+    "value": 1.0392423377767392
+  },
+  "n_boot": {
+    "value": 200
+  },
+  "naive_bias_cons": {
+    "fmt": ".4f",
+    "value": -0.0010056270200374529
+  },
+  "naive_bias_fid": {
+    "fmt": ".4f",
+    "value": -0.0005031728623831611
+  },
+  "naive_bias_nsigma_cons": {
+    "fmt": ".1f",
+    "value": 0.8994948411844667
+  },
+  "naive_bias_nsigma_fid": {
+    "fmt": ".1f",
+    "value": 0.4500688475144777
+  },
+  "naive_bias_pct_cons": {
+    "fmt": ".2f",
+    "value": 0.4358900402886906
+  },
+  "naive_bias_pct_fid": {
+    "fmt": ".2f",
+    "value": 0.21810078178707187
+  },
+  "offset_prior_uas": {
+    "fmt": ".0f",
+    "value": 50.0
+  },
+  "offset_prior_uas_conservative": {
+    "fmt": ".0f",
+    "value": 100.0
+  }
+}

@@ -1,9 +1,9 @@
 {
-  "a_AU": {
+  "a_au": {
     "fmt": ".1f",
     "value": 686.6884385589561
   },
-  "a_AU_published": {
+  "a_au_published": {
     "fmt": ".1f",
     "value": 686.991
   },
@@ -43,11 +43,11 @@
     "fmt": ".2f",
     "value": 0.06701741590048466
   },
-  "rp_Rs": {
+  "rp_rs": {
     "fmt": ".1f",
     "value": 135.97138864952663
   },
-  "rp_Rs_published": {
+  "rp_rs_published": {
     "value": 136
   },
   "sigma_m_k": {

@@ -21,14 +21,35 @@ RESULTS_DIR = "results"
 OUTPUT = "numbers.tex"
 DIGIT_WORDS = {"0": "Zero", "1": "One", "2": "Two", "3": "Three", "4": "Four",
                "5": "Five", "6": "Six", "7": "Seven", "8": "Eight", "9": "Nine"}
+# Short, readable prefixes for the macro names; a script not listed here
+# uses its own file stem (lowercased, separators dropped).
+STEM_ALIASES = {
+    "s301_lightcurve": "lightcurve", "campaign": "campaign", "fit_orbit": "fit",
+    "optimal_design": "design", "cadence_alternatives": "cadence",
+    "photometry_checks": "photcheck", "rv_channel_test": "rvtest",
+    "precision_sensitivity": "precision", "reference_frame_error": "refframe",
+    "extended_mass_error": "extmass", "confusion_error": "confusion",
+    "lensing_error": "lensing", "roemer_delay": "roemer",
+    "spin_contamination": "spin", "mass_distance_test": "massdist",
+    "solar_conjunction": "conjunction", "error_budget": "budget",
+}
+
+
+def _camel_part(part):
+    """Capitalize a key fragment; a fragment that is already capitalized
+    (e.g. the orbital element Omega, or P) gets a 'Cap' prefix so that
+    'Omega_deg' and 'omega_deg' map to distinct macro names."""
+    if part[:1].isupper():
+        return "Cap" + part
+    return part[:1].upper() + part[1:]
 
 
 def macro_name(stem, key):
     """CamelCase LaTeX-safe macro name from a file stem and a JSON key."""
     parts = re.split(r"[_\-\s]+", key)
-    camel = "".join(part[:1].upper() + part[1:] for part in parts if part)
-    name = re.sub(r"[^A-Za-z0-9]", "", stem.lower()) + camel
-    return "".join(DIGIT_WORDS.get(ch, ch) for ch in name)
+    camel = "".join(_camel_part(part) for part in parts if part)
+    prefix = STEM_ALIASES.get(stem, re.sub(r"[^A-Za-z0-9]", "", stem.lower()))
+    return "".join(DIGIT_WORDS.get(ch, ch) for ch in prefix + camel)
 
 
 def render(entry):

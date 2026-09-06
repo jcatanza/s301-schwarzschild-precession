@@ -1,0 +1,73 @@
+{
+  "aware_omega_dot_residual": {
+    "fmt": ".1e",
+    "value": 5.179190409876355e-14
+  },
+  "lt_max_days": {
+    "fmt": ".2f",
+    "value": 5.60421230007101
+  },
+  "lt_min_days": {
+    "fmt": ".2f",
+    "value": -0.06201282306953713
+  },
+  "lt_rms_days": {
+    "fmt": ".2f",
+    "value": 3.7320610622634764
+  },
+  "max_swing_days": {
+    "fmt": ".1f",
+    "value": 7.9318766838710255
+  },
+  "n_boot": {
+    "value": 300
+  },
+  "naive_Omega_bias": {
+    "fmt": ".2f",
+    "value": -1.3955267182814453
+  },
+  "naive_angle_nsigma_max": {
+    "fmt": ".0f",
+    "value": 17.108100077981675
+  },
+  "naive_angle_nsigma_min": {
+    "fmt": ".0f",
+    "value": 15.140863437970538
+  },
+  "naive_i_bias": {
+    "fmt": ".2f",
+    "value": 0.5325698868671651
+  },
+  "naive_omega_bias": {
+    "fmt": ".2f",
+    "value": -0.7453295436911844
+  },
+  "naive_omega_dot_bias": {
+    "fmt": ".4f",
+    "value": -0.002296648778757737
+  },
+  "naive_omega_dot_bias_nsigma": {
+    "fmt": ".1f",
+    "value": 2.0542643418911437
+  },
+  "naive_omega_dot_bias_pct": {
+    "fmt": ".2f",
+    "value": 0.9954847162563297
+  },
+  "naive_t_peri_bias_days": {
+    "fmt": ".2f",
+    "value": -0.283359963194755
+  },
+  "sigma_aware": {
+    "fmt": ".4f",
+    "value": 0.0011437093076147602
+  },
+  "sigma_naive_model": {
+    "fmt": ".4f",
+    "value": 0.0011444232629346095
+  },
+  "sigma_ratio": {
+    "fmt": ".2f",
+    "value": 0.9993761439993639
+  }
+}
