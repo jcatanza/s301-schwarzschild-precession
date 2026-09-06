@@ -1,0 +1,57 @@
+{
+  "chi_values": {
+    "value": "0.5, 0.90, 1.0"
+  },
+  "lt_nsigma_noise_chi100": {
+    "fmt": ".1f",
+    "value": 11.847819972359705
+  },
+  "lt_nsigma_noise_chi50": {
+    "fmt": ".1f",
+    "value": 5.9239099861798525
+  },
+  "lt_nsigma_noise_chi90": {
+    "fmt": ".1f",
+    "value": 10.663037975123736
+  },
+  "lt_nsigma_ref_chi100": {
+    "fmt": ".1f",
+    "value": 12.041595052957375
+  },
+  "lt_nsigma_ref_chi50": {
+    "fmt": ".1f",
+    "value": 6.020797526478687
+  },
+  "lt_nsigma_ref_chi90": {
+    "fmt": ".1f",
+    "value": 10.837435547661636
+  },
+  "lt_pct_chi100": {
+    "fmt": ".2f",
+    "value": 5.741385596258168
+  },
+  "lt_pct_chi50": {
+    "fmt": ".2f",
+    "value": 2.870692798129084
+  },
+  "lt_pct_chi90": {
+    "fmt": ".2f",
+    "value": 5.167247036632351
+  },
+  "lt_rate_chi100": {
+    "fmt": ".5f",
+    "value": 0.013245754558253112
+  },
+  "lt_rate_chi50": {
+    "fmt": ".5f",
+    "value": 0.006622877279126556
+  },
+  "lt_rate_chi90": {
+    "fmt": ".5f",
+    "value": 0.011921179102427801
+  },
+  "sigma_ref_used": {
+    "fmt": ".4f",
+    "value": 0.0011
+  }
+}

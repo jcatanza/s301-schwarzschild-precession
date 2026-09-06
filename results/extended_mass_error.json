@@ -1,0 +1,46 @@
+{
+  "bias_nsigma_one": {
+    "fmt": ".2f",
+    "value": 0.11482770552011286
+  },
+  "bias_nsigma_three": {
+    "fmt": ".2f",
+    "value": 0.2830826919056786
+  },
+  "bias_pct_one": {
+    "fmt": ".3f",
+    "value": 0.05564484741180998
+  },
+  "bias_pct_three": {
+    "fmt": ".3f",
+    "value": 0.1371802486574707
+  },
+  "bias_rate_one": {
+    "fmt": ".5f",
+    "value": -0.0001283763263921245
+  },
+  "bias_rate_three": {
+    "fmt": ".5f",
+    "value": -0.00031648386499962954
+  },
+  "m_ext_one_msun": {
+    "fmt": ".0f",
+    "value": 3000.0
+  },
+  "m_ext_three_msun": {
+    "fmt": ".0f",
+    "value": 7500.0
+  },
+  "pointmass_agreement_pct": {
+    "fmt": ".2f",
+    "value": 1.1871999584062154
+  },
+  "rc_mpc": {
+    "fmt": ".2f",
+    "value": 12.038416434
+  },
+  "rp_mpc": {
+    "fmt": ".3f",
+    "value": 0.05592483210827794
+  }
+}
