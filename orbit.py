@@ -36,8 +36,7 @@ C_LIGHT = 2.998e8   # m/s -- orbit.py is a standalone, S301-independent engine
 
 class OrbitalElements(NamedTuple):
     """Bundled Keplerian elements, kept together so orbit_state() takes a
-    manageable number of arguments (see module_10's own Matchup NamedTuple
-    for the same pattern, used for the same reason)."""
+    manageable number of arguments."""
     t_peri: float
     period: float
     ecc: float

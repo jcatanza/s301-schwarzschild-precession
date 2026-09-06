@@ -40,7 +40,17 @@ CREDIT = "Image credit: ESO/MPE/S. Gillessen et al. (ann17051), CC BY 4.0"
 
 def main():
     """Load the real ESO field image, annotate S301's schematic context
-    relative to the existing S2/Sgr A* inset, and save the figure."""
+    relative to the existing S2/Sgr A* inset, and save the figure.
+
+    The source image is a network download (see module docstring) and is
+    not tracked in the repository, while the annotated OUT_IMAGE is (it is
+    a manuscript figure). If the source is absent, say so and leave the
+    committed figure untouched rather than failing the whole run_all.sh
+    pipeline over an optional re-render."""
+    if not os.path.exists(SRC_IMAGE):
+        print(f"{SRC_IMAGE} not found; keeping the committed {OUT_IMAGE}. To re-render, download "
+              f"https://cdn.eso.org/images/large/ann17051c.jpg to that path and re-run.")
+        return
     im = plt.imread(SRC_IMAGE)
     h, w = im.shape[0], im.shape[1]
 

@@ -44,6 +44,14 @@ FPS = 30
 # from the purely-illustrative orbits around them.
 REAL_CAMPAIGN_ORBIT_INDICES = (1, 2)
 
+# Fixed-zoom inset on the focus: at the full rosette's scale, S301's
+# ~1.4 mas periapsis distance is far too small to visibly confirm the
+# orbit encloses Sgr A* (this is exactly why that enclosure looked wrong
+# before). The inset re-plots the same trail/comet data, clipped to a
+# small box around the origin, at a scale where the enclosure is
+# unambiguous.
+INSET_HALF_WIDTH_MAS = 4.0
+
 
 # pylint: disable=duplicate-code
 # Necessarily near-identical to s301_lightcurve.py's own
@@ -99,17 +107,8 @@ def build_trajectory():
     return epoch_yr, ra_mas, dec_mas, orbit_index, omega_dot
 
 
-# pylint: disable=too-many-locals
-# make_movie() sets up the whole animation (figure, artists, update
-# closure) in one place; splitting it up would scatter tightly-coupled
-# matplotlib setup across functions for no real gain in clarity.
-def make_movie(outpath="output/s301_precession.mp4"):
-    """Render and save the animation."""
-    epoch_yr, ra_mas, dec_mas, orbit_index, omega_dot = build_trajectory()
-    omega_dot_deg_yr = np.degrees(omega_dot) * k.year
-    is_real_campaign = np.isin(orbit_index, REAL_CAMPAIGN_ORBIT_INDICES)
-
-    fig, ax = plt.subplots(figsize=(8, 8))
+def _setup_main_axes(ax, ra_mas, dec_mas):
+    """Axis limits, labels, grid and the Sgr A* marker for the main panel."""
     # Additive margin (a fraction of the actual data RANGE), not a multiplicative
     # scaling of the raw min/max -- this orbit's Dec max is small and near zero
     # (apoapsis-to-periapsis asymmetry means the top of the track sits just a
@@ -132,45 +131,44 @@ def make_movie(outpath="output/s301_precession.mp4"):
     # neck, even though the underlying curve mathematically encloses the focus
     # exactly (a pure rotation about the origin cannot move the origin: see
     # orbit._rotate_to_sky_precessing). A small marker here is load-bearing,
-    # not cosmetic -- the periapsis-zoom inset below is what actually lets a
-    # viewer confirm enclosure at the relevant scale.
+    # not cosmetic -- the periapsis-zoom inset is what actually lets a viewer
+    # confirm enclosure at the relevant scale.
     ax.plot(0, 0, "k*", ms=6, zorder=5, label="Sgr A*")
     ax.grid(alpha=0.3)
 
-    # Fixed-zoom inset on the focus: at the full rosette's scale, S301's
-    # ~1.4 mas periapsis distance is far too small to visibly confirm the
-    # orbit encloses Sgr A* (this is exactly why that enclosure looked wrong
-    # before). This inset re-plots the same trail/comet data, clipped to a
-    # small box around the origin, at a scale where the enclosure is
-    # unambiguous.
-    inset_half_width_mas = 4.0
+
+def _setup_inset(ax, epoch_norm):
+    """Zoom-on-Sgr-A* inset (see INSET_HALF_WIDTH_MAS). Returns its two
+    animated artists: the epoch-colored trail and the comet marker."""
     ax_inset = ax.inset_axes([0.03, 0.66, 0.31, 0.31])
-    ax_inset.set_xlim(inset_half_width_mas, -inset_half_width_mas)
-    ax_inset.set_ylim(-inset_half_width_mas, inset_half_width_mas)
+    ax_inset.set_xlim(INSET_HALF_WIDTH_MAS, -INSET_HALF_WIDTH_MAS)
+    ax_inset.set_ylim(-INSET_HALF_WIDTH_MAS, INSET_HALF_WIDTH_MAS)
     ax_inset.set_aspect("equal")
     ax_inset.plot(0, 0, "k*", ms=10, zorder=5)
     ax_inset.set_title("Zoom on Sgr A*", fontsize=8)
     ax_inset.tick_params(labelsize=6)
     ax_inset.grid(alpha=0.3)
-    inset_trail_lc = LineCollection([], cmap="viridis",
-                                     norm=plt.Normalize(epoch_yr.min(), epoch_yr.max()),
+    inset_trail_lc = LineCollection([], cmap="viridis", norm=epoch_norm,
                                      linewidths=1.3, alpha=0.85, zorder=2)
     ax_inset.add_collection(inset_trail_lc)
     inset_comet, = ax_inset.plot([], [], "o", color="#d62728", ms=5, zorder=6)
+    return inset_trail_lc, inset_comet
+
+
+def _setup_figure(epoch_yr, ra_mas, dec_mas, banner_text):
+    """Build the figure and every artist the animation updates. Returns
+    (fig, artists) where artists is a dict keyed by role."""
+    fig, ax = plt.subplots(figsize=(8, 8))
+    _setup_main_axes(ax, ra_mas, dec_mas)
+    epoch_norm = plt.Normalize(epoch_yr.min(), epoch_yr.max())
+    inset_trail_lc, inset_comet = _setup_inset(ax, epoch_norm)
 
     title = ax.set_title("")
     epoch_text = ax.text(0.02, 0.02, "", transform=ax.transAxes, fontsize=9, color="dimgray")
-    banner = fig.text(
-        0.5, 0.955,
-        f"ILLUSTRATIVE: real Schwarzschild precession rate ({omega_dot_deg_yr:.4f} deg/yr) "
-        f"extrapolated over {N_ORBITS} orbits (~{N_ORBITS * k.TRUTH['P_yr']:.0f} yr) -- "
-        f"only orbits {REAL_CAMPAIGN_ORBIT_INDICES[0]}-{REAL_CAMPAIGN_ORBIT_INDICES[1]} "
-        f"(highlighted) are this project's actual analyzed campaign",
-        ha="center", va="top", fontsize=8, color="firebrick", wrap=True,
-    )
+    banner = fig.text(0.5, 0.955, banner_text, ha="center", va="top", fontsize=8,
+                      color="firebrick", wrap=True)
 
-    trail_lc = LineCollection([], cmap="viridis",
-                               norm=plt.Normalize(epoch_yr.min(), epoch_yr.max()),
+    trail_lc = LineCollection([], cmap="viridis", norm=epoch_norm,
                                linewidths=1.3, alpha=0.85, zorder=2)
     ax.add_collection(trail_lc)
     real_lc = LineCollection([], colors="none", linewidths=3.2, alpha=0.95, zorder=3)
@@ -179,29 +177,69 @@ def make_movie(outpath="output/s301_precession.mp4"):
     # "lower right" (in data terms: least-negative RA, most-negative Dec) is
     # empty of trajectory for this orbit's geometry, unlike "upper right"
     # which sat directly on top of the periapsis convergence point near
-    # Sgr A* -- see the additive-margin fix above for why that mattered.
+    # Sgr A* -- see the additive-margin note in _setup_main_axes for why
+    # that mattered.
     ax.legend(loc="lower right", fontsize=8)
 
-    points = np.column_stack([ra_mas, dec_mas]).reshape(-1, 1, 2)
-    segments_all = np.concatenate([points[:-1], points[1:]], axis=1)
-    real_edge = is_real_campaign[:-1] & is_real_campaign[1:]
+    artists = {
+        "trail": trail_lc, "real": real_lc, "comet": comet, "title": title,
+        "epoch_text": epoch_text, "banner": banner,
+        "inset_trail": inset_trail_lc, "inset_comet": inset_comet,
+    }
+    return fig, artists
+
+
+def _make_update(artists, track, orbit_index):
+    """Per-frame update closure over the prepared artists and the
+    trajectory. `track` holds epoch_yr, ra_mas, dec_mas, the (N-1, 2, 2)
+    line segments and the boolean mask of segments inside the two
+    highlighted campaign orbits."""
+    epoch_yr, ra_mas, dec_mas = track["epoch_yr"], track["ra_mas"], track["dec_mas"]
+    segments_all, real_edge = track["segments"], track["real_edge"]
 
     def update(frame):
         end = frame + 1
-        trail_lc.set_segments(segments_all[:end])
-        trail_lc.set_array(epoch_yr[:end])
+        artists["trail"].set_segments(segments_all[:end])
+        artists["trail"].set_array(epoch_yr[:end])
         real_segs = segments_all[:end][real_edge[:end]]
-        real_lc.set_segments(real_segs)
-        real_lc.set_color("#ff7f0e" if len(real_segs) else "none")
-        comet.set_data([ra_mas[end - 1]], [dec_mas[end - 1]])
-        title.set_text(f"S301 sky-plane track: precession over {N_ORBITS} orbits (real 1PN rate)")
-        epoch_text.set_text(f"Epoch: {epoch_yr[end - 1]:.1f}  |  orbit #{orbit_index[end - 1] + 1} "
-                             f"of {N_ORBITS}")
-        inset_trail_lc.set_segments(segments_all[:end])
-        inset_trail_lc.set_array(epoch_yr[:end])
-        inset_comet.set_data([ra_mas[end - 1]], [dec_mas[end - 1]])
-        return (trail_lc, real_lc, comet, title, epoch_text, banner,
-                inset_trail_lc, inset_comet)
+        artists["real"].set_segments(real_segs)
+        artists["real"].set_color("#ff7f0e" if len(real_segs) else "none")
+        artists["comet"].set_data([ra_mas[end - 1]], [dec_mas[end - 1]])
+        artists["title"].set_text(
+            f"S301 sky-plane track: precession over {N_ORBITS} orbits (real 1PN rate)")
+        artists["epoch_text"].set_text(
+            f"Epoch: {epoch_yr[end - 1]:.1f}  |  orbit #{orbit_index[end - 1] + 1} of {N_ORBITS}")
+        artists["inset_trail"].set_segments(segments_all[:end])
+        artists["inset_trail"].set_array(epoch_yr[:end])
+        artists["inset_comet"].set_data([ra_mas[end - 1]], [dec_mas[end - 1]])
+        return (artists["trail"], artists["real"], artists["comet"], artists["title"],
+                artists["epoch_text"], artists["banner"],
+                artists["inset_trail"], artists["inset_comet"])
+
+    return update
+
+
+def make_movie(outpath="output/s301_precession.mp4"):
+    """Render and save the animation."""
+    epoch_yr, ra_mas, dec_mas, orbit_index, omega_dot = build_trajectory()
+    omega_dot_deg_yr = np.degrees(omega_dot) * k.year
+    is_real_campaign = np.isin(orbit_index, REAL_CAMPAIGN_ORBIT_INDICES)
+
+    banner_text = (
+        f"ILLUSTRATIVE: real Schwarzschild precession rate ({omega_dot_deg_yr:.4f} deg/yr) "
+        f"extrapolated over {N_ORBITS} orbits (~{N_ORBITS * k.TRUTH['P_yr']:.0f} yr) -- "
+        f"only orbits {REAL_CAMPAIGN_ORBIT_INDICES[0]}-{REAL_CAMPAIGN_ORBIT_INDICES[1]} "
+        f"(highlighted) are this project's actual analyzed campaign"
+    )
+    fig, artists = _setup_figure(epoch_yr, ra_mas, dec_mas, banner_text)
+
+    points = np.column_stack([ra_mas, dec_mas]).reshape(-1, 1, 2)
+    track = {
+        "epoch_yr": epoch_yr, "ra_mas": ra_mas, "dec_mas": dec_mas,
+        "segments": np.concatenate([points[:-1], points[1:]], axis=1),
+        "real_edge": is_real_campaign[:-1] & is_real_campaign[1:],
+    }
+    update = _make_update(artists, track, orbit_index)
 
     n_frames = len(epoch_yr)
     anim = animation.FuncAnimation(fig, update, frames=n_frames, blit=False, interval=1000 / FPS)
