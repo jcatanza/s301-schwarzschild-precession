@@ -75,6 +75,7 @@ import numpy as np
 
 import constants as k
 import fit_orbit
+import results_io
 
 RNG_SEED = 301
 N_MC = 20000
@@ -227,6 +228,22 @@ def main():
           f"{inflated_fit[idx_omega_dot] - baseline_fit[idx_omega_dot]:+.4f} deg/yr "
           f"(should be small/consistent with re-optimization noise, not a systematic bias, "
           f"since confusion enters here only as inflated sigma, not a coherent offset)")
+
+    results_io.write_results("confusion_error", {
+        "n_mc": N_MC,
+        "beam_fwhm_mas": (BEAM_FWHM_MAS, ".0f"),
+        "naive_median_mas": (median_mas, ".1f"),
+        "naive_p90_uas": (p90_mas * 1000, ".0f"),
+        "naive_p99_uas": (p99_mas * 1000, ".0f"),
+        "suppression_low": (INTERFEROMETRIC_SUPPRESSION_LOW, ".0f"),
+        "suppression_high": (INTERFEROMETRIC_SUPPRESSION_HIGH, ".0f"),
+        "floor_p90_low_uas": (p90_suppressed[INTERFEROMETRIC_SUPPRESSION_LOW] * 1000, ".0f"),
+        "floor_p90_high_uas": (p90_suppressed[INTERFEROMETRIC_SUPPRESSION_HIGH] * 1000, ".0f"),
+        "sigma_ratio": (inflated_sigma_omega_dot / baseline_sigma_omega_dot, ".2f"),
+        "best_fit_shift": (inflated_fit[idx_omega_dot] - baseline_fit[idx_omega_dot], ".5f"),
+        "baseline_sigma": (baseline_sigma_omega_dot, ".4f"),
+        "inflated_sigma": (inflated_sigma_omega_dot, ".4f"),
+    })
 
 
 if __name__ == "__main__":

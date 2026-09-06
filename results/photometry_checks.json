@@ -1,0 +1,92 @@
+{
+  "chi2": {
+    "fmt": ".1f",
+    "value": 137.55049699485318
+  },
+  "chi2_nsigma_from_expected": {
+    "fmt": ".2f",
+    "value": 0.4046910558505361
+  },
+  "chi2_reduced": {
+    "fmt": ".2f",
+    "value": 1.0500037938538411
+  },
+  "expected_chi2_sigma": {
+    "fmt": ".1f",
+    "value": 16.186414056238647
+  },
+  "joint_n_boot": {
+    "value": 500
+  },
+  "joint_ratio_Omega_deg": {
+    "fmt": ".2f",
+    "value": 1.0111050351685846
+  },
+  "joint_ratio_P_yr": {
+    "fmt": ".2f",
+    "value": 0.9724899734940701
+  },
+  "joint_ratio_e": {
+    "fmt": ".2f",
+    "value": 1.0211865080530997
+  },
+  "joint_ratio_i_deg": {
+    "fmt": ".2f",
+    "value": 1.0093388124851848
+  },
+  "joint_ratio_omega_deg": {
+    "fmt": ".2f",
+    "value": 1.0159578834507201
+  },
+  "joint_ratio_omega_dot_deg_yr": {
+    "fmt": ".2f",
+    "value": 1.0273930404121543
+  },
+  "joint_ratio_t_peri_yr": {
+    "fmt": ".2f",
+    "value": 0.972093530305443
+  },
+  "joint_sigma_Omega_deg": {
+    "fmt": ".5f",
+    "value": 0.08247696033662234
+  },
+  "joint_sigma_P_yr": {
+    "fmt": ".5f",
+    "value": 0.00016902128032006032
+  },
+  "joint_sigma_e": {
+    "fmt": ".5f",
+    "value": 3.97362994747176e-05
+  },
+  "joint_sigma_i_deg": {
+    "fmt": ".5f",
+    "value": 0.035502827125949245
+  },
+  "joint_sigma_omega_deg": {
+    "fmt": ".5f",
+    "value": 0.046708303606903645
+  },
+  "joint_sigma_omega_dot_deg_yr": {
+    "fmt": ".5f",
+    "value": 0.001148616039060764
+  },
+  "joint_sigma_t_peri_yr": {
+    "fmt": ".5f",
+    "value": 0.0003104932895690165
+  },
+  "model_amplitude_at_epochs": {
+    "fmt": ".3f",
+    "value": 0.11170653828514343
+  },
+  "n_epochs": {
+    "value": 131
+  },
+  "rms_resid_sigma": {
+    "fmt": ".2f",
+    "value": 1.0246969278054079
+  },
+  "sigma_dmag": {
+    "fmt": ".2f",
+    "value": 0.3
+  }
+}

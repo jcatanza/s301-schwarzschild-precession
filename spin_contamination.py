@@ -1,9 +1,9 @@
 """
 Quantifies the one gap in this project's error budget that is different
 IN KIND from the three already-quantified systematics (extended-mass
-confusion, astrometric reference-frame tie, source confusion/crowding):
-Lense-Thirring (frame-dragging) contamination of the apsidal precession
-rate itself.
+confusion, astrometric reference-frame systematics, source confusion/
+crowding): Lense-Thirring (frame-dragging) contamination of the apsidal
+precession rate itself.
 
 The other three systematics are nuisances with a known or boundable
 magnitude that can be modeled and subtracted (or shown subdominant).
@@ -42,30 +42,41 @@ for xi_deg=0 (spin aligned with the orbital plane -- the maximal-
 contamination, purely-apsidal case; a misaligned spin would instead
 produce some nodal precession, distinguishable in principle, but that
 general case is explicitly not implemented here -- see the function's
-own docstring), compared against the Schwarzschild signal and this
-project's fitted omega_dot precision (both the photon-noise-only value
-from Table 3 and the frame-tie-marginalized value from
-instrumental_error.py).
+own docstring), compared against the Schwarzschild signal
+(fit_orbit.TRUE_OMEGA_DOT_DEG_YR) and this project's fitted omega_dot
+precision: the photon-noise-only value from results/fit_orbit.json
+(Table 3) and the reference-systematic-marginalized value from
+reference_frame_error.py (results/reference_frame_error.json, key
+joint_sigma_fid) when that file exists, falling back to a documented
+placeholder otherwise.
+
+Results go to results/spin_contamination.json.
 """
+
+import os
 
 import numpy as np
 
 import constants as k
+import fit_orbit
 import orbit
+import results_io
 
 PERIOD_SEC = k.TRUTH["P_yr"] * k.year
 SMA_M = orbit.semi_major_axis_from_period(k.GM_BH, PERIOD_SEC)
 ECC = k.TRUTH["e"]
 
-SCHWARZSCHILD_SIGNAL_DEG_YR = 0.2307
-SIGMA_PHOTON_NOISE_ONLY = 0.0011       # Table 3
-SIGMA_FRAME_TIE_MARGINALIZED = 0.0028  # instrumental_error.py, central Plewa et al. case
+SCHWARZSCHILD_SIGNAL_DEG_YR = fit_orbit.TRUE_OMEGA_DOT_DEG_YR
+# Used only if reference_frame_error.py has not yet written its results
+# file; the real reference-marginalized sigma is read from there.
+SIGMA_REF_FALLBACK = 0.0011
 
 SPIN_CASES = (
-    ("conservative sub-maximal", 0.5),
-    ("Daly et al. (2024) outflow-method measurement", 0.90),
-    ("discovery paper's own fiducial (chi=1, aligned)", 1.0),
+    ("chi50", "conservative sub-maximal", 0.5),
+    ("chi90", "Daly et al. (2024) outflow-method measurement", 0.90),
+    ("chi100", "discovery paper's own fiducial (chi=1, aligned)", 1.0),
 )
+CHI_VALUES_STR = "0.5, 0.90, 1.0"   # the SPIN_CASES values as the manuscript quotes them
 
 
 def lt_rate_deg_yr(spin_chi, xi_deg=0.0):
@@ -75,20 +86,50 @@ def lt_rate_deg_yr(spin_chi, xi_deg=0.0):
     return np.degrees(rate) * k.year
 
 
+def load_sigmas():
+    """(photon-noise-only sigma, reference-systematic-marginalized sigma)
+    on omega_dot in deg/yr. The first comes from results/fit_orbit.json;
+    the second from results/reference_frame_error.json if it exists (it
+    is produced by a separate script and may not have been run yet), else
+    SIGMA_REF_FALLBACK with a printed note."""
+    sigma_noise = results_io.read_results("fit_orbit")["sigma_omega_dot_deg_yr"]
+    path = os.path.join(results_io.RESULTS_DIR, "reference_frame_error.json")
+    sigma_ref = None
+    if os.path.exists(path):
+        sigma_ref = results_io.read_results("reference_frame_error").get("joint_sigma_fid")
+    if sigma_ref is None:
+        print(f"NOTE: {path} (key joint_sigma_fid) not available -- reference_frame_error.py has not "
+              f"been run; using the fallback reference-marginalized sigma {SIGMA_REF_FALLBACK} deg/yr.\n")
+        sigma_ref = SIGMA_REF_FALLBACK
+    return sigma_noise, sigma_ref
+
+
 def main():
     """Print the Lense-Thirring contamination table for each real spin
-    case, and the closing note on why this is not a subtractable term."""
+    case, write the results, and close with why this is not a
+    subtractable term."""
+    sigma_noise, sigma_ref = load_sigmas()
     print("Lense-Thirring apsidal contamination of S301's measured omega_dot")
-    print("(xi=0: spin aligned with orbital angular momentum -- maximal, purely-apsidal case)\n")
+    print("(xi=0: spin aligned with orbital angular momentum -- maximal, purely-apsidal case)")
+    print(f"Schwarzschild signal {SCHWARZSCHILD_SIGNAL_DEG_YR:.4f} deg/yr; sigma(omega_dot) = "
+          f"{sigma_noise:.4f} (photon noise only), {sigma_ref:.4f} (reference systematics marginalized)\n")
     print(f"{'case':<45}{'chi':>6}{'deg/yr':>12}{'% of signal':>14}"
-          f"{'sigma (noise)':>16}{'sigma (frame-tie)':>20}")
-    for label, chi in SPIN_CASES:
+          f"{'sigma (noise)':>16}{'sigma (ref-marg.)':>20}")
+    results = {"chi_values": CHI_VALUES_STR, "sigma_ref_used": (sigma_ref, ".4f")}
+    for tag, label, chi in SPIN_CASES:
         rate = lt_rate_deg_yr(chi)
         pct_signal = rate / SCHWARZSCHILD_SIGNAL_DEG_YR * 100
-        sigma_noise = rate / SIGMA_PHOTON_NOISE_ONLY
-        sigma_frame = rate / SIGMA_FRAME_TIE_MARGINALIZED
+        nsigma_noise = rate / sigma_noise
+        nsigma_ref = rate / sigma_ref
         print(f"{label:<45}{chi:>6.2f}{rate:>12.5f}{pct_signal:>13.2f}%"
-              f"{sigma_noise:>16.1f}{sigma_frame:>20.1f}")
+              f"{nsigma_noise:>16.1f}{nsigma_ref:>20.1f}")
+        results.update({
+            f"lt_rate_{tag}": (rate, ".5f"),
+            f"lt_pct_{tag}": (pct_signal, ".2f"),
+            f"lt_nsigma_noise_{tag}": (nsigma_noise, ".1f"),
+            f"lt_nsigma_ref_{tag}": (nsigma_ref, ".1f"),
+        })
+    results_io.write_results("spin_contamination", results)
 
     print("\nUnlike the three bounded systematics elsewhere in this project's error budget, "
           "this is not a subtractable nuisance: Sgr A*'s spin is not robustly measured, so "

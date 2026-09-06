@@ -1,0 +1,48 @@
+{
+  "calendar_drift_yr": {
+    "fmt": ".2f",
+    "value": 0.6799999999999997
+  },
+  "elong_below45_end": {
+    "value": "2032-02-01"
+  },
+  "elong_below45_start": {
+    "value": "2031-11-06"
+  },
+  "elong_below85_end": {
+    "value": "2032-03-12"
+  },
+  "elong_below85_start": {
+    "value": "2031-09-26"
+  },
+  "elong_min_date": {
+    "value": "2031-12-19"
+  },
+  "elong_min_deg": {
+    "fmt": ".1f",
+    "value": 5.628586897950906
+  },
+  "gap_days_after_peri": {
+    "fmt": ".0f",
+    "value": 102.8099999999854
+  },
+  "gap_days_before_peri": {
+    "fmt": ".0f",
+    "value": 22.190000000014606
+  },
+  "gap_total_days": {
+    "fmt": ".0f",
+    "value": 125.0
+  },
+  "peri_one_date": {
+    "value": "2031-10-22"
+  },
+  "peri_one_elong_deg": {
+    "fmt": ".0f",
+    "value": 58.88383164367941
+  },
+  "peri_two_elong_deg": {
+    "fmt": ".0f",
+    "value": 169.88175424247441
+  }
+}

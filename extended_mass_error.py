@@ -40,21 +40,28 @@ Two integrations are run from S301's real orbital elements
   (a) point-mass-only (BH alone) -- validates the integrator against
       orbit.schwarzschild_precession_rate()'s analytic 1PN prediction.
   (b) point mass + Plummer-like extended mass, with the extended mass
-      normalized to the real GRAVITY Collaboration (2020) 1-sigma bound
-      on any enclosed extended/"dark" mass component near Sgr A*
-      (M_ext <~ 1200 Msun), using RE01's own fiducial shape parameters
-      alpha=5, rc=5.8 mpc (their Figs. 1, 3-6 fiducial choice) so the
-      result is directly comparable to their worked S2-like example.
+      normalized to the real GRAVITY Collaboration (2022, A&A 657, L12)
+      bounds on any enclosed extended/"dark" mass component inside the
+      S2 apocentre -- M_ext <~ 3000 Msun (1-sigma) and <~ 7500 Msun
+      (their conservative 3-sigma limit) -- using that paper's own
+      assumed Plummer scale length rc = 0.3 arcsec (~12 mpc at R0) with
+      RE01's alpha=5 shape (the classical Plummer profile), so the mass
+      bound and the profile it was derived under stay self-consistent.
 
 The extended-mass-induced precession bias is the difference between the
-two integrations' measured Delta-omega per orbit.
+two integrations' measured Delta-omega per orbit, compared against the
+fitted omega_dot precision in results/fit_orbit.json and the injected
+1PN rate (fit_orbit.TRUE_OMEGA_DOT_DEG_YR). Results go to
+results/extended_mass_error.json.
 """
 
 import numpy as np
 from scipy.integrate import quad, solve_ivp
 
 import constants as k
+import fit_orbit
 import orbit
+import results_io
 
 ALPHA = 5.0  # alpha=5 in RE01's parametrization IS the classical Plummer
              # profile shape, matching the profile actually assumed below.
@@ -286,8 +293,15 @@ def main():
     print(f"  analytic 1PN prediction (orbit.py formula):    {analytic_deg_per_orbit:.6f} deg")
     print(f"  fractional agreement: {(dphi_point_deg / analytic_deg_per_orbit - 1) * 100:+.3f}%")
 
-    pub_omega_dot = 0.2307  # deg/yr, TRUTH-derived Schwarzschild rate used throughout this project
-    for label, m_ext in (("1-sigma", M_EXT_1SIGMA), ("3-sigma (conservative)", M_EXT_3SIGMA)):
+    sigma_fit = results_io.read_results("fit_orbit")["sigma_omega_dot_deg_yr"]
+    pub_omega_dot = fit_orbit.TRUE_OMEGA_DOT_DEG_YR  # deg/yr, the 1PN rate the campaign injects
+    results = {
+        "pointmass_agreement_pct": ((dphi_point_deg / analytic_deg_per_orbit - 1) * 100, ".2f"),
+        "rc_mpc": (RC / k.pc * 1e3, ".2f"),
+        "rp_mpc": (sma * (1 - ecc) / k.pc * 1e3, ".3f"),
+    }
+    for tag, label, m_ext in (("one", "1-sigma", M_EXT_1SIGMA),
+                              ("three", "3-sigma (conservative)", M_EXT_3SIGMA)):
         print()
         print(f"=== Extended-mass case, {label} bound: RE01 Plummer-like, alpha={ALPHA}, "
               f"rc={RC / k.pc * 1e3:.2f} mpc, M_ext={m_ext / k.Msun:.0f} Msun ===")
@@ -309,10 +323,17 @@ def main():
         print(f"  bias per orbit:      {bias_deg_per_orbit:+.6f} deg  "
               f"({bias_deg_per_orbit / analytic_deg_per_orbit * 100:+.3f}% of the 1PN signal)")
         print(f"  bias rate:           {bias_rate_deg_yr:+.6f} deg/yr")
-        print(f"  vs. fitted omega_dot precision (0.0011 deg/yr, Table 3): "
-              f"{abs(bias_rate_deg_yr) / 0.0011:.2f} sigma-equivalent")
-        print(f"  vs. published omega_dot ({pub_omega_dot} deg/yr): "
+        print(f"  vs. fitted omega_dot precision ({sigma_fit:.4f} deg/yr, Table 3): "
+              f"{abs(bias_rate_deg_yr) / sigma_fit:.2f} sigma-equivalent")
+        print(f"  vs. injected 1PN omega_dot ({pub_omega_dot:.4f} deg/yr): "
               f"{abs(bias_rate_deg_yr) / pub_omega_dot * 100:.3f}% fractional bias")
+        results.update({
+            f"bias_rate_{tag}": (bias_rate_deg_yr, ".5f"),
+            f"bias_nsigma_{tag}": (abs(bias_rate_deg_yr) / sigma_fit, ".2f"),
+            f"bias_pct_{tag}": (abs(bias_rate_deg_yr) / pub_omega_dot * 100, ".3f"),
+            f"m_ext_{tag}_msun": (m_ext / k.Msun, ".0f"),
+        })
+    results_io.write_results("extended_mass_error", results)
 
 
 if __name__ == "__main__":

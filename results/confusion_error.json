@@ -1,0 +1,53 @@
+{
+  "baseline_sigma": {
+    "fmt": ".4f",
+    "value": 0.0011551894345293242
+  },
+  "beam_fwhm_mas": {
+    "fmt": ".0f",
+    "value": 60.0
+  },
+  "best_fit_shift": {
+    "fmt": ".5f",
+    "value": -8.309674062734196e-08
+  },
+  "floor_p90_high_uas": {
+    "fmt": ".0f",
+    "value": 36.8932663277235
+  },
+  "floor_p90_low_uas": {
+    "fmt": ".0f",
+    "value": 92.23316581930875
+  },
+  "inflated_sigma": {
+    "fmt": ".4f",
+    "value": 0.0011551773100059782
+  },
+  "n_mc": {
+    "value": 20000
+  },
+  "naive_median_mas": {
+    "fmt": ".1f",
+    "value": 9.743167271466923
+  },
+  "naive_p90_uas": {
+    "fmt": ".0f",
+    "value": 18446.633163861752
+  },
+  "naive_p99_uas": {
+    "fmt": ".0f",
+    "value": 25463.705021948397
+  },
+  "sigma_ratio": {
+    "fmt": ".2f",
+    "value": 0.9999895042986167
+  },
+  "suppression_high": {
+    "fmt": ".0f",
+    "value": 500.0
+  },
+  "suppression_low": {
+    "fmt": ".0f",
+    "value": 200.0
+  }
+}
