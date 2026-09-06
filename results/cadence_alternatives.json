@@ -1,0 +1,200 @@
+{
+  "base_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0011179908699790095
+  },
+  "complete_n_replaced": {
+    "value": 22
+  },
+  "complete_ratio_Omega_deg": {
+    "fmt": ".2f",
+    "value": 0.950914455247379
+  },
+  "complete_ratio_P_yr": {
+    "fmt": ".2f",
+    "value": 0.5955349851365302
+  },
+  "complete_ratio_e": {
+    "fmt": ".2f",
+    "value": 0.955601272381865
+  },
+  "complete_ratio_i_deg": {
+    "fmt": ".2f",
+    "value": 0.9511530963953764
+  },
+  "complete_ratio_omega_deg": {
+    "fmt": ".2f",
+    "value": 0.9675059741283081
+  },
+  "complete_ratio_omega_dot": {
+    "fmt": ".2f",
+    "value": 1.0408517807320259
+  },
+  "complete_ratio_t_peri_yr": {
+    "fmt": ".2f",
+    "value": 0.47553354319306906
+  },
+  "complete_sigma_Omega_deg": {
+    "fmt": ".5f",
+    "value": 0.07756714790356305
+  },
+  "complete_sigma_P_yr": {
+    "fmt": ".5f",
+    "value": 0.00010350552541072364
+  },
+  "complete_sigma_e": {
+    "fmt": ".5f",
+    "value": 3.7184253844266904e-05
+  },
+  "complete_sigma_i_deg": {
+    "fmt": ".5f",
+    "value": 0.03345618293275733
+  },
+  "complete_sigma_omega_deg": {
+    "fmt": ".5f",
+    "value": 0.044480744248558295
+  },
+  "complete_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0011636627878597989
+  },
+  "complete_sigma_t_peri_yr": {
+    "fmt": ".5f",
+    "value": 0.00015188865013846217
+  },
+  "doubled_n": {
+    "value": 262
+  },
+  "doubled_pct_gain": {
+    "fmt": ".0f",
+    "value": 28.965573432186986
+  },
+  "doubled_ratio": {
+    "fmt": ".2f",
+    "value": 0.7103442656781301
+  },
+  "doubled_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0007941584035700934
+  },
+  "mc_n_realizations": {
+    "value": 30
+  },
+  "mc_over_boot_Omega_deg": {
+    "fmt": ".2f",
+    "value": 0.8768747375366779
+  },
+  "mc_over_boot_P_yr": {
+    "fmt": ".2f",
+    "value": 1.1132932152342914
+  },
+  "mc_over_boot_e": {
+    "fmt": ".2f",
+    "value": 0.9793015870802939
+  },
+  "mc_over_boot_i_deg": {
+    "fmt": ".2f",
+    "value": 0.8716350043867339
+  },
+  "mc_over_boot_omega_deg": {
+    "fmt": ".2f",
+    "value": 0.8283738060963485
+  },
+  "mc_over_boot_omega_dot": {
+    "fmt": ".2f",
+    "value": 0.7827076071649277
+  },
+  "mc_over_boot_t_peri_yr": {
+    "fmt": ".2f",
+    "value": 1.0855324723967452
+  },
+  "mc_sigma_Omega_deg": {
+    "fmt": ".5f",
+    "value": 0.07152764592448127
+  },
+  "mc_sigma_P_yr": {
+    "fmt": ".5f",
+    "value": 0.0001934932490197893
+  },
+  "mc_sigma_e": {
+    "fmt": ".5f",
+    "value": 3.810647793856805e-05
+  },
+  "mc_sigma_i_deg": {
+    "fmt": ".5f",
+    "value": 0.030659186484144493
+  },
+  "mc_sigma_omega_deg": {
+    "fmt": ".5f",
+    "value": 0.03808419213573764
+  },
+  "mc_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0008750599586735063
+  },
+  "mc_sigma_t_peri_yr": {
+    "fmt": ".5f",
+    "value": 0.00034672645972918663
+  },
+  "n_boot": {
+    "value": 400
+  },
+  "n_epochs_base": {
+    "value": 131
+  },
+  "reallocate_n_moved": {
+    "value": 38
+  },
+  "reallocate_pct_change": {
+    "fmt": ".0f",
+    "value": 51.86014140510391
+  },
+  "reallocate_ratio": {
+    "fmt": ".2f",
+    "value": 1.518601414051039
+  },
+  "reallocate_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0016977825160462753
+  },
+  "scan_a_center": {
+    "fmt": ".1f",
+    "value": 2032.3
+  },
+  "scan_a_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0016529744492300015
+  },
+  "scan_b_center": {
+    "fmt": ".1f",
+    "value": 2033.0
+  },
+  "scan_b_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0018518233813149905
+  },
+  "scan_c_center": {
+    "fmt": ".1f",
+    "value": 2034.5
+  },
+  "scan_c_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0023157464664746593
+  },
+  "scan_d_center": {
+    "fmt": ".1f",
+    "value": 2036.0
+  },
+  "scan_d_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0015979633836958281
+  },
+  "scan_e_center": {
+    "fmt": ".1f",
+    "value": 2037.5
+  },
+  "scan_e_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0011555592383248974
+  }
+}
