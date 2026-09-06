@@ -1,0 +1,325 @@
+{
+  "bias_omega_dot_a": {
+    "fmt": ".4f",
+    "value": 0.004391307709187553
+  },
+  "bias_omega_dot_b": {
+    "fmt": ".4f",
+    "value": 0.00048230402333068745
+  },
+  "bias_omega_dot_c": {
+    "fmt": ".4f",
+    "value": 0.0009745949470492954
+  },
+  "bias_omega_dot_d": {
+    "fmt": ".4f",
+    "value": 0.000799500994714597
+  },
+  "boot_ratio_omega_dot_b_over_a": {
+    "fmt": ".2f",
+    "value": 4.056016364789925
+  },
+  "boot_ratio_omega_dot_d_over_a": {
+    "fmt": ".2f",
+    "value": 3.8460120613332918
+  },
+  "boot_ratio_omega_dot_d_over_b": {
+    "fmt": ".2f",
+    "value": 0.9482239999622116
+  },
+  "crb_Omega_deg_a": {
+    "fmt": ".4f",
+    "value": 0.11366572053736837
+  },
+  "crb_Omega_deg_b": {
+    "fmt": ".4f",
+    "value": 0.06372895272984454
+  },
+  "crb_Omega_deg_c": {
+    "fmt": ".4f",
+    "value": 0.07369520993773561
+  },
+  "crb_Omega_deg_d": {
+    "fmt": ".4f",
+    "value": 0.07783285837672801
+  },
+  "crb_P_yr_a": {
+    "fmt": ".4f",
+    "value": 0.0001463649382098576
+  },
+  "crb_P_yr_b": {
+    "fmt": ".4f",
+    "value": 0.00020134464221015387
+  },
+  "crb_P_yr_c": {
+    "fmt": ".4f",
+    "value": 0.00021173122945382136
+  },
+  "crb_P_yr_d": {
+    "fmt": ".4f",
+    "value": 0.00018374447529822464
+  },
+  "crb_e_a": {
+    "fmt": ".4f",
+    "value": 4.9921129800199064e-05
+  },
+  "crb_e_b": {
+    "fmt": ".4f",
+    "value": 2.9508317903028808e-05
+  },
+  "crb_e_c": {
+    "fmt": ".4f",
+    "value": 3.3546899805520126e-05
+  },
+  "crb_e_d": {
+    "fmt": ".4f",
+    "value": 3.5329650090688976e-05
+  },
+  "crb_i_deg_a": {
+    "fmt": ".4f",
+    "value": 0.0485815665418002
+  },
+  "crb_i_deg_b": {
+    "fmt": ".4f",
+    "value": 0.026509143122017804
+  },
+  "crb_i_deg_c": {
+    "fmt": ".4f",
+    "value": 0.030564914825247987
+  },
+  "crb_i_deg_d": {
+    "fmt": ".4f",
+    "value": 0.03241201271232495
+  },
+  "crb_omega_deg_a": {
+    "fmt": ".4f",
+    "value": 0.07530399417207831
+  },
+  "crb_omega_deg_b": {
+    "fmt": ".4f",
+    "value": 0.03659734688457847
+  },
+  "crb_omega_deg_c": {
+    "fmt": ".4f",
+    "value": 0.041782664075278315
+  },
+  "crb_omega_deg_d": {
+    "fmt": ".4f",
+    "value": 0.04414991262413661
+  },
+  "crb_omega_dot_deg_yr_a": {
+    "fmt": ".5f",
+    "value": 0.0036038308947896483
+  },
+  "crb_omega_dot_deg_yr_b": {
+    "fmt": ".5f",
+    "value": 0.0009287949450734774
+  },
+  "crb_omega_dot_deg_yr_c": {
+    "fmt": ".5f",
+    "value": 0.0009856723131055616
+  },
+  "crb_omega_dot_deg_yr_d": {
+    "fmt": ".5f",
+    "value": 0.0010414116301778408
+  },
+  "crb_over_boot_omega_dot_d": {
+    "fmt": ".2f",
+    "value": 0.9315028039516937
+  },
+  "crb_ratio_omega_dot_b_over_a": {
+    "fmt": ".2f",
+    "value": 3.880114673217292
+  },
+  "crb_t_peri_yr_a": {
+    "fmt": ".5f",
+    "value": 0.00028906514720902315
+  },
+  "crb_t_peri_yr_b": {
+    "fmt": ".5f",
+    "value": 0.0003815610716366461
+  },
+  "crb_t_peri_yr_c": {
+    "fmt": ".5f",
+    "value": 0.0003880698701009018
+  },
+  "crb_t_peri_yr_d": {
+    "fmt": ".5f",
+    "value": 0.0003475108093173295
+  },
+  "floor_fraction_realized": {
+    "fmt": ".3f",
+    "value": 0.3816793893129771
+  },
+  "floor_fraction_requested": {
+    "fmt": ".2f",
+    "value": 0.4
+  },
+  "logdet_a": {
+    "fmt": ".1f",
+    "value": 90.53956955507392
+  },
+  "logdet_b": {
+    "fmt": ".1f",
+    "value": 97.51024402905936
+  },
+  "logdet_c": {
+    "fmt": ".1f",
+    "value": 96.14318637623408
+  },
+  "logdet_d": {
+    "fmt": ".1f",
+    "value": 96.5228657082318
+  },
+  "n_boot": {
+    "value": 1000
+  },
+  "n_clusters_a": {
+    "value": 14
+  },
+  "n_clusters_b": {
+    "value": 6
+  },
+  "n_clusters_c": {
+    "value": 7
+  },
+  "n_clusters_d": {
+    "value": 7
+  },
+  "n_dense_a": {
+    "value": 118
+  },
+  "n_dense_b": {
+    "value": 27
+  },
+  "n_dense_c": {
+    "value": 28
+  },
+  "n_dense_d": {
+    "value": 50
+  },
+  "n_epochs_a": {
+    "value": 131
+  },
+  "n_epochs_b": {
+    "value": 131
+  },
+  "n_epochs_c": {
+    "value": 131
+  },
+  "n_epochs_d": {
+    "value": 131
+  },
+  "sigma_Omega_deg_a": {
+    "fmt": ".4f",
+    "value": 0.12117635001451746
+  },
+  "sigma_Omega_deg_b": {
+    "fmt": ".4f",
+    "value": 0.06485060198655881
+  },
+  "sigma_Omega_deg_c": {
+    "fmt": ".4f",
+    "value": 0.07643539852532658
+  },
+  "sigma_Omega_deg_d": {
+    "fmt": ".4f",
+    "value": 0.08157111028813213
+  },
+  "sigma_P_yr_a": {
+    "fmt": ".4f",
+    "value": 0.0001323369972375147
+  },
+  "sigma_P_yr_b": {
+    "fmt": ".4f",
+    "value": 0.00021614096252602218
+  },
+  "sigma_P_yr_c": {
+    "fmt": ".4f",
+    "value": 0.00022902073633562398
+  },
+  "sigma_P_yr_d": {
+    "fmt": ".4f",
+    "value": 0.00017380259429594105
+  },
+  "sigma_e_a": {
+    "fmt": ".4f",
+    "value": 5.3858068666530014e-05
+  },
+  "sigma_e_b": {
+    "fmt": ".4f",
+    "value": 3.189199121799211e-05
+  },
+  "sigma_e_c": {
+    "fmt": ".4f",
+    "value": 3.667089890670785e-05
+  },
+  "sigma_e_d": {
+    "fmt": ".4f",
+    "value": 3.8911892353998265e-05
+  },
+  "sigma_i_deg_a": {
+    "fmt": ".4f",
+    "value": 0.04753894090624765
+  },
+  "sigma_i_deg_b": {
+    "fmt": ".4f",
+    "value": 0.027287181891766085
+  },
+  "sigma_i_deg_c": {
+    "fmt": ".4f",
+    "value": 0.03262874697667075
+  },
+  "sigma_i_deg_d": {
+    "fmt": ".4f",
+    "value": 0.035174340555214074
+  },
+  "sigma_omega_deg_a": {
+    "fmt": ".4f",
+    "value": 0.0930325621722002
+  },
+  "sigma_omega_deg_b": {
+    "fmt": ".4f",
+    "value": 0.03681285116272561
+  },
+  "sigma_omega_deg_c": {
+    "fmt": ".4f",
+    "value": 0.04306820025400885
+  },
+  "sigma_omega_deg_d": {
+    "fmt": ".4f",
+    "value": 0.04597464557119042
+  },
+  "sigma_omega_dot_deg_yr_a": {
+    "fmt": ".5f",
+    "value": 0.0042998063703997705
+  },
+  "sigma_omega_dot_deg_yr_b": {
+    "fmt": ".5f",
+    "value": 0.0010601057746527293
+  },
+  "sigma_omega_dot_deg_yr_c": {
+    "fmt": ".5f",
+    "value": 0.0010863693485571424
+  },
+  "sigma_omega_dot_deg_yr_d": {
+    "fmt": ".5f",
+    "value": 0.0011179908699790095
+  },
+  "sigma_t_peri_yr_a": {
+    "fmt": ".5f",
+    "value": 0.0002618175328283186
+  },
+  "sigma_t_peri_yr_b": {
+    "fmt": ".5f",
+    "value": 0.00037464910859324384
+  },
+  "sigma_t_peri_yr_c": {
+    "fmt": ".5f",
+    "value": 0.00037516398052743293
+  },
+  "sigma_t_peri_yr_d": {
+    "fmt": ".5f",
+    "value": 0.0003194068059186197
+  }
+}
