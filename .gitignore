@@ -8,3 +8,8 @@ output/
 *.log
 *.out
 .claude/
+
+# arxiv/article.bbl is a deliberate, committed submission artifact
+# (pre-built bibliography so arXiv's compile never needs to run bibtex),
+# not a transient build byproduct like the *.bbl pattern above excludes.
+!/arxiv/article.bbl
