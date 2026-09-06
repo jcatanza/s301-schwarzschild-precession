@@ -112,7 +112,7 @@ def make_plots(t, state, one_plus_z, dmag, outpath):
                  fontsize=10, color="dimgray")
 
     ax = axes[0]
-    ax.plot(t / k.year, dmag, color="#1f77b4", lw=1.2)
+    ax.plot(t / k.year, dmag, color="#d62728", lw=1.2)
     ax.invert_yaxis()
     ax.set_xlabel("Time from periapsis (years)")
     ax.set_ylabel("Delta magnitude (fainter down)")
@@ -128,15 +128,28 @@ def make_plots(t, state, one_plus_z, dmag, outpath):
     ax.set_title("Zoom: periapsis passage (+/-20 days)")
     ax.grid(alpha=0.3)
 
+    # This bottom panel plots the model's internal redshift/velocity terms
+    # directly, in percent (z = fractional wavelength shift, so z*100 is a
+    # percent change in wavelength; beta_r = v_r/c is likewise unitless,
+    # so beta_r*100 is also a percent). No instrument in this campaign
+    # measures this quantity directly: it is a theoretical decomposition
+    # used to BUILD the delta-magnitude curves in the two panels above
+    # (via the I_nu/nu^3 relativistic-beaming relation), not a simulated
+    # observation of its own. GRAVITY+ provides only astrometry and
+    # K-band photometry (delta-magnitude, top/middle panels) in this
+    # campaign; ERIS/SINFONI spectroscopy, which could in principle
+    # measure a line-of-sight redshift like this directly, was
+    # considered and rejected (Section on radial velocity feasibility).
     ax = axes[2]
     ax.plot(t_days[mask], (one_plus_z[mask] - 1) * 1e2, color="#2ca02c", lw=1.4,
-            label="total (SR+GR) redshift z x100")
+            label="total (SR+GR) redshift z x100 (special + general relativity)")
     ax.plot(t_days[mask], state["beta_r"][mask] * 1e2, color="#9467bd", lw=1.0, ls="--",
-            label="classical v_r/c x100")
+            label="classical v_r/c x100 (line-of-sight velocity / c)")
     ax.axhline(0, color="gray", lw=0.5)
     ax.set_xlabel("Time from periapsis (days)")
-    ax.set_ylabel("(%)")
-    ax.set_title("Spectral shift near periapsis: relativity beats classical Doppler")
+    ax.set_ylabel("Percent wavelength shift (z x100, %)")
+    ax.set_title("Model-only quantity (not a simulated observation):\n"
+                 "relativistic (SR+GR) vs. classical Doppler redshift")
     ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
 

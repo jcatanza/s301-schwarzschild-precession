@@ -275,17 +275,28 @@ def _plot_sky_track(fig, ax, data, dense_epochs, ra_fit, dec_fit):
 
 def _plot_photometry(ax, data, dense_epochs, dmag_true_dense):
     """Photometry panel: synthetic data (with error bars) vs. the
-    injected truth. Not fit -- see module docstring."""
+    injected truth. Not fit -- see module docstring.
+
+    Styled so the truth curve reads clearly even though, at S301's
+    magnitude, the per-epoch noise (0.30 mag) is larger than the entire
+    signal (0.116 mag peak-to-trough): the data are drawn faint/small so
+    they read as a noise cloud, not as a curve to trace by eye, and the
+    truth curve is drawn bold and on top so the reader can see what the
+    noise is scattered around, without the panel implying the signal is
+    visually recoverable from the noisy points alone (it is not; see
+    Section~\ref{sec:photometry} in article.tex)."""
     ax.errorbar(data["epoch_yr"], data["dmag_K"], yerr=data["sigma_dmag"],
-                fmt="o", ms=3, color="#1f77b4", ecolor="#1f77b466",
-                label="synthetic GRAVITY+ data")
-    ax.plot(dense_epochs, dmag_true_dense, color="gray", lw=1.0,
-            label="injected truth (not fit)")
+                fmt="o", ms=2.5, color="#1f77b4", alpha=0.45,
+                ecolor="#1f77b440", elinewidth=0.8, capsize=0,
+                label="synthetic GRAVITY+ data (noise > signal at this magnitude)",
+                zorder=2)
+    ax.plot(dense_epochs, dmag_true_dense, color="#d62728", lw=2.2,
+            label="injected truth (not fit)", zorder=5)
     ax.invert_yaxis()
     ax.set_xlabel("Epoch (year)")
     ax.set_ylabel("Delta magnitude (fainter down)")
     ax.set_title("K-band photometry (GRAVITY+/VLTI): synthetic data (not used in the fit)")
-    ax.legend(fontsize=8)
+    ax.legend(fontsize=8, loc="upper right")
     ax.grid(alpha=0.3)
 
 
