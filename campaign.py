@@ -114,7 +114,10 @@ SPARSE_STEP_YR = 0.5       # after the visibility-season filter, the total
 # uniform, year-round cadence (as an earlier version of this campaign
 # used) silently scheduled epochs when the target wasn't even up. Fixed
 # here by filtering every generated epoch to this real season.
-VISIBILITY_START_FRAC = 31 / 365                             # March 1
+# An earlier version summed only January's 31 days here while labeling the
+# result "March 1"; it was actually February 1, a month earlier than the
+# discovery paper's stated March-September campaigns. Caught in review.
+VISIBILITY_START_FRAC = (31 + 28) / 365                      # March 1
 VISIBILITY_END_FRAC = (31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30) / 365  # October 1
 
 

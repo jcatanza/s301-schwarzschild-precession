@@ -62,6 +62,7 @@ STEPS=(
     spin_contamination.py
     mass_distance_test.py
     solar_conjunction.py
+    error_budget.py
     precession_movie.py
     make_context_figure.py
     make_numbers.py
