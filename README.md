@@ -1,6 +1,6 @@
 # S301: simulating a ground-based VLT/VLTI observing campaign
 
-## What S301 is
+## S301 is the fastest moving star in the Milky Way galaxy.
 
 S301 is a real star. It orbits Sagittarius A\* (Sgr A\*), the supermassive
 black hole at the center of the Milky Way. The GRAVITY/VLTI collaboration
