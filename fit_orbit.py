@@ -32,18 +32,25 @@ already constrains, so it adds no independent orbital-element
 information for this exercise.
 
 Parameter uncertainties are estimated via bootstrap resampling of the
-observation epochs (with replacement), refitting each resample --
-matching this project's own established bootstrap-uncertainty convention
-used elsewhere in this coursework.
+observation epochs (with replacement), refitting each resample.
+optimal_design.py cross-checks this against the analytic Cramer-Rao
+bound, and cadence_alternatives.py against a multi-realization Monte
+Carlo.
 
-VERIFIED, not assumed: an earlier version of this project included a
-simulated ERIS RV channel and confirmed directly (by refitting the same
-data with and without it) that dropping RV costs nothing -- every
-parameter's bootstrap sigma was statistically unchanged (some even
-marginally tighter without it). Astrometry alone constrains the full
-orbit here, including omega_dot, which is why RV isn't part of this
-campaign at all (a decision made on feasibility grounds, not a
-limitation discovered after the fact -- see campaign.py).
+The model evaluates the orbit at each epoch's self-consistent EMISSION
+time (orbit.orbit_state_observed, light_time=True by default), i.e. the
+Roemer delay is part of the headline pipeline, as in the discovery
+paper's own S301 fit. roemer_delay.py quantifies what ignoring it would
+cost by passing light_time=False.
+
+VERIFIED, not assumed (rv_channel_test.py): adding a simulated ERIS RV
+channel at S301's magnitude leaves every parameter's bootstrap sigma
+statistically unchanged. Astrometry alone constrains the full orbit
+here, including omega_dot, which is why RV isn't part of this campaign
+(a feasibility decision made before proposing -- see campaign.py).
+
+Every number the manuscript quotes from this script is written to
+results/fit_orbit.json (see results_io.py / make_numbers.py).
 """
 
 import os
@@ -61,6 +68,7 @@ from scipy.optimize import least_squares
 import campaign
 import constants as k
 import orbit
+import results_io
 # pylint: enable=wrong-import-position
 
 N_BOOTSTRAP = 1000
@@ -96,64 +104,65 @@ def load_observations(path="output/synthetic_observations.csv"):
     return np.genfromtxt(path, delimiter=",", names=True)
 
 
-def model_observables(params, epochs_yr):
-    """RA offset (mas), Dec offset (mas), and RV (km/s) predicted at the
-    given epochs for the given 7-element parameter vector (6 Keplerian
-    elements plus the apsidal precession rate omega_dot). RV is still
-    computed and returned -- it's part of the physical orbit model and
-    optimal_design.py's Fisher-information calculation uses it purely as
-    an analytic cross-check that its own information contribution is
-    negligible -- but it is NOT used in residuals()/fit_once() below,
-    since campaign.py's data has no RV column at all (no instrument time
-    was ever proposed for it -- see campaign.py's module docstring)."""
+def model_state(params, epochs_yr, light_time=True, grav_param=k.GM_BH):
+    """Full orbit_state dict at the given arrival epochs for a 7-element
+    parameter vector (6 Keplerian elements plus omega_dot), with the
+    semi-major axis derived from (grav_param, P). light_time=True
+    evaluates at the self-consistent emission time (Roemer delay);
+    grav_param is exposed so mass_distance_test.py can float GM."""
     p_yr, ecc, i_deg, raan_deg, omega_deg, t_peri_yr, omega_dot_deg_yr = params
     period = p_yr * k.year
     t_peri = t_peri_yr * k.year
-    sma = orbit.semi_major_axis_from_period(k.GM_BH, period)
+    sma = orbit.semi_major_axis_from_period(grav_param, period)
     elements = orbit.OrbitalElements(
         t_peri=t_peri, period=period, ecc=ecc, sma=sma,
         i_deg=i_deg, raan_deg=raan_deg, omega_deg=omega_deg,
     )
     omega_dot = np.radians(omega_dot_deg_yr) / k.year
+    return orbit.orbit_state_observed(epochs_yr * k.year, elements, omega_dot, t_ref=t_peri,
+                                      grav_param=grav_param, light_time=light_time)
 
-    t_sec = epochs_yr * k.year
-    state = orbit.orbit_state_precessing(t_sec, elements, omega_dot, t_ref=t_peri,
-                                          grav_param=k.GM_BH)
 
+def model_observables(params, epochs_yr, light_time=True):
+    """RA offset (mas), Dec offset (mas), and RV (km/s) predicted at the
+    given epochs. RV is returned because it is part of the physical model
+    (rv_channel_test.py uses it) but is NOT used in residuals()/fit_once():
+    campaign.py's data has no RV column (see its module docstring)."""
+    state = model_state(params, epochs_yr, light_time=light_time)
     ra_mas, dec_mas = orbit.sky_offset_mas(state, k.D_OBS)
     rv_kms = state["v_los"] / 1e3
     return ra_mas, dec_mas, rv_kms
 
 
-def residuals(params, epochs, ra_obs, dec_obs, sigma_ra, sigma_dec):
+def residuals(params, epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, light_time=True):
     """Sigma-normalized residuals (model - data) stacked across the
     astrometric (RA, Dec) channels. No RV term -- see module docstring."""
-    ra_model, dec_model, _ = model_observables(params, epochs)
+    ra_model, dec_model, _ = model_observables(params, epochs, light_time=light_time)
     return np.concatenate([
         (ra_model - ra_obs) / sigma_ra,
         (dec_model - dec_obs) / sigma_dec,
     ])
 
 
-def fit_once(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, x0):
-    """One Levenberg-Marquardt fit of the 6 orbital elements to the given
+def fit_once(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, x0, light_time=True):
+    """One Levenberg-Marquardt fit of the 7 parameters to the given
     (possibly resampled) data, starting from x0. Returns the best-fit
     parameter vector."""
     result = least_squares(
         residuals, x0=x0, bounds=(BOUNDS_LO, BOUNDS_HI),
-        args=(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec),
+        args=(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, light_time),
     )
     return result.x
 
 
-def bootstrap_samples(data, best_fit, n_resamples=N_BOOTSTRAP):
+def bootstrap_samples(data, best_fit, n_resamples=N_BOOTSTRAP, light_time=True, seed=RNG_SEED):
     """Raw bootstrap resample fits (n_resamples, 7), via resampling the
     observation epochs with replacement and refitting from best_fit each
     time. Returns the full samples matrix rather than just its standard
     deviation, so callers can derive further per-resample quantities
     (e.g. print_physics_consistency_check's analytic omega_dot check)
     without a second, redundant resampling loop."""
-    rng = np.random.default_rng(RNG_SEED)
+    rng = np.random.default_rng(seed)
     n = len(data["epoch_yr"])
     samples = np.zeros((n_resamples, len(best_fit)))
     for k_iter in range(n_resamples):
@@ -161,6 +170,7 @@ def bootstrap_samples(data, best_fit, n_resamples=N_BOOTSTRAP):
         samples[k_iter] = fit_once(
             data["epoch_yr"][idx], data["ra_offset_mas"][idx], data["dec_offset_mas"][idx],
             data["sigma_ra_mas"][idx], data["sigma_dec_mas"][idx], x0=best_fit,
+            light_time=light_time,
         )
     return samples
 
@@ -205,6 +215,13 @@ def print_physics_consistency_check(samples):
           f"{omega_dot_predicted_deg_yr.mean():.4f} +/- {omega_dot_predicted_deg_yr.std():.4f} deg/yr")
     print(f"  per-resample difference: {diff.mean():.4f} +/- {diff.std():.4f} deg/yr "
           f"({diff.mean() / diff.std():.2f} sigma from zero)")
+    return {
+        "pn_from_fit_mean": (omega_dot_predicted_deg_yr.mean(), ".4f"),
+        "pn_from_fit_sigma": (omega_dot_predicted_deg_yr.std(), ".4f"),
+        "pn_diff_mean": (diff.mean(), ".4f"),
+        "pn_diff_sigma": (diff.std(), ".4f"),
+        "pn_diff_nsigma": (abs(diff.mean() / diff.std()), ".2f"),
+    }
 
 
 def build_plot_epoch_grid(epoch_min, epoch_max, period_yr, t_peri_yr, n_coarse=2000, n_dense=2000):
@@ -342,8 +359,20 @@ def main():
     fit_sigma = samples.std(axis=0)
 
     print_comparison(best_fit, fit_sigma)
-    print_physics_consistency_check(samples)
+    consistency = print_physics_consistency_check(samples)
     make_plots(data, best_fit)
+
+    results = {"n_epochs": len(data["epoch_yr"]), "n_bootstrap": N_BOOTSTRAP,
+               "truth_omega_dot": (TRUE_OMEGA_DOT_DEG_YR, ".4f")}
+    fmts = {"P_yr": ".4f", "e": ".4f", "i_deg": ".4f", "Omega_deg": ".4f",
+            "omega_deg": ".4f", "t_peri_yr": ".4f", "omega_dot_deg_yr": ".4f"}
+    for name, truth, fit_val, fit_sig in zip(PARAM_NAMES, TRUTH_VECTOR, best_fit, fit_sigma):
+        results[f"truth_{name}"] = (truth, fmts[name])
+        results[f"fit_{name}"] = (fit_val, fmts[name])
+        results[f"sigma_{name}"] = (fit_sig, ".4f")
+        results[f"pull_{name}"] = (abs(fit_val - truth) / fit_sig, ".2f")
+    results.update(consistency)
+    results_io.write_results("fit_orbit", results)
 
 
 if __name__ == "__main__":

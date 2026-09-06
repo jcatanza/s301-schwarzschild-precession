@@ -1,0 +1,95 @@
+{
+  "astrometry_uas": {
+    "fmt": ".0f",
+    "value": 100.0
+  },
+  "baseline_yr": {
+    "fmt": ".1f",
+    "value": 13.185489390532894
+  },
+  "dense_half_width_days": {
+    "fmt": ".0f",
+    "value": 20.0
+  },
+  "dense_pct": {
+    "fmt": ".1f",
+    "value": 38.16793893129771
+  },
+  "epoch_max": {
+    "fmt": ".2f",
+    "value": 2041.685489390533
+  },
+  "epoch_min": {
+    "fmt": ".2f",
+    "value": 2028.5
+  },
+  "n_dense": {
+    "value": 50
+  },
+  "n_epochs": {
+    "value": 131
+  },
+  "n_sparse": {
+    "value": 81
+  },
+  "omega_dot_injected": {
+    "fmt": ".4f",
+    "value": 0.23070658356208934
+  },
+  "omega_dot_per_orbit": {
+    "fmt": ".3f",
+    "value": 2.0025331453189352
+  },
+  "periapsis_one": {
+    "fmt": ".3f",
+    "value": 2031.806
+  },
+  "periapsis_two": {
+    "fmt": ".3f",
+    "value": 2040.486
+  },
+  "rv_delta_m": {
+    "fmt": ".1f",
+    "value": 5.300000000000001
+  },
+  "rv_flux_ratio": {
+    "fmt": ".0f",
+    "value": 131.82567385564087
+  },
+  "rv_implied_snr": {
+    "fmt": ".3f",
+    "value": 0.03697911495833318
+  },
+  "rv_precision_to_signal": {
+    "fmt": ".2f",
+    "value": 0.10608296061323706
+  },
+  "rv_resolution_element": {
+    "fmt": ".0f",
+    "value": 59.96
+  },
+  "rv_sigma_eris": {
+    "fmt": ".0f",
+    "value": 1621.4557884243827
+  },
+  "rv_sigma_eris_sqrt": {
+    "fmt": ".0f",
+    "value": 141.22289544411666
+  },
+  "rv_signal_max": {
+    "fmt": ".0f",
+    "value": 15284.790121346377
+  },
+  "season_anchor_one": {
+    "fmt": ".3f",
+    "value": 2031.7479452054795
+  },
+  "sigma_dmag": {
+    "fmt": ".2f",
+    "value": 0.3
+  },
+  "sparse_pct": {
+    "fmt": ".1f",
+    "value": 61.832061068702295
+  }
+}

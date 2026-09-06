@@ -20,14 +20,14 @@ Physics included:
      Doppler and transverse (time-dilation) redshift.
   3. Gravitational (Schwarzschild) redshift factor sqrt(1 - Rs/r).
   4. Relativistic intensity boosting via the Lorentz-invariant I_nu/nu^3,
-     applied to a blackbody spectrum, integrated over GRAVITY/VLTI's own
-     real K-band operating range (1.98-2.40 um) -- the actual instrument
-     bandpass S301's published m_K=19.3 was measured in, not a generic
-     photometric-system filter.
-  5. NOT included: strong-field ray tracing / gravitational lensing
-     magnification or occultation by the BH shadow (needs a specific
-     line-of-sight alignment not covered by the elements alone), Kerr
-     (spin) corrections, or Roemer light-travel-time delay.
+     applied to a blackbody spectrum, integrated over a top-hat
+     transmission spanning GRAVITY/VLTI's own real K-band operating range
+     (1.98-2.40 um; photometry.py) -- the actual instrument bandpass
+     S301's published m_K=19.3 was measured in.
+  5. NOT included: strong-field ray tracing / lensing (the weak-lensing
+     astrometric effect is quantified in lensing_error.py), Kerr (spin)
+     corrections, or Roemer delay (irrelevant to a curve plotted against
+     time-from-periapsis; it is included in the campaign/fit pipeline).
 
 ASSUMPTIONS flagged explicitly (not published facts about S301):
   - T_eff = 7300 K: NOT published. Standard-table estimate for the
@@ -56,13 +56,9 @@ import matplotlib.pyplot as plt
 
 import constants as k
 import orbit
+import photometry
+import results_io
 # pylint: enable=wrong-import-position
-
-
-def planck_bnu(freq, temp):
-    """Blackbody spectral radiance B_nu(freq, temp)."""
-    x = k.h * freq / (k.kB * temp)
-    return (2 * k.h * freq ** 3 / k.c ** 2) / np.expm1(x)
 
 
 def build_truth_elements():
@@ -76,29 +72,17 @@ def build_truth_elements():
     ), sma
 
 
-def compute_light_curve(elements, temp, r_star, d_obs, n_points=40000):
+def compute_light_curve(elements, temp, n_points=40000):
     """Delta-magnitude and redshift time series over one full orbit,
-    densely sampled near periapsis (see eccentric_anomaly_grid)."""
+    densely sampled near periapsis (see eccentric_anomaly_grid), from
+    photometry.band_flux (top-hat K bandpass, I_nu/nu^3 beaming). The
+    star's radius and distance only scale the absolute flux and cancel
+    in the delta-magnitude."""
     ecc_anom = orbit.eccentric_anomaly_grid(n_points)
     t = orbit.time_since_periapsis(ecc_anom, elements.ecc, elements.period)
     state = orbit.orbit_state(t, elements, k.GM_BH)
     one_plus_z = orbit.redshift_factor(state, k.Rs)
-
-    lam0 = k.KS_LAMBDA0
-    sigma_lam = k.KS_FWHM / 2.355
-    lam_grid = np.linspace(lam0 - 3 * sigma_lam, lam0 + 3 * sigma_lam, 400)
-    freq_grid = k.c / lam_grid
-    transmission = np.exp(-0.5 * ((lam_grid - lam0) / sigma_lam) ** 2)
-
-    flux_band = np.zeros_like(t)
-    for idx, boost in enumerate(one_plus_z):
-        freq_emit = freq_grid * boost
-        intensity_emit = planck_bnu(freq_emit, temp)
-        intensity_obs = intensity_emit / boost ** 3
-        flux_nu_obs = np.pi * (r_star / d_obs) ** 2 * intensity_obs
-        flux_band[idx] = np.trapezoid(flux_nu_obs * transmission, freq_grid)
-    flux_band = np.abs(flux_band)
-
+    flux_band = photometry.band_flux(one_plus_z, temp=temp)
     dmag = -2.5 * np.log10(flux_band / np.median(flux_band))
     return t, state, one_plus_z, dmag
 
@@ -178,7 +162,7 @@ def main():
     r_star = k.R_STAR
     d_obs = k.D_OBS
 
-    t, state, one_plus_z, dmag = compute_light_curve(elements, temp, r_star, d_obs)
+    t, state, one_plus_z, dmag = compute_light_curve(elements, temp)
 
     print(f"Max blueshift factor observed (1+z)_min = {one_plus_z.min():.4f}")
     print(f"Max redshift factor observed  (1+z)_max = {one_plus_z.max():.4f}")
@@ -196,8 +180,31 @@ def main():
     outpath = "output/s301_lightcurve.png"
     mask = make_plots(t, state, one_plus_z, dmag, outpath)
     print(f"Saved figure to {outpath}")
-    print(f"Peak-to-trough delta-mag amplitude near periapsis: "
-          f"{dmag[mask].max() - dmag[mask].min():.4f} mag")
+    amplitude = dmag[mask].max() - dmag[mask].min()
+    print(f"Peak-to-trough delta-mag amplitude near periapsis: {amplitude:.4f} mag")
+
+    # Relativistic (SR+GR) redshift minus classical v_r/c, in percentage
+    # points, over the same +/-20-day window: the "genuine correction"
+    # the manuscript quotes.
+    excess_pp = ((one_plus_z - 1) - state["beta_r"])[mask] * 100
+    results_io.write_results("s301_lightcurve", {
+        "a_AU": (sma / k.AU, ".1f"),
+        "a_AU_published": (k.TRUTH["a_mas"] / 1000 * k.R0_PC, ".1f"),
+        "rp_Rs": (r_p_check / k.Rs, ".1f"),
+        "rp_Rs_published": k.TRUTH["r_p_Rs"],
+        "vp_pct_c": (v_p / k.c * 100, ".2f"),
+        "one_plus_z_min": (one_plus_z.min(), ".4f"),
+        "one_plus_z_max": (one_plus_z.max(), ".4f"),
+        "amplitude_mag": (amplitude, ".3f"),
+        "brightening_mag": (-dmag[mask].min(), ".3f"),
+        "dimming_mag": (dmag[mask].max(), ".3f"),
+        "redshift_excess_pp_min": (excess_pp.min(), ".2f"),
+        "redshift_excess_pp_max": (excess_pp.max(), ".2f"),
+        "t_eff": (temp, ".0f"),
+        "band_lo_um": (k.KS_RANGE[0] * 1e6, ".2f"),
+        "band_hi_um": (k.KS_RANGE[1] * 1e6, ".2f"),
+        "sigma_m_k": (k.SIGMA_M_K, ".2f"),
+    })
 
 
 if __name__ == "__main__":

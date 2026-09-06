@@ -1,0 +1,65 @@
+{
+  "a_AU": {
+    "fmt": ".1f",
+    "value": 686.6884385589561
+  },
+  "a_AU_published": {
+    "fmt": ".1f",
+    "value": 686.991
+  },
+  "amplitude_mag": {
+    "fmt": ".3f",
+    "value": 0.1150342685241455
+  },
+  "band_hi_um": {
+    "fmt": ".2f",
+    "value": 2.4
+  },
+  "band_lo_um": {
+    "fmt": ".2f",
+    "value": 1.9800000000000002
+  },
+  "brightening_mag": {
+    "fmt": ".3f",
+    "value": 0.07543369264161712
+  },
+  "dimming_mag": {
+    "fmt": ".3f",
+    "value": 0.03960057588252838
+  },
+  "one_plus_z_max": {
+    "fmt": ".4f",
+    "value": 1.0241909291888116
+  },
+  "one_plus_z_min": {
+    "fmt": ".4f",
+    "value": 0.9551615380584042
+  },
+  "redshift_excess_pp_max": {
+    "fmt": ".2f",
+    "value": 0.7178731392450323
+  },
+  "redshift_excess_pp_min": {
+    "fmt": ".2f",
+    "value": 0.06701741590048466
+  },
+  "rp_Rs": {
+    "fmt": ".1f",
+    "value": 135.97138864952663
+  },
+  "rp_Rs_published": {
+    "value": 136
+  },
+  "sigma_m_k": {
+    "fmt": ".2f",
+    "value": 0.3
+  },
+  "t_eff": {
+    "fmt": ".0f",
+    "value": 7300.0
+  },
+  "vp_pct_c": {
+    "fmt": ".2f",
+    "value": 8.5397369358744
+  }
+}

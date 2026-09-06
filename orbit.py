@@ -9,9 +9,14 @@ velocity -> exact special-relativistic Doppler factor (from the star's
 true 3D speed, not a small-v approximation) combined with Schwarzschild
 gravitational redshift sqrt(1 - Rs/r).
 
-NOT included: Kerr (spinning-BH) corrections, strong-field ray tracing /
-lensing, or Roemer (light-travel-time) delay across the orbit -- all
-higher-order effects on top of what's modeled here.
+Roemer (light-travel-time) delay: orbit_state_observed() solves for the
+emission time behind each arrival time self-consistently (Newton), and
+campaign.py / fit_orbit.py use it by default, matching the discovery
+paper's own S301 orbit fit, which includes the Roemer effect.
+
+NOT included: Kerr (spinning-BH) corrections and strong-field ray
+tracing; weak-lensing astrometric deflection is quantified separately
+in lensing_error.py as a systematic, not applied in the model.
 
 Sign/orientation convention: standard orbital elements (inclination,
 RAAN, argument of periapsis) as used in visual-binary / exoplanet
@@ -272,6 +277,51 @@ def orbit_state_precessing(t, elements, omega_dot, t_ref, grav_param):
     speed = np.sqrt(vx_plane ** 2 + vy_plane ** 2)
     return _finalize_state(radius, true_anom, (sky_x, sky_y, sky_z),
                             (sky_vx, sky_vy, sky_vz), speed)
+
+
+N_ROEMER_ITER = 20
+# Newton converges in ~2-3 iterations (contraction rate |v_los|/c <= 8.5%).
+# 1e-3 s is ~10 orders of magnitude below any physical timescale here and
+# freezes each epoch right after genuine convergence, avoiding a verified
+# floating-point edge case in the Kepler solve at tighter tolerances.
+ROEMER_TOL_SEC = 1e-3
+
+
+def solve_emission_time(t_obs, elements, omega_dot, t_ref, grav_param):
+    """Emission time behind each arrival time t_obs (seconds): solves
+    g(t_emit) = t_emit - sky_z(t_emit)/c - t_obs = 0 by Newton's method,
+    using g' = 1 - sky_vz/c from the same state evaluation. +Z is toward
+    the observer, so light from a nearer position arrives sooner for the
+    same emission time. Vectorized, with each epoch frozen once its step
+    falls below ROEMER_TOL_SEC."""
+    t_obs = np.asarray(t_obs, dtype=float)
+    t_emit = t_obs.copy()
+    converged = np.zeros_like(t_emit, dtype=bool)
+    for _ in range(N_ROEMER_ITER):
+        active = ~converged
+        if not np.any(active):
+            break
+        state = orbit_state_precessing(t_emit[active], elements, omega_dot, t_ref=t_ref,
+                                       grav_param=grav_param)
+        g_val = t_emit[active] - state["sky_z"] / C_LIGHT - t_obs[active]
+        g_prime = 1.0 - state["sky_vz"] / C_LIGHT
+        step = g_val / g_prime
+        t_emit[active] = t_emit[active] - step
+        newly_converged = np.abs(step) < ROEMER_TOL_SEC
+        idx_active = np.flatnonzero(active)
+        converged[idx_active[newly_converged]] = True
+    return t_emit
+
+
+def orbit_state_observed(t_obs, elements, omega_dot, t_ref, grav_param, light_time=True):
+    """State of the star as SEEN at arrival times t_obs (seconds): with
+    light_time=True (default), the orbit is evaluated at the self-
+    consistent emission time; with light_time=False it is evaluated
+    naively at t_obs, which is what the light-time-unaware model in
+    roemer_delay.py uses to quantify the bias of ignoring the effect."""
+    t_eval = solve_emission_time(t_obs, elements, omega_dot, t_ref, grav_param) if light_time \
+        else np.asarray(t_obs, dtype=float)
+    return orbit_state_precessing(t_eval, elements, omega_dot, t_ref=t_ref, grav_param=grav_param)
 
 
 def schwarzschild_precession_rate(grav_param, sma, ecc, period):
