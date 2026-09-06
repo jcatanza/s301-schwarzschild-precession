@@ -1,7 +1,7 @@
 {
   "max_angle_bias_nsigma": {
     "fmt": ".2f",
-    "value": 0.02150669593462727
+    "value": 0.021507219563877862
   },
   "max_shift_days_from_peri": {
     "fmt": ".0f",
@@ -26,15 +26,15 @@
   },
   "omega_dot_bias": {
     "fmt": ".5f",
-    "value": -1.7153446355833157e-06
+    "value": -1.700170626978137e-06
   },
   "omega_dot_bias_nsigma": {
     "fmt": ".2f",
-    "value": 0.0015343100571255305
+    "value": 0.0015211739981457922
   },
   "omega_dot_bias_pct": {
     "fmt": ".3f",
-    "value": 0.0007435178524594077
+    "value": 0.0007369406632128359
   },
   "rms_shift_uas": {
     "fmt": ".2f",

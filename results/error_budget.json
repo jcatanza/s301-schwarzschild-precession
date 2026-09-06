@@ -1,0 +1,113 @@
+{
+  "bias_extmass": {
+    "fmt": ".5f",
+    "value": 0.00031648386499962954
+  },
+  "bias_lensing": {
+    "fmt": ".6f",
+    "value": 1.700170626978137e-06
+  },
+  "bottom_line": {
+    "fmt": ".4f",
+    "value": 0.0013661918851067994
+  },
+  "bottom_line_pct_of_signal": {
+    "fmt": ".2f",
+    "value": 0.5921772426312751
+  },
+  "bottom_line_ratio": {
+    "fmt": ".2f",
+    "value": 1.2223570617709367
+  },
+  "combined_omega_dot": {
+    "fmt": ".4f",
+    "value": 0.23084538941388472
+  },
+  "combined_ratio": {
+    "fmt": ".2f",
+    "value": 1.1891058200555749
+  },
+  "combined_ratio_Omega_deg": {
+    "fmt": ".2f",
+    "value": 1.5415500228931225
+  },
+  "combined_ratio_P_yr": {
+    "fmt": ".2f",
+    "value": 1.1766582252417812
+  },
+  "combined_ratio_e": {
+    "fmt": ".2f",
+    "value": 2.504814335672266
+  },
+  "combined_ratio_i_deg": {
+    "fmt": ".2f",
+    "value": 2.280064051784734
+  },
+  "combined_ratio_omega_deg": {
+    "fmt": ".2f",
+    "value": 2.5184051226079065
+  },
+  "combined_ratio_omega_dot_deg_yr": {
+    "fmt": ".2f",
+    "value": 1.1891058200555749
+  },
+  "combined_ratio_t_peri_yr": {
+    "fmt": ".2f",
+    "value": 1.3183932962786373
+  },
+  "combined_sigma": {
+    "fmt": ".4f",
+    "value": 0.0013290279679323551
+  },
+  "combined_sigma_Omega_deg": {
+    "fmt": ".5f",
+    "value": 0.12572785745401766
+  },
+  "combined_sigma_P_yr": {
+    "fmt": ".5f",
+    "value": 0.00020450435042094968
+  },
+  "combined_sigma_e": {
+    "fmt": ".5f",
+    "value": 9.746174709326065e-05
+  },
+  "combined_sigma_i_deg": {
+    "fmt": ".5f",
+    "value": 0.08019457357455474
+  },
+  "combined_sigma_omega_deg": {
+    "fmt": ".5f",
+    "value": 0.1157564015435991
+  },
+  "combined_sigma_omega_dot_deg_yr": {
+    "fmt": ".5f",
+    "value": 0.0013290279679323551
+  },
+  "combined_sigma_t_peri_yr": {
+    "fmt": ".5f",
+    "value": 0.00042109406695085106
+  },
+  "d_ratio": {
+    "fmt": ".4f",
+    "value": 0.9986040534035616
+  },
+  "extra_confusion": {
+    "fmt": ".5f",
+    "value": 0.0
+  },
+  "m_ratio": {
+    "fmt": ".4f",
+    "value": 1.0032595245200995
+  },
+  "n_boot": {
+    "value": 300
+  },
+  "offset_x_uas": {
+    "fmt": ".1f",
+    "value": -1.3823273387193347
+  },
+  "offset_y_uas": {
+    "fmt": ".1f",
+    "value": 15.179244958656248
+  }
+}

@@ -62,3 +62,8 @@ campaign, plus a systematic error budget. Single author: J. Catanzarite.
 - Sgr A* is only observable from Paranal roughly March-September;
   `campaign.py` filters every epoch to that season, and passage 1's
   periapsis (2031-10-22) falls just outside it.
+
+## Editorial pass
+
+For a writing/structure review of `article.tex`, use the user-level skill
+`/manuscript-review` (`~/.claude/skills/manuscript-review/SKILL.md`).

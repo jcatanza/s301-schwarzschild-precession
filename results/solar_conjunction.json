@@ -24,7 +24,7 @@
   },
   "gap_days_after_peri": {
     "fmt": ".0f",
-    "value": 102.8099999999854
+    "value": 130.8099999999854
   },
   "gap_days_before_peri": {
     "fmt": ".0f",
@@ -32,7 +32,7 @@
   },
   "gap_total_days": {
     "fmt": ".0f",
-    "value": 125.0
+    "value": 153.0
   },
   "peri_one_date": {
     "value": "2031-10-22"

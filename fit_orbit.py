@@ -371,6 +371,9 @@ def main():
         results[f"fit_{name}"] = (fit_val, fmts[name])
         results[f"sigma_{name}"] = (fit_sig, ".4f")
         results[f"pull_{name}"] = (abs(fit_val - truth) / fit_sig, ".2f")
+    # Largest |fit - truth| / sigma over the seven parameters, for the
+    # "every parameter recovered within N sigma" statement in the paper.
+    results["pull_max"] = (float(np.max(np.abs(best_fit - TRUTH_VECTOR) / fit_sigma)), ".2f")
     results.update(consistency)
     results_io.write_results("fit_orbit", results)
 

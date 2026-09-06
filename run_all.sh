@@ -129,8 +129,10 @@ regenerate_arxiv() {
     for fig in "${FIGURES[@]}"; do cp "$fig" arxiv/; done
     cp "$MOVIE" arxiv/anc/
     sed -i -E 's#(\\includegraphics(\[[^]]*\])?\{)output/#\1#' arxiv/article.tex
-    if grep -q 'output/' arxiv/article.tex; then
-        echo "run_all.sh: arxiv/article.tex still references output/ -- check the sed above" >&2
+    # Only figure paths must be flattened; the GitHub URL in the Fig. 4 caption
+    # legitimately contains "output/".
+    if grep -q -E '\\includegraphics(\[[^]]*\])?\{output/' arxiv/article.tex; then
+        echo "run_all.sh: arxiv/article.tex still has an output/ figure path -- check the sed above" >&2
         exit 1
     fi
     docker_tex arxiv "pdflatex -interaction=nonstopmode article.tex && bibtex article && \

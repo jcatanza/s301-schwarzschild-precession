@@ -39,14 +39,6 @@ Davies, R.~I., \& {et al.} 2023, \bibinfo{title}{The Enhanced Resolution Imager
   Journal Letters, 930, L12, \dodoi{10.3847/2041-8213/ac6674}
 
 % type= article
-\bibitem[{ {GRAVITY+ Collaboration}(2023){GRAVITY+
-  Collaboration}}]{gravityplus2023}
-{GRAVITY+ Collaboration}. 2023, \bibinfo{title}{The GRAVITY+ Project: Towards
-  All-sky, Faint-Science, High-Contrast Near-Infrared Interferometry at the
-  VLTI,} arXiv e-prints.
-\newblock \doarXiv{2301.08071}
-
-% type= article
 \bibitem[{ {GRAVITY Collaboration} {et~al.}(2026){GRAVITY Collaboration}, {Abd
   El Dayem}, \& {et al.}}]{gravity2026}
 {GRAVITY Collaboration}, {Abd El Dayem}, K., \& {et al.} 2026,

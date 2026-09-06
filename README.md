@@ -1,8 +1,8 @@
 # S301 precession feasibility study
 
-Simulation code and manuscript for *A Feasibility Study for Detecting
-Schwarzschild Apsidal Precession in the Orbit of S301 around Sgr A\* with
-GRAVITY+/VLTI* (J. Catanzarite, 2026; `article.tex`).
+Simulation code and manuscript for *Catching Up with the Fastest Star in
+the Galaxy: A Two-Passage GRAVITY+ Campaign to Detect S301's Schwarzschild
+Precession* (J. Catanzarite, 2026; `article.tex`).
 
 S301 is the fastest known star in the Galaxy: it orbits Sagittarius A\*
 every 8.68 yr on an e = 0.983 orbit that brings it within 136
@@ -158,8 +158,8 @@ Placeholder until the preprint is posted:
 ```bibtex
 @article{catanzarite2026s301,
   author  = {Catanzarite, J.},
-  title   = {A Feasibility Study for Detecting Schwarzschild Apsidal Precession
-             in the Orbit of S301 around Sgr~A$^*$ with GRAVITY+/VLTI},
+  title   = {Catching Up with the Fastest Star in the Galaxy: A Two-Passage
+             GRAVITY+ Campaign to Detect S301's Schwarzschild Precession},
   year    = {2026},
   journal = {arXiv e-prints},
   note    = {arXiv:XXXX.XXXXX}

@@ -1,43 +1,43 @@
 {
   "achieved_detection_nsigma": {
     "fmt": ".0f",
-    "value": 96.0594573021132
+    "value": 96.09229735807602
   },
   "achieved_omega_dot": {
     "fmt": ".4f",
-    "value": 0.23235881674426676
+    "value": 0.23235735795782597
   },
   "achieved_omega_dot_sigma": {
     "fmt": ".4f",
-    "value": 0.002418906199037574
+    "value": 0.002418064343825344
   },
   "achieved_sigma_Omega_deg": {
     "fmt": ".4f",
-    "value": 0.16866735826195106
+    "value": 0.16863593037955585
   },
   "achieved_sigma_P_yr": {
     "fmt": ".4f",
-    "value": 0.00034493376210858106
+    "value": 0.0003449376512557666
   },
   "achieved_sigma_e": {
     "fmt": ".4f",
-    "value": 8.036280189585805e-05
+    "value": 8.034196970533695e-05
   },
   "achieved_sigma_i_deg": {
     "fmt": ".4f",
-    "value": 0.07261758287380497
+    "value": 0.07260955977900387
   },
   "achieved_sigma_omega_deg": {
     "fmt": ".4f",
-    "value": 0.09541881691678594
+    "value": 0.09539249472972117
   },
   "achieved_sigma_omega_dot_deg_yr": {
     "fmt": ".4f",
-    "value": 0.002418906199037574
+    "value": 0.002418064343825344
   },
   "achieved_sigma_t_peri_yr": {
     "fmt": ".4f",
-    "value": 0.0006377798361778364
+    "value": 0.000637783016554963
   },
   "achieved_uas": {
     "fmt": ".0f",
@@ -45,43 +45,43 @@
   },
   "forecast_detection_nsigma": {
     "fmt": ".0f",
-    "value": 198.10484157165337
+    "value": 198.168808646697
   },
   "forecast_omega_dot": {
     "fmt": ".4f",
-    "value": 0.2315057958189734
+    "value": 0.2315053305279948
   },
   "forecast_omega_dot_sigma": {
     "fmt": ".4f",
-    "value": 0.0011686024126534994
+    "value": 0.001168222850553295
   },
   "forecast_sigma_Omega_deg": {
     "fmt": ".4f",
-    "value": 0.0812567057793212
+    "value": 0.08124007658480054
   },
   "forecast_sigma_P_yr": {
     "fmt": ".4f",
-    "value": 0.00016657786931803225
+    "value": 0.0001665799843732693
   },
   "forecast_sigma_e": {
     "fmt": ".4f",
-    "value": 3.889180746017399e-05
+    "value": 3.888198388728308e-05
   },
   "forecast_sigma_i_deg": {
     "fmt": ".4f",
-    "value": 0.035054199048989716
+    "value": 0.03504982960349443
   },
   "forecast_sigma_omega_deg": {
     "fmt": ".4f",
-    "value": 0.045981306858055085
+    "value": 0.04596821733361671
   },
   "forecast_sigma_omega_dot_deg_yr": {
     "fmt": ".4f",
-    "value": 0.0011686024126534994
+    "value": 0.001168222850553295
   },
   "forecast_sigma_t_peri_yr": {
     "fmt": ".4f",
-    "value": 0.0003078911771272128
+    "value": 0.00030789297221109433
   },
   "forecast_uas": {
     "fmt": ".0f",

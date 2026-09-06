@@ -4,27 +4,27 @@
   },
   "lt_nsigma_noise_chi100": {
     "fmt": ".1f",
-    "value": 11.847819972359705
+    "value": 11.851220754030143
   },
   "lt_nsigma_noise_chi50": {
     "fmt": ".1f",
-    "value": 5.9239099861798525
+    "value": 5.925610377015071
   },
   "lt_nsigma_noise_chi90": {
     "fmt": ".1f",
-    "value": 10.663037975123736
+    "value": 10.66609867862713
   },
   "lt_nsigma_ref_chi100": {
     "fmt": ".1f",
-    "value": 12.041595052957375
+    "value": 11.405250053653194
   },
   "lt_nsigma_ref_chi50": {
     "fmt": ".1f",
-    "value": 6.020797526478687
+    "value": 5.702625026826597
   },
   "lt_nsigma_ref_chi90": {
     "fmt": ".1f",
-    "value": 10.837435547661636
+    "value": 10.264725048287875
   },
   "lt_pct_chi100": {
     "fmt": ".2f",
@@ -52,6 +52,6 @@
   },
   "sigma_ref_used": {
     "fmt": ".4f",
-    "value": 0.0011
+    "value": 0.001161373446083314
   }
 }
