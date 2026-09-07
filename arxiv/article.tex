@@ -168,9 +168,9 @@ If GRAVITY+ reaches its forecast precision (\precisionForecastUas{}~$\mu$as inst
 The fitted $\dot\omega$ is a free parameter, determined by geometry with no reference to equation~(\ref{eq:precession}). As a check, for each bootstrap resample we evaluate that formula on the resample's own fitted $(P, e)$, still blind to any published or injected value: the prediction is $\fitPnFromFitMean \pm \fitPnFromFitSigma$~deg~yr$^{-1}$, and its per-resample difference from the fitted $\dot\omega$ is $\fitPnDiffMean \pm \fitPnDiffSigma$~deg~yr$^{-1}$, \fitPnDiffNsigma{}$\sigma$ from zero (the difference is taken per resample because $P$, $e$ and $\dot\omega$ come from the same correlated resamples). Geometry and theory agree without either referring to the other's answer.
 
 \begin{table}
-\small
 \caption{Final result: Design D cadence, astrometry only, \campaignAstrometryUas{}~$\mu$as per epoch, \fitNBootstrap{} bootstrap resamples.}
 \label{tab:finalfit}
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lcccc}
 \hline
 Parameter & Truth & Fitted & $\sigma$ & Published $\sigma$ \\
