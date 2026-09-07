@@ -22,9 +22,8 @@ Exceptions:
   Centre image (credit: ESO/MPE/S. Gillessen et al.). Both are used under
   their publishers' own CC BY 4.0 terms; the credit lines in the figure
   captions and in `make_context_figure.py` must be retained.
-- `arxiv/mnras.cls` and `arxiv/mnras.bst` are the MNRAS LaTeX class and
-  bibliography style, redistributed under their own terms (LaTeX Project
-  Public License).
+- `arxiv/aastex701.cls` is the AAS journals LaTeX class, redistributed
+  under its own terms (LaTeX Project Public License).
 
 The simulation code is separately licensed under the MIT License; see
 `LICENSE`.
