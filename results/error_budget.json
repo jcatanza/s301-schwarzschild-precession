@@ -5,109 +5,159 @@
   },
   "bias_lensing": {
     "fmt": ".6f",
-    "value": 1.700170626978137e-06
+    "value": 1.7210387465438348e-06
   },
   "bottom_line": {
     "fmt": ".4f",
-    "value": 0.0013661918851067994
+    "value": 0.005012786503834986
+  },
+  "bottom_line_detection_nsigma": {
+    "fmt": ".0f",
+    "value": 46.0236204724836
+  },
+  "bottom_line_inflated": {
+    "fmt": ".4f",
+    "value": 0.00738429562765979
+  },
+  "bottom_line_inflated_detection_nsigma": {
+    "fmt": ".0f",
+    "value": 31.24286935343137
+  },
+  "bottom_line_inflated_pct_of_signal": {
+    "fmt": ".2f",
+    "value": 3.2007303448592213
+  },
+  "bottom_line_inflated_ratio": {
+    "fmt": ".2f",
+    "value": 3.1915726362253625
   },
   "bottom_line_pct_of_signal": {
     "fmt": ".2f",
-    "value": 0.5921772426312751
+    "value": 2.1727973369628226
   },
   "bottom_line_ratio": {
     "fmt": ".2f",
-    "value": 1.2223570617709367
+    "value": 2.166580679266466
+  },
+  "bottom_line_white": {
+    "fmt": ".4f",
+    "value": 0.0024191948911160984
+  },
+  "bottom_line_white_ratio": {
+    "fmt": ".2f",
+    "value": 1.045602262626268
+  },
+  "chi2r_high": {
+    "value": 2.17
+  },
+  "chi2r_low": {
+    "value": 1.5
   },
   "combined_omega_dot": {
     "fmt": ".4f",
-    "value": 0.23084538941388472
+    "value": 0.23200374698401285
   },
   "combined_ratio": {
     "fmt": ".2f",
-    "value": 1.1891058200555749
+    "value": 1.0366063097683527
   },
   "combined_ratio_Omega_deg": {
     "fmt": ".2f",
-    "value": 1.5415500228931225
+    "value": 1.0574150138093654
   },
   "combined_ratio_P_yr": {
     "fmt": ".2f",
-    "value": 1.1766582252417812
+    "value": 1.0670651446841166
   },
   "combined_ratio_e": {
     "fmt": ".2f",
-    "value": 2.504814335672266
+    "value": 1.1902734846733083
   },
   "combined_ratio_i_deg": {
     "fmt": ".2f",
-    "value": 2.280064051784734
+    "value": 1.3796217948817078
   },
   "combined_ratio_omega_deg": {
     "fmt": ".2f",
-    "value": 2.5184051226079065
+    "value": 1.2874120037244854
   },
   "combined_ratio_omega_dot_deg_yr": {
     "fmt": ".2f",
-    "value": 1.1891058200555749
+    "value": 1.0366063097683527
   },
   "combined_ratio_t_peri_yr": {
     "fmt": ".2f",
-    "value": 1.3183932962786373
+    "value": 1.1600109321416148
   },
   "combined_sigma": {
     "fmt": ".4f",
-    "value": 0.0013290279679323551
+    "value": 0.0023983810845928343
   },
   "combined_sigma_Omega_deg": {
     "fmt": ".5f",
-    "value": 0.12572785745401766
+    "value": 0.17892204558425523
   },
   "combined_sigma_P_yr": {
     "fmt": ".5f",
-    "value": 0.00020450435042094968
+    "value": 0.00038387153386338496
   },
   "combined_sigma_e": {
     "fmt": ".5f",
-    "value": 9.746174709326065e-05
+    "value": 9.571026934140288e-05
   },
   "combined_sigma_i_deg": {
     "fmt": ".5f",
-    "value": 0.08019457357455474
+    "value": 0.1004883504064177
   },
   "combined_sigma_omega_deg": {
     "fmt": ".5f",
-    "value": 0.1157564015435991
+    "value": 0.12273275201882061
   },
   "combined_sigma_omega_dot_deg_yr": {
     "fmt": ".5f",
-    "value": 0.0013290279679323551
+    "value": 0.0023983810845928343
   },
   "combined_sigma_t_peri_yr": {
     "fmt": ".5f",
-    "value": 0.00042109406695085106
+    "value": 0.0007674280302728991
+  },
+  "correlated_share_pct": {
+    "fmt": ".0f",
+    "value": 76.70925948882437
   },
   "d_ratio": {
     "fmt": ".4f",
-    "value": 0.9986040534035616
+    "value": 0.99911408637545
   },
   "extra_confusion": {
     "fmt": ".5f",
-    "value": 0.0
+    "value": 1.0348695089681876e-05
+  },
+  "extra_correlated": {
+    "fmt": ".5f",
+    "value": 0.004390390029579143
+  },
+  "inflation_high": {
+    "fmt": ".2f",
+    "value": 1.4730919862656235
+  },
+  "inflation_low": {
+    "fmt": ".2f",
+    "value": 1.224744871391589
   },
   "m_ratio": {
     "fmt": ".4f",
-    "value": 1.0032595245200995
+    "value": 1.002055882673839
   },
   "n_boot": {
     "value": 300
   },
   "offset_x_uas": {
     "fmt": ".1f",
-    "value": -1.3823273387193347
+    "value": 5.328753558674982
   },
   "offset_y_uas": {
     "fmt": ".1f",
-    "value": 15.179244958656248
+    "value": 11.005120019312162
   }
 }

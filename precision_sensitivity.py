@@ -2,12 +2,13 @@
 Sensitivity of the headline result to the assumed per-epoch astrometric
 precision.
 
-The campaign adopts 100 uas per epoch, the value the S301 discovery paper
-itself uses for its GRAVITY+ forecast ("as expected for the final
-performance of GRAVITY+"). The precision ACHIEVED on S301 in the
-discovery data is ~207 uas (their pixel-grid statistical floor, Methods,
-"Astrometric errors"). Both are run here on the identical epoch grid and
-noise seed so the manuscript can state the result at either.
+The campaign adopts 207 uas per epoch, the precision ACHIEVED on S301 in
+the discovery data (their pixel-grid statistical floor, Methods,
+"Astrometric errors"). The S301 discovery paper's own GRAVITY+ forecast
+is 100 uas ("as expected for the final performance of GRAVITY+"); it is
+the optimistic case here. Both are run on the identical epoch grid and
+noise seed so the manuscript can state the result at either. The result
+keys keep the names "forecast" (100 uas) and "achieved" (207 uas).
 Results go to results/precision_sensitivity.json.
 """
 

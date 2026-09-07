@@ -59,7 +59,8 @@ installed. `precession_movie.py` needs `ffmpeg`.
 | `cadence_alternatives.py` | Sec. 3.2 / 5; Monte Carlo cross-check of the bootstrap | ~15 min (slow) |
 | `photometry_checks.py` | Sec. 3.3 photometric cross-check | ~2 min |
 | `rv_channel_test.py` | Sec. 3.2: adding an RV channel changes nothing | ~3 min |
-| `precision_sensitivity.py` | Sec. 5: result at 100 uas (forecast) vs. 207 uas (achieved) | ~3 min |
+| `precision_sensitivity.py` | Sec. 4: result at 207 uas (achieved, fiducial) vs. 100 uas (forecast) | ~3 min |
+| `correlated_noise_test.py` | Sec. 5: per-run common-mode and slowly varying reference systematics | ~5 min |
 | `reference_frame_error.py` | Sec. 4.2 reference-frame tie; Table 4 | ~2 min |
 | `extended_mass_error.py` | Sec. 4.1 extended-mass (Newtonian) confusion; Table 4 | ~1 min |
 | `confusion_error.py` | Sec. 4.3 source confusion / crowding; Table 4 | ~1 min |
@@ -102,11 +103,16 @@ so the record is auditable in the repository history.
 - **PDF.** `article.pdf` and `arxiv/` are built with
   `texlive/texlive:latest` in Docker (pdflatex, bibtex, pdflatex x2), so
   the TeX environment does not depend on the host.
-- **Astrometric precision.** The campaign adopts 100 uas per epoch, the
-  value the discovery paper uses for its own GRAVITY+ forecast. The
-  precision *achieved* on S301 in the discovery data was ~207 uas;
+- **Astrometric precision.** The campaign adopts 207 uas per epoch, the
+  precision *achieved* on S301 in the discovery data. The discovery
+  paper's own GRAVITY+ forecast of 100 uas is the optimistic case;
   `precision_sensitivity.py` reruns the headline fit at both so the paper
   can state the result either way.
+- **Correlated systematics.** `correlated_noise_test.py` adds
+  per-observing-run common-mode offsets and a slowly varying reference
+  term on top of the white noise and measures the precession precision
+  from independent realizations; `error_budget.py` folds the excess into
+  the bottom line.
 - **Roemer delay** is part of both the truth and the fitted model
   (`orbit.orbit_state_observed`, default on), as in the discovery paper's
   own fit; `roemer_delay.py` is the only place it is switched off, to

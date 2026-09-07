@@ -1,11 +1,11 @@
 {
   "bias_nsigma_one": {
     "fmt": ".2f",
-    "value": 0.1148606655040679
+    "value": 0.05548564021699228
   },
   "bias_nsigma_three": {
     "fmt": ".2f",
-    "value": 0.2831639475655466
+    "value": 0.13678775800309764
   },
   "bias_pct_one": {
     "fmt": ".3f",

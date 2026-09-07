@@ -1,15 +1,15 @@
 {
   "chi2": {
     "fmt": ".1f",
-    "value": 137.55048913640593
+    "value": 137.54472694478937
   },
   "chi2_nsigma_from_expected": {
     "fmt": ".2f",
-    "value": 0.40469057035404377
+    "value": 0.4043345809671089
   },
   "chi2_reduced": {
     "fmt": ".2f",
-    "value": 1.050003733865694
+    "value": 1.0499597476701479
   },
   "expected_chi2_sigma": {
     "fmt": ".1f",
@@ -20,59 +20,59 @@
   },
   "joint_ratio_Omega_deg": {
     "fmt": ".2f",
-    "value": 1.0110276605706212
+    "value": 1.0113372704504882
   },
   "joint_ratio_P_yr": {
     "fmt": ".2f",
-    "value": 0.9725027476349717
+    "value": 0.9730937842523418
   },
   "joint_ratio_e": {
     "fmt": ".2f",
-    "value": 1.0210261668347038
+    "value": 1.0210306765580615
   },
   "joint_ratio_i_deg": {
     "fmt": ".2f",
-    "value": 1.0092520105611875
+    "value": 1.0093836385366806
   },
   "joint_ratio_omega_deg": {
     "fmt": ".2f",
-    "value": 1.0158886950952375
+    "value": 1.0162029556900092
   },
   "joint_ratio_omega_dot_deg_yr": {
     "fmt": ".2f",
-    "value": 1.027335650824572
+    "value": 1.0272920124636535
   },
   "joint_ratio_t_peri_yr": {
     "fmt": ".2f",
-    "value": 0.9721103901542187
+    "value": 0.9723914986578722
   },
   "joint_sigma_Omega_deg": {
     "fmt": ".5f",
-    "value": 0.08245878479618109
+    "value": 0.17112536784655577
   },
   "joint_sigma_P_yr": {
     "fmt": ".5f",
-    "value": 0.00016902192873109972
+    "value": 0.00035006579065465795
   },
   "joint_sigma_e": {
     "fmt": ".5f",
-    "value": 3.972789225551024e-05
+    "value": 8.210140133133244e-05
   },
   "joint_sigma_i_deg": {
     "fmt": ".5f",
-    "value": 0.03549748286801981
+    "value": 0.0735210889970579
   },
   "joint_sigma_omega_deg": {
     "fmt": ".5f",
-    "value": 0.04669448082732312
+    "value": 0.09687760017824538
   },
   "joint_sigma_omega_dot_deg_yr": {
     "fmt": ".5f",
-    "value": 0.0011482222939048707
+    "value": 0.0023768307291094143
   },
   "joint_sigma_t_peri_yr": {
     "fmt": ".5f",
-    "value": 0.0003104915042200761
+    "value": 0.0006433047066991105
   },
   "model_amplitude_at_epochs": {
     "fmt": ".3f",
@@ -83,7 +83,7 @@
   },
   "rms_resid_sigma": {
     "fmt": ".2f",
-    "value": 1.0246968985342417
+    "value": 1.0246754352818983
   },
   "sigma_dmag": {
     "fmt": ".2f",

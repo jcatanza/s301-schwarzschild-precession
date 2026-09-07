@@ -46,13 +46,22 @@ Davies, R.~I., \& {et al.} 2023, \bibinfo{title}{The Enhanced Resolution Imager
 \newblock \doarXiv{2607.12664}
 
 % type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2018){GRAVITY Collaboration},
-  Abuter, Amorim, \& {et al.}}]{gravity2018}
-{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.} 2018,
-  \bibinfo{title}{Detection of the gravitational redshift in the orbit of the
-  star S2 near the Galactic centre massive black hole,} Astronomy \&
-  Astrophysics, 615, L15.
+\bibitem[{ {GRAVITY Collaboration} {et~al.}(2018{\natexlab{a}}){GRAVITY
+  Collaboration}, Abuter, Amorim, \& {et al.}}]{gravity2018}
+{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.}
+  2018{\natexlab{a}}, \bibinfo{title}{Detection of the gravitational redshift
+  in the orbit of the star S2 near the Galactic centre massive black hole,}
+  Astronomy \& Astrophysics, 615, L15.
 \newblock \doarXiv{1807.09409}
+
+% type= article
+\bibitem[{ {GRAVITY Collaboration} {et~al.}(2018{\natexlab{b}}){GRAVITY
+  Collaboration}, Abuter, Amorim, \& {et al.}}]{gravity2018flares}
+{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.}
+  2018{\natexlab{b}}, \bibinfo{title}{Detection of orbital motions near the
+  last stable circular orbit of the massive black hole SgrA*,} Astronomy \&
+  Astrophysics, 618, L10.
+\newblock \doarXiv{1810.12641}
 
 % type= article
 \bibitem[{ {GRAVITY Collaboration} {et~al.}(2020){GRAVITY Collaboration},
@@ -79,6 +88,24 @@ Davies, R.~I., \& {et al.} 2023, \bibinfo{title}{The Enhanced Resolution Imager
   light for GRAVITY: Phase referencing optical interferometry for the Very
   Large Telescope Interferometer,} Astronomy \& Astrophysics, 602, A94.
 \newblock \doarXiv{1705.02345}
+
+% type= article
+\bibitem[{S.~E. Koposov {et~al.}(2020)Koposov, Boubert, Li, \& {et
+  al.}}]{koposov2020}
+Koposov, S.~E., Boubert, D., Li, T.~S., \& {et al.} 2020,
+  \bibinfo{title}{Discovery of a nearby 1700 km s$^{-1}$ star ejected from the
+  Milky Way by Sgr A*,} Monthly Notices of the Royal Astronomical Society, 491,
+  2465.
+\newblock \doarXiv{1907.11725}
+
+% type= article
+\bibitem[{F. Pei{\ss}ker {et~al.}(2020)Pei{\ss}ker, Eckart, Zaja{\v c}ek, Ali,
+  \& Parsa}]{peissker2020}
+Pei{\ss}ker, F., Eckart, A., Zaja{\v c}ek, M., Ali, B., \& Parsa, M. 2020,
+  \bibinfo{title}{S62 and S4711: Indications of a Population of Faint
+  Fast-moving Stars inside the S2 Orbit---S4711 on a 7.6 yr Orbit around Sgr
+  A*,} The Astrophysical Journal, 899, 50.
+\newblock \doarXiv{2008.04764}
 
 % type= article
 \bibitem[{T. Piran {et~al.}(2026)Piran, Amaro-Seoane, Aytac, \& {et

@@ -31,8 +31,11 @@ quantifies:
   2. Per-epoch reference JITTER: the counterpart's photocentre wanders
      (flares orbit at a few R_S) and its per-epoch position has its own
      noise. GRAVITY's quoted 65-100 uas S2-minus-Sgr A* precision already
-     includes this, so it is largely inside the campaign's 100 uas floor;
+     includes this, so it is largely inside the campaign's 207 uas floor;
      we scan an additional 0 / 50 / 100 uas in quadrature as a sensitivity.
+     Systematics that are CORRELATED across epochs (per-run common-mode
+     offsets, slow photocentre drift) are the subject of
+     correlated_noise_test.py, not this script.
 
 Outputs (results/reference_frame_error.json): naive-model bias from an
 ignored offset, the 9-parameter joint fit's residual and bootstrap
@@ -42,6 +45,7 @@ precision (the honest cost of the correct treatment), and the jitter scan.
 import numpy as np
 from scipy.optimize import least_squares
 
+import constants as k
 import fit_orbit
 import results_io
 
@@ -167,7 +171,8 @@ def main():
                "n_boot": N_BOOT}
     for tag, prior_uas in (("fid", OFFSET_PRIOR_UAS), ("cons", OFFSET_PRIOR_UAS_CONSERVATIVE)):
         results.update(offset_case(data, baseline_fit, prior_uas, sigma_base, tag))
-    print("\n=== Per-epoch reference jitter added in quadrature to the 100 uas floor ===")
+    print(f"\n=== Per-epoch reference jitter added in quadrature to the "
+          f"{k.GRAVITY_PLUS_ASTROMETRY_MAS * 1000:.0f} uas floor ===")
     for jitter_uas in JITTER_SCAN_UAS:
         results.update(jitter_case(data, jitter_uas, sigma_base))
     results_io.write_results("reference_frame_error", results)

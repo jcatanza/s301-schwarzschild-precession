@@ -12,7 +12,10 @@ sigma is the marginalized random+nuisance precision.
 
 The bounded, non-fitted systematics (extended mass at the conservative
 3-sigma bound, lensing, confusion) are then added in quadrature as bias
-magnitudes. Roemer delay contributes nothing: it is part of the model.
+magnitudes, and so is the EXCESS scatter from correlated systematics
+(correlated_noise_test.py: per-run common-mode offsets and a slowly
+varying reference term), scaled by the same factor as the marginalized
+term. Roemer delay contributes nothing: it is part of the model.
 Spin (Lense-Thirring) is NOT included: it has no bound to inject and is
 reported separately as the reason the test is spin-agnostic, not
 spin-free.
@@ -31,6 +34,18 @@ import reference_frame_error as rf
 import results_io
 
 N_BOOT = 300
+
+# "Unknown unknowns": real GRAVITY orbit fits scatter more than their formal
+# errors predict. The S2 Schwarzschild-precession fit has reduced chi^2 =
+# 1.5 (GRAVITY Collaboration 2020, A&A 636, L5, arXiv:2004.07187) and the
+# four-star fit of GRAVITY Collaboration 2022 (A&A 657, L12,
+# arXiv:2112.07478) has chi_r^2 = 2.17. Precision scales linearly with the
+# per-epoch error, so inflating every uncertainty by sqrt(chi_r^2) is the
+# empirical allowance for everything this budget has not named. The S301
+# discovery fit itself has chi^2 = 26 for 34 degrees of freedom, i.e. no
+# excess at the 207 uas floor, so the inflation is a conservative envelope.
+CHI2R_EMPIRICAL_LOW = 1.5
+CHI2R_EMPIRICAL_HIGH = 2.17
 
 
 def model_11(params, epochs):
@@ -61,6 +76,28 @@ def fit_11(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, x0_11, prior_offset_mas
                          args=(epochs, ra_obs, dec_obs, sigma_ra, sigma_dec, prior_offset_mas)).x
 
 
+def bounded_terms(sigma_combined):
+    """The non-fitted terms added in quadrature, as sigma-equivalents in
+    deg/yr: the 3-sigma extended-mass bias, the lensing bias, and the
+    EXCESS scatter from confusion and from correlated systematics. The two
+    excesses are inflation factors measured on the random term, applied
+    here to the marginalized term."""
+    extmass = results_io.read_results("extended_mass_error")
+    lensing = results_io.read_results("lensing_error")
+    confusion = results_io.read_results("confusion_error")
+    corr = results_io.read_results("correlated_noise_test")
+
+    def excess(ratio):
+        return sigma_combined * np.sqrt(max(ratio ** 2 - 1.0, 0.0))
+
+    return {
+        "extmass": abs(extmass["bias_rate_three"]),
+        "lensing": abs(lensing["omega_dot_bias"]),
+        "confusion": excess(confusion["sigma_ratio"]),
+        "correlated": excess(corr["fid_ratio_omega_dot"]),
+    }
+
+
 def main():
     """Combined nuisance fit, then quadrature with the bounded systematics."""
     data = fit_orbit.load_observations()
@@ -85,30 +122,47 @@ def main():
     print(f"11-parameter (orbit + offset + M + R0) bootstrap: omega_dot = {best[idx_od]:.4f} "
           f"+/- {sigma_combined:.5f} deg/yr ({sigma_combined / sigma_base:.2f}x Table 3)")
 
-    extmass = results_io.read_results("extended_mass_error")
-    lensing = results_io.read_results("lensing_error")
-    confusion = results_io.read_results("confusion_error")
-    bias_extmass = abs(extmass["bias_rate_three"])
-    bias_lensing = abs(lensing["omega_dot_bias"])
-    # Confusion enters as extra per-epoch scatter; express its effect as the
-    # extra variance it adds to the random term.
-    extra_confusion = sigma_combined * np.sqrt(max(confusion["sigma_ratio"] ** 2 - 1.0, 0.0))
-    bottom_line = np.sqrt(sigma_combined ** 2 + bias_extmass ** 2 + bias_lensing ** 2 + extra_confusion ** 2)
-    print(f"Bounded systematics in quadrature: extended mass {bias_extmass:.5f}, lensing {bias_lensing:.6f}, "
-          f"confusion {extra_confusion:.5f} -> bottom line {bottom_line:.5f} deg/yr "
-          f"({bottom_line / sigma_base:.2f}x Table 3)")
+    terms = bounded_terms(sigma_combined)
+    bottom_line_white = np.sqrt(sigma_combined ** 2 + terms["extmass"] ** 2 + terms["lensing"] ** 2
+                                + terms["confusion"] ** 2)
+    bottom_line = np.sqrt(bottom_line_white ** 2 + terms["correlated"] ** 2)
+    print(f"Bounded systematics in quadrature: extended mass {terms['extmass']:.5f}, "
+          f"lensing {terms['lensing']:.6f}, confusion {terms['confusion']:.5f} -> white-noise "
+          f"bottom line {bottom_line_white:.5f} deg/yr ({bottom_line_white / sigma_base:.2f}x Table 3)")
+    print(f"Correlated systematics excess {terms['correlated']:.5f} -> bottom line {bottom_line:.5f} deg/yr "
+          f"({bottom_line / sigma_base:.2f}x Table 3, "
+          f"{fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line:.0f} sigma detection)")
+    inflation = np.sqrt(CHI2R_EMPIRICAL_HIGH)
+    bottom_line_inflated = bottom_line * inflation
+    print(f"Empirical sqrt(chi_r^2) inflation x{inflation:.2f} (chi_r^2 = {CHI2R_EMPIRICAL_HIGH}) -> "
+          f"{bottom_line_inflated:.5f} deg/yr, "
+          f"{fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line_inflated:.0f} sigma detection")
 
     results = {
         "n_boot": N_BOOT,
         "combined_omega_dot": (best[idx_od], ".4f"),
         "combined_sigma": (sigma_combined, ".4f"),
         "combined_ratio": (sigma_combined / sigma_base, ".2f"),
-        "bias_extmass": (bias_extmass, ".5f"),
-        "bias_lensing": (bias_lensing, ".6f"),
-        "extra_confusion": (extra_confusion, ".5f"),
+        "bias_extmass": (terms["extmass"], ".5f"),
+        "bias_lensing": (terms["lensing"], ".6f"),
+        "extra_confusion": (terms["confusion"], ".5f"),
+        "extra_correlated": (terms["correlated"], ".5f"),
+        "bottom_line_white": (bottom_line_white, ".4f"),
+        "bottom_line_white_ratio": (bottom_line_white / sigma_base, ".2f"),
         "bottom_line": (bottom_line, ".4f"),
         "bottom_line_ratio": (bottom_line / sigma_base, ".2f"),
         "bottom_line_pct_of_signal": (bottom_line / fit_orbit.TRUE_OMEGA_DOT_DEG_YR * 100, ".2f"),
+        "bottom_line_detection_nsigma": (fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line, ".0f"),
+        "correlated_share_pct": (terms["correlated"] ** 2 / bottom_line ** 2 * 100, ".0f"),
+        "chi2r_low": CHI2R_EMPIRICAL_LOW, "chi2r_high": CHI2R_EMPIRICAL_HIGH,
+        "inflation_low": (np.sqrt(CHI2R_EMPIRICAL_LOW), ".2f"),
+        "inflation_high": (inflation, ".2f"),
+        "bottom_line_inflated": (bottom_line_inflated, ".4f"),
+        "bottom_line_inflated_ratio": (bottom_line_inflated / sigma_base, ".2f"),
+        "bottom_line_inflated_pct_of_signal":
+            (bottom_line_inflated / fit_orbit.TRUE_OMEGA_DOT_DEG_YR * 100, ".2f"),
+        "bottom_line_inflated_detection_nsigma":
+            (fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line_inflated, ".0f"),
         "offset_x_uas": (best[7] * 1000, ".1f"), "offset_y_uas": (best[8] * 1000, ".1f"),
         "m_ratio": (best[9], ".4f"), "d_ratio": (best[10], ".4f"),
     }

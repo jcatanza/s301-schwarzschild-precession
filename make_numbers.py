@@ -32,6 +32,7 @@ STEM_ALIASES = {
     "lensing_error": "lensing", "roemer_delay": "roemer",
     "spin_contamination": "spin", "mass_distance_test": "massdist",
     "solar_conjunction": "conjunction", "error_budget": "budget",
+    "correlated_noise_test": "corrnoise",
 }
 
 

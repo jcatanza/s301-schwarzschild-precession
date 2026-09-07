@@ -9,94 +9,94 @@
   },
   "jitter0_ratio": {
     "fmt": ".2f",
-    "value": 1.033180914418815
+    "value": 1.0332006436696277
   },
   "jitter0_sigma": {
     "fmt": ".4f",
-    "value": 0.0011547553699908348
+    "value": 0.00239050144400542
   },
   "jitter100_ratio": {
     "fmt": ".2f",
-    "value": 1.033162263286483
+    "value": 1.0332139521822132
   },
   "jitter100_sigma": {
     "fmt": ".4f",
-    "value": 0.0011547345241787255
+    "value": 0.002390532235719254
   },
   "jitter50_ratio": {
     "fmt": ".2f",
-    "value": 1.0331517410866529
+    "value": 1.0332002385166281
   },
   "jitter50_sigma": {
     "fmt": ".4f",
-    "value": 0.0011547227638310572
+    "value": 0.0023905005066087613
   },
   "joint_offset_x_cons": {
     "fmt": ".1f",
-    "value": 74.74263840566005
+    "value": 74.9973385825852
   },
   "joint_offset_x_fid": {
     "fmt": ".1f",
-    "value": 37.55279388402278
+    "value": 33.42395012800039
   },
   "joint_offset_y_cons": {
     "fmt": ".1f",
-    "value": 73.30745980803825
+    "value": 69.20827531075557
   },
   "joint_offset_y_fid": {
     "fmt": ".1f",
-    "value": 34.86218115602496
+    "value": 26.571560677185477
   },
   "joint_residual_pct_cons": {
     "fmt": ".3f",
-    "value": 0.022106307558977533
+    "value": 0.014889477158389184
   },
   "joint_residual_pct_fid": {
     "fmt": ".3f",
-    "value": 0.008156185348825241
+    "value": 0.025513600766199126
   },
   "joint_sigma_cons": {
     "fmt": ".4f",
-    "value": 0.0011626133274437599
+    "value": 0.0024041361159265226
   },
   "joint_sigma_fid": {
     "fmt": ".4f",
-    "value": 0.001161373446083314
+    "value": 0.0023970462848128585
   },
   "joint_sigma_ratio_cons": {
     "fmt": ".2f",
-    "value": 1.0402115737927928
+    "value": 1.0390936967110447
   },
   "joint_sigma_ratio_fid": {
     "fmt": ".2f",
-    "value": 1.0391022290856395
+    "value": 1.0360293948305686
   },
   "n_boot": {
     "value": 200
   },
   "naive_bias_cons": {
     "fmt": ".4f",
-    "value": -0.0010067716678386351
+    "value": -0.0010044740420969145
   },
   "naive_bias_fid": {
     "fmt": ".4f",
-    "value": -0.0005035059412205611
+    "value": -0.0005026877019623788
   },
   "naive_bias_nsigma_cons": {
     "fmt": ".1f",
-    "value": 0.9007771684116371
+    "value": 0.4341445722387992
   },
   "naive_bias_nsigma_fid": {
     "fmt": ".1f",
-    "value": 0.45049604642210445
+    "value": 0.21726707529700962
   },
   "naive_bias_pct_cons": {
     "fmt": ".2f",
-    "value": 0.43638618902597803
+    "value": 0.43539028084414566
   },
   "naive_bias_pct_fid": {
     "fmt": ".2f",
-    "value": 0.2182451551431579
+    "value": 0.21789048851615975
   },
   "offset_prior_uas": {
     "fmt": ".0f",

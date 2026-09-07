@@ -193,6 +193,10 @@ def main():
         "rp_rs": (r_p_check / k.Rs, ".1f"),
         "rp_rs_published": k.TRUTH["r_p_Rs"],
         "vp_pct_c": (v_p / k.c * 100, ".2f"),
+        # Periapsis speed in km/s to three significant figures (the
+        # published a and e do not support more), pre-formatted with the
+        # thin-space thousands separator MNRAS uses (rendered verbatim).
+        "vp_kms": f"{round(v_p / 1e3, -2):,.0f}".replace(",", "\\,"),
         "one_plus_z_min": (one_plus_z.min(), ".4f"),
         "one_plus_z_max": (one_plus_z.max(), ".4f"),
         "amplitude_mag": (amplitude, ".3f"),

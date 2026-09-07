@@ -113,13 +113,17 @@ KS_FWHM = KS_RANGE[1] - KS_RANGE[0]   # m, ~0.42 um
 # attributes it to GRAVITY+, the VLTI interferometer upgrade explicitly
 # designed for exactly this kind of faint, close-in S-star follow-up --
 # the same class of instrument (an upgrade of GRAVITY itself) that
-# discovered S301 in the first place. This is a REAL, on-sky achieved
-# performance figure, not a theoretical one: GRAVITY has already
-# demonstrated 30-100 uas astrometry on sources down to m_K~20 (combining
-# a full night). S301 (m_K=19.3) sits within that demonstrated regime;
-# this project uses the more conservative (larger/worse) end of the
-# quoted range. Source: arXiv:2301.08071 ("The GRAVITY+ Project").
-GRAVITY_PLUS_ASTROMETRY_MAS = 0.1   # 100 uas
+# discovered S301 in the first place. The fiducial per-epoch precision is
+# the value ACHIEVED on S301 itself in the discovery data: ~207 uas per
+# coordinate, "the statistical uncertainty in astrometry originating from
+# the pixel grid" of the image reconstruction (arXiv:2607.12664, Methods,
+# "Astrometric errors"; 0.8 mas pixels). The discovery paper's own
+# GRAVITY+ forecast of 100 uas ("as expected for the final performance of
+# GRAVITY+") is treated as an optimistic sensitivity case in
+# precision_sensitivity.py, not as the baseline. GRAVITY has demonstrated
+# 30-100 uas on brighter S-stars (arXiv:2112.07478), so 207 uas is the
+# cautious choice for a m_K=19.3 source.
+GRAVITY_PLUS_ASTROMETRY_MAS = 0.207   # 207 uas, achieved on S301
 
 # ---------------------------------------------------------------- photometry: same GRAVITY+ data
 # S301's own published photometric uncertainty (already defined above as

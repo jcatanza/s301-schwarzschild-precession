@@ -1,0 +1,172 @@
+{
+  "common0_ratio": {
+    "fmt": ".2f",
+    "value": 1.0
+  },
+  "common0_sigma": {
+    "fmt": ".5f",
+    "value": 0.0016737642955696056
+  },
+  "common100_ratio": {
+    "fmt": ".2f",
+    "value": 2.5472585623716744
+  },
+  "common100_sigma": {
+    "fmt": ".5f",
+    "value": 0.004263510433281672
+  },
+  "common30_ratio": {
+    "fmt": ".2f",
+    "value": 1.1345231420906343
+  },
+  "common30_sigma": {
+    "fmt": ".5f",
+    "value": 0.0018989243277287462
+  },
+  "common60_ratio": {
+    "fmt": ".2f",
+    "value": 1.6552143197697973
+  },
+  "common60_sigma": {
+    "fmt": ".5f",
+    "value": 0.0027704386299462185
+  },
+  "common_mode_uas": {
+    "value": 60.0
+  },
+  "fid_bias_nsigma": {
+    "fmt": ".2f",
+    "value": 0.0767868217711344
+  },
+  "fid_bias_omega_dot": {
+    "fmt": ".5f",
+    "value": -0.00026808576944395424
+  },
+  "fid_boot_over_mc": {
+    "fmt": ".2f",
+    "value": 0.706978691616761
+  },
+  "fid_boot_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.002468274140678233
+  },
+  "fid_detection_nsigma": {
+    "fmt": ".0f",
+    "value": 66.08043892129459
+  },
+  "fid_excess_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.00306393263453455
+  },
+  "fid_pct_of_signal": {
+    "fmt": ".2f",
+    "value": 1.51330713948655
+  },
+  "fid_ratio_Omega_deg": {
+    "fmt": ".2f",
+    "value": 1.58814999442246
+  },
+  "fid_ratio_P_yr": {
+    "fmt": ".2f",
+    "value": 2.0177039467187536
+  },
+  "fid_ratio_e": {
+    "fmt": ".2f",
+    "value": 1.7168115001234534
+  },
+  "fid_ratio_i_deg": {
+    "fmt": ".2f",
+    "value": 1.5783860309048794
+  },
+  "fid_ratio_omega_deg": {
+    "fmt": ".2f",
+    "value": 1.525105064712079
+  },
+  "fid_ratio_omega_dot": {
+    "fmt": ".2f",
+    "value": 2.0858965683232378
+  },
+  "fid_ratio_t_peri_yr": {
+    "fmt": ".2f",
+    "value": 2.133588122966674
+  },
+  "fid_ratio_vs_boot_omega_dot": {
+    "fmt": ".2f",
+    "value": 1.508977369601619
+  },
+  "fid_sigma_Omega_deg": {
+    "fmt": ".5f",
+    "value": 0.25917876731272643
+  },
+  "fid_sigma_P_yr": {
+    "fmt": ".5f",
+    "value": 0.0006839259037723057
+  },
+  "fid_sigma_e": {
+    "fmt": ".5f",
+    "value": 0.0001360103630620565
+  },
+  "fid_sigma_i_deg": {
+    "fmt": ".5f",
+    "value": 0.10536580525085279
+  },
+  "fid_sigma_omega_deg": {
+    "fmt": ".5f",
+    "value": 0.14678465869968654
+  },
+  "fid_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0034912992003106017
+  },
+  "fid_sigma_t_peri_yr": {
+    "fmt": ".5f",
+    "value": 0.0013173575219675084
+  },
+  "n_realizations": {
+    "value": 40
+  },
+  "n_runs": {
+    "value": 12
+  },
+  "red0_ratio": {
+    "fmt": ".2f",
+    "value": 1.0
+  },
+  "red0_sigma": {
+    "fmt": ".5f",
+    "value": 0.0016737642955696056
+  },
+  "red100_ratio": {
+    "fmt": ".2f",
+    "value": 2.6608389452763697
+  },
+  "red100_sigma": {
+    "fmt": ".5f",
+    "value": 0.0044536172228646755
+  },
+  "red50_ratio": {
+    "fmt": ".2f",
+    "value": 1.5269420691800515
+  },
+  "red50_sigma": {
+    "fmt": ".5f",
+    "value": 0.002555741116796745
+  },
+  "red_noise_uas": {
+    "value": 50.0
+  },
+  "red_tau_yr": {
+    "value": 0.5
+  },
+  "run_gap_days": {
+    "value": 30.0
+  },
+  "white_over_boot_omega_dot": {
+    "fmt": ".2f",
+    "value": 0.7234190767256599
+  },
+  "white_sigma_omega_dot": {
+    "fmt": ".5f",
+    "value": 0.0016737642955696056
+  }
+}

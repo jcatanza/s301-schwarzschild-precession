@@ -1,7 +1,7 @@
 {
   "baseline_sigma": {
     "fmt": ".4f",
-    "value": 0.0011547553699908348
+    "value": 0.00239050144400542
   },
   "beam_fwhm_mas": {
     "fmt": ".0f",
@@ -9,7 +9,7 @@
   },
   "best_fit_shift": {
     "fmt": ".5f",
-    "value": -2.944417333561322e-07
+    "value": -7.016106648438658e-08
   },
   "floor_p90_high_uas": {
     "fmt": ".0f",
@@ -21,7 +21,7 @@
   },
   "inflated_sigma": {
     "fmt": ".4f",
-    "value": 0.0011547161349289123
+    "value": 0.0023905236971707767
   },
   "n_mc": {
     "value": 20000
@@ -40,7 +40,7 @@
   },
   "sigma_ratio": {
     "fmt": ".2f",
-    "value": 0.9999660230530707
+    "value": 1.0000093089947353
   },
   "suppression_high": {
     "fmt": ".0f",
