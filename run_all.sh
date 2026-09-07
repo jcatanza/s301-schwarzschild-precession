@@ -138,7 +138,7 @@ regenerate_arxiv() {
     fi
     docker_tex arxiv "pdflatex -interaction=nonstopmode article.tex && bibtex article && \
         pdflatex -interaction=nonstopmode article.tex && pdflatex -interaction=nonstopmode article.tex && \
-        cp \"\$(kpsewhich aastex701.cls)\" ."
+        cp \"\$(kpsewhich mnras.cls)\" \"\$(kpsewhich mnras.bst)\" ."
     rm -f arxiv/article.aux arxiv/article.blg arxiv/article.log arxiv/article.out \
           arxiv/article.pdf arxiv/references.bib
     t1=$(date +%s)

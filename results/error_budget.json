@@ -159,5 +159,13 @@
   "offset_y_uas": {
     "fmt": ".1f",
     "value": 11.005120019312162
+  },
+  "spin_nsigma_headline_high": {
+    "fmt": ".1f",
+    "value": 1.7937736009156664
+  },
+  "spin_nsigma_headline_low": {
+    "fmt": ".1f",
+    "value": 1.6143962408240997
   }
 }

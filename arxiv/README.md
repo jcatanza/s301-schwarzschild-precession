@@ -19,8 +19,9 @@ Contents:
 - `article.bbl` -- pre-built bibliography. arXiv's own compile step does not
   reliably run bibtex, so the compiled `.bbl` is submitted directly instead
   of `references.bib`.
-- `aastex701.cls` -- the AAS class file, bundled in case arXiv's TeX Live
-  version lags the one used to build this package.
+- `mnras.cls`, `mnras.bst` -- the MNRAS class and bibliography style,
+  bundled in case arXiv's TeX Live version lags the one used to build this
+  package.
 - `sgra_eht_shadow.jpg`, `s301_field_context.png`, `s301_lightcurve.png`,
   `fit_orbit.png` -- the four figures.
 - `anc/s301_precession.mp4` -- ancillary file. arXiv publishes anything in
@@ -40,7 +41,7 @@ The `arxiv/` stage of that script copies `article.tex`, `numbers.tex`,
 `references.bib`, the four figures and the movie here, strips the
 `output/` prefix from the figure paths with `sed`, compiles once inside the
 `texlive/texlive:latest` Docker image (producing `article.bbl` and copying
-`aastex701.cls` out of the image), and deletes the build byproducts
+`mnras.cls` and `mnras.bst` out of the image), and deletes the build byproducts
 (`.aux`, `.blg`, `.log`, `.out`, `.pdf`, and `references.bib`).
 
 That compile is also the standalone check: this package has no access to

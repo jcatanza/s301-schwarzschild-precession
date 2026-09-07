@@ -1,155 +1,112 @@
 \begin{thebibliography}{}
-\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
-\providecommand{\url}[1]{\href{#1}{#1}}
-\providecommand{\dodoi}[1]{doi:~\href{http://doi.org/#1}{\nolinkurl{#1}}}
-\providecommand{\doeprint}[1]{\href{http://ascl.net/#1}{\nolinkurl{http://ascl.net/#1}}}
-\providecommand{\doarXiv}[1]{\href{https://arxiv.org/abs/#1}{\nolinkurl{https://arxiv.org/abs/#1}}}
+\makeatletter
+\relax
+\def\mn@urlcharsother{\let\do\@makeother \do\$\do\&\do\#\do\^\do\_\do\%\do\~}
+\def\mn@doi{\begingroup\mn@urlcharsother \@ifnextchar [ {\mn@doi@}
+  {\mn@doi@[]}}
+\def\mn@doi@[#1]#2{\def\@tempa{#1}\ifx\@tempa\@empty \href
+  {http://dx.doi.org/#2} {doi:#2}\else \href {http://dx.doi.org/#2} {#1}\fi
+  \endgroup}
+\def\mn@eprint#1#2{\mn@eprint@#1:#2::\@nil}
+\def\mn@eprint@arXiv#1{\href {http://arxiv.org/abs/#1} {{\tt arXiv:#1}}}
+\def\mn@eprint@dblp#1{\href {http://dblp.uni-trier.de/rec/bibtex/#1.xml}
+  {dblp:#1}}
+\def\mn@eprint@#1:#2:#3:#4\@nil{\def\@tempa {#1}\def\@tempb {#2}\def\@tempc
+  {#3}\ifx \@tempc \@empty \let \@tempc \@tempb \let \@tempb \@tempa \fi \ifx
+  \@tempb \@empty \def\@tempb {arXiv}\fi \@ifundefined
+  {mn@eprint@\@tempb}{\@tempb:\@tempc}{\expandafter \expandafter \csname
+  mn@eprint@\@tempb\endcsname \expandafter{\@tempc}}}
 
-% type= article
-\bibitem[{K. Chaloner \& I. Verdinelli(1995)Chaloner \&
-  Verdinelli}]{chaloner1995}
-Chaloner, K., \& Verdinelli, I. 1995, \bibinfo{title}{Bayesian Experimental
-  Design: A Review,} Statistical Science, 10, 273
+\bibitem[\protect\citeauthoryear{Chaloner \& Verdinelli}{Chaloner \&
+  Verdinelli}{1995}]{chaloner1995}
+Chaloner K.,  Verdinelli I.,  1995, Statistical Science, 10, 273
 
-% type= article
-\bibitem[{R.~A. Daly \&  {et al.}(2024)Daly \& {et al.}}]{daly2024}
-Daly, R.~A., \& {et al.} 2024, \bibinfo{title}{New Black Hole Spin Values for
-  {Sagittarius A*} Obtained with the Outflow Method,} Monthly Notices of the
-  Royal Astronomical Society, 527, 428.
-\newblock \doarXiv{2310.12108}
+\bibitem[\protect\citeauthoryear{Daly \& {et al.}}{Daly \& {et
+  al.}}{2024}]{daly2024}
+Daly R.~A.,  {et al.} 2024, Monthly Notices of the Royal Astronomical Society,
+  527, 428
 
-% type= article
-\bibitem[{R.~I. Davies \&  {et al.}(2023)Davies \& {et al.}}]{davies2023}
-Davies, R.~I., \& {et al.} 2023, \bibinfo{title}{The Enhanced Resolution Imager
-  and Spectrograph for the VLT,} Astronomy \& Astrophysics, 674, A207.
-\newblock \doarXiv{2304.02343}
+\bibitem[\protect\citeauthoryear{Davies \& {et al.}}{Davies \& {et
+  al.}}{2023}]{davies2023}
+Davies R.~I.,  {et al.} 2023, Astronomy \& Astrophysics, 674, A207
 
-% type= misc
-\bibitem[{ {ESO}(2026){ESO}}]{eso2026}
-{ESO}. 2026, Telescope first light for {ESO}'s {Extremely Large Telescope} now
-  planned for {March 2029},,
+\bibitem[\protect\citeauthoryear{{ESO}}{{ESO}}{2026}]{eso2026}
+{ESO} 2026, Telescope first light for {ESO}'s {Extremely Large Telescope} now
+  planned for {March 2029},
   \url{https://www.eso.org/public/announcements/ann25001/}
 
-% type= article
-\bibitem[{ {Event Horizon Telescope Collaboration}(2022){Event Horizon
-  Telescope Collaboration}}]{eht2022}
-{Event Horizon Telescope Collaboration}. 2022, \bibinfo{title}{First
-  Sagittarius A* Event Horizon Telescope Results. I. The Shadow of the
-  Supermassive Black Hole in the Center of the Milky Way,} The Astrophysical
-  Journal Letters, 930, L12, \dodoi{10.3847/2041-8213/ac6674}
+\bibitem[\protect\citeauthoryear{{Event Horizon Telescope
+  Collaboration}}{{Event Horizon Telescope Collaboration}}{2022}]{eht2022}
+{Event Horizon Telescope Collaboration} 2022, \mn@doi [The Astrophysical
+  Journal Letters] {10.3847/2041-8213/ac6674}, 930, L12
 
-% type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2026){GRAVITY Collaboration}, {Abd
-  El Dayem}, \& {et al.}}]{gravity2026}
-{GRAVITY Collaboration}, {Abd El Dayem}, K., \& {et al.} 2026,
-  \bibinfo{title}{Discovery of a star sensitive to the spin of Sgr A*,} Nature.
-\newblock \doarXiv{2607.12664}
+\bibitem[\protect\citeauthoryear{{GRAVITY Collaboration}, Abuter  \& {et
+  al.}}{{GRAVITY Collaboration} et~al.}{2017}]{gravity2017}
+{GRAVITY Collaboration} Abuter R.,   {et al.} 2017, Astronomy \& Astrophysics,
+  602, A94
 
-% type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2018{\natexlab{a}}){GRAVITY
-  Collaboration}, Abuter, Amorim, \& {et al.}}]{gravity2018}
-{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.}
-  2018{\natexlab{a}}, \bibinfo{title}{Detection of the gravitational redshift
-  in the orbit of the star S2 near the Galactic centre massive black hole,}
-  Astronomy \& Astrophysics, 615, L15.
-\newblock \doarXiv{1807.09409}
+\bibitem[\protect\citeauthoryear{{GRAVITY Collaboration}, Abuter, Amorim  \&
+  {et al.}}{{GRAVITY Collaboration} et~al.}{2018a}]{gravity2018}
+{GRAVITY Collaboration} Abuter R.,  Amorim A.,   {et al.} 2018a, Astronomy \&
+  Astrophysics, 615, L15
 
-% type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2018{\natexlab{b}}){GRAVITY
-  Collaboration}, Abuter, Amorim, \& {et al.}}]{gravity2018flares}
-{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.}
-  2018{\natexlab{b}}, \bibinfo{title}{Detection of orbital motions near the
-  last stable circular orbit of the massive black hole SgrA*,} Astronomy \&
-  Astrophysics, 618, L10.
-\newblock \doarXiv{1810.12641}
+\bibitem[\protect\citeauthoryear{{GRAVITY Collaboration}, Abuter, Amorim  \&
+  {et al.}}{{GRAVITY Collaboration} et~al.}{2018b}]{gravity2018flares}
+{GRAVITY Collaboration} Abuter R.,  Amorim A.,   {et al.} 2018b, Astronomy \&
+  Astrophysics, 618, L10
 
-% type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2020){GRAVITY Collaboration},
-  Abuter, Amorim, \& {et al.}}]{gravity2020}
-{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.} 2020,
-  \bibinfo{title}{Detection of the Schwarzschild precession in the orbit of the
-  star S2 near the Galactic centre massive black hole,} Astronomy \&
-  Astrophysics, 636, L5.
-\newblock \doarXiv{2004.07187}
+\bibitem[\protect\citeauthoryear{{GRAVITY Collaboration}, Abuter, Amorim  \&
+  {et al.}}{{GRAVITY Collaboration} et~al.}{2020}]{gravity2020}
+{GRAVITY Collaboration} Abuter R.,  Amorim A.,   {et al.} 2020, Astronomy \&
+  Astrophysics, 636, L5
 
-% type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2022){GRAVITY Collaboration},
-  Abuter, Amorim, \& {et al.}}]{gravity2022massdist}
-{GRAVITY Collaboration}, Abuter, R., Amorim, A., \& {et al.} 2022,
-  \bibinfo{title}{Mass distribution in the Galactic Center based on
-  interferometric astrometry of multiple stellar orbits,} Astronomy \&
-  Astrophysics, 657, L12.
-\newblock \doarXiv{2112.07478}
+\bibitem[\protect\citeauthoryear{{GRAVITY Collaboration}, Abuter, Amorim  \&
+  {et al.}}{{GRAVITY Collaboration} et~al.}{2022}]{gravity2022massdist}
+{GRAVITY Collaboration} Abuter R.,  Amorim A.,   {et al.} 2022, Astronomy \&
+  Astrophysics, 657, L12
 
-% type= article
-\bibitem[{ {GRAVITY Collaboration} {et~al.}(2017){GRAVITY Collaboration},
-  Abuter, \& {et al.}}]{gravity2017}
-{GRAVITY Collaboration}, Abuter, R., \& {et al.} 2017, \bibinfo{title}{First
-  light for GRAVITY: Phase referencing optical interferometry for the Very
-  Large Telescope Interferometer,} Astronomy \& Astrophysics, 602, A94.
-\newblock \doarXiv{1705.02345}
+\bibitem[\protect\citeauthoryear{{GRAVITY Collaboration}, {Abd El Dayem}  \&
+  {et al.}}{{GRAVITY Collaboration} et~al.}{2026}]{gravity2026}
+{GRAVITY Collaboration} {Abd El Dayem} K.,   {et al.} 2026, Nature
 
-% type= article
-\bibitem[{S.~E. Koposov {et~al.}(2020)Koposov, Boubert, Li, \& {et
-  al.}}]{koposov2020}
-Koposov, S.~E., Boubert, D., Li, T.~S., \& {et al.} 2020,
-  \bibinfo{title}{Discovery of a nearby 1700 km s$^{-1}$ star ejected from the
-  Milky Way by Sgr A*,} Monthly Notices of the Royal Astronomical Society, 491,
-  2465.
-\newblock \doarXiv{1907.11725}
+\bibitem[\protect\citeauthoryear{Koposov, Boubert, Li  \& {et al.}}{Koposov
+  et~al.}{2020}]{koposov2020}
+Koposov S.~E.,  Boubert D.,  Li T.~S.,   {et al.} 2020, Monthly Notices of the
+  Royal Astronomical Society, 491, 2465
 
-% type= article
-\bibitem[{F. Pei{\ss}ker {et~al.}(2020)Pei{\ss}ker, Eckart, Zaja{\v c}ek, Ali,
-  \& Parsa}]{peissker2020}
-Pei{\ss}ker, F., Eckart, A., Zaja{\v c}ek, M., Ali, B., \& Parsa, M. 2020,
-  \bibinfo{title}{S62 and S4711: Indications of a Population of Faint
-  Fast-moving Stars inside the S2 Orbit---S4711 on a 7.6 yr Orbit around Sgr
-  A*,} The Astrophysical Journal, 899, 50.
-\newblock \doarXiv{2008.04764}
+\bibitem[\protect\citeauthoryear{Pei{\ss}ker, Eckart, Zaja{\v c}ek, Ali  \&
+  Parsa}{Pei{\ss}ker et~al.}{2020}]{peissker2020}
+Pei{\ss}ker F.,  Eckart A.,  Zaja{\v c}ek M.,  Ali B.,   Parsa M.,  2020, The
+  Astrophysical Journal, 899, 50
 
-% type= article
-\bibitem[{T. Piran {et~al.}(2026)Piran, Amaro-Seoane, Aytac, \& {et
-  al.}}]{piran2026}
-Piran, T., Amaro-Seoane, P., Aytac, B., \& {et al.} 2026, \bibinfo{title}{S301
-  and friends: Measuring the spin of Sgr A*,} arXiv e-prints.
-\newblock \doarXiv{2607.24931}
+\bibitem[\protect\citeauthoryear{Piran, Amaro-Seoane, Aytac  \& {et al.}}{Piran
+  et~al.}{2026}]{piran2026}
+Piran T.,  Amaro-Seoane P.,  Aytac B.,   {et al.} 2026, arXiv e-prints
 
-% type= article
-\bibitem[{P.~M. Plewa {et~al.}(2015)Plewa, Gillessen, Eisenhauer, \& {et
-  al.}}]{plewa2015}
-Plewa, P.~M., Gillessen, S., Eisenhauer, F., \& {et al.} 2015,
-  \bibinfo{title}{Pinpointing the near-infrared location of {Sgr A*} by
-  correcting optical distortion in the {NACO} imager,} Monthly Notices of the
-  Royal Astronomical Society, 453, 3234.
-\newblock \doarXiv{1509.01941}
+\bibitem[\protect\citeauthoryear{Plewa, Gillessen, Eisenhauer  \& {et
+  al.}}{Plewa et~al.}{2015}]{plewa2015}
+Plewa P.~M.,  Gillessen S.,  Eisenhauer F.,   {et al.} 2015, Monthly Notices of
+  the Royal Astronomical Society, 453, 3234
 
-% type= article
-\bibitem[{G.~F. Rubilar \& A. Eckart(2001)Rubilar \& Eckart}]{rubilar2001}
-Rubilar, G.~F., \& Eckart, A. 2001, \bibinfo{title}{Periastron shifts of
-  stellar orbits near the Galactic Center,} Astronomy \& Astrophysics, 374, 95,
-  \dodoi{10.1051/0004-6361:20010640}
+\bibitem[\protect\citeauthoryear{Rubilar \& Eckart}{Rubilar \&
+  Eckart}{2001}]{rubilar2001}
+Rubilar G.~F.,  Eckart A.,  2001, \mn@doi [Astronomy \& Astrophysics]
+  {10.1051/0004-6361:20010640}, 374, 95
 
-% type= article
-\bibitem[{A.~J. Shajib {et~al.}(2025)Shajib, Treu, Melo, \& {et
-  al.}}]{shajib2025}
-Shajib, A.~J., Treu, T., Melo, A., \& {et al.} 2025, \bibinfo{title}{An
-  accurate measurement of the spectral resolution of the JWST Near Infrared
-  Spectrograph,} Astronomy \& Astrophysics, 702, L12.
-\newblock \doarXiv{2507.03746}
+\bibitem[\protect\citeauthoryear{Shajib, Treu, Melo  \& {et al.}}{Shajib
+  et~al.}{2025}]{shajib2025}
+Shajib A.~J.,  Treu T.,  Melo A.,   {et al.} 2025, Astronomy \& Astrophysics,
+  702, L12
 
-% type= inproceedings
-\bibitem[{N. Thatte \&  {et al.}(2024)Thatte \& {et al.}}]{harmoni2024}
-Thatte, N., \& {et al.} 2024, \bibinfo{title}{{HARMONI} at {ELT}: project
-  status and instrument overview,} in Proc. SPIE, Vol. 13096, 1309614,
-  \dodoi{10.1117/12.3018520}
+\bibitem[\protect\citeauthoryear{Thatte \& {et al.}}{Thatte \& {et
+  al.}}{2024}]{harmoni2024}
+Thatte N.,  {et al.} 2024, in Proc. SPIE. p. 1309614,
+  \mn@doi{10.1117/12.3018520}
 
-% type= article
-\bibitem[{F. Yusef-Zadeh {et~al.}(2025)Yusef-Zadeh, Bushouse, Arendt, \& {et
-  al.}}]{yusefzadeh2025}
-Yusef-Zadeh, F., Bushouse, H., Arendt, R.~G., \& {et al.} 2025,
-  \bibinfo{title}{Non-stop Variability of Sgr A* using JWST at 2.1 and 4.8
-  micron Wavelengths: Evidence for Distinct Populations of Faint and Bright
-  Variable Emission,} The Astrophysical Journal Letters.
-\newblock \doarXiv{2501.04096}
+\bibitem[\protect\citeauthoryear{Yusef-Zadeh, Bushouse, Arendt  \& {et
+  al.}}{Yusef-Zadeh et~al.}{2025}]{yusefzadeh2025}
+Yusef-Zadeh F.,  Bushouse H.,  Arendt R.~G.,   {et al.} 2025, The Astrophysical
+  Journal Letters
 
+\makeatother
 \end{thebibliography}

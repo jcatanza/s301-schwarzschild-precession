@@ -134,6 +134,11 @@ def main():
           f"{fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line:.0f} sigma detection)")
     inflation = np.sqrt(CHI2R_EMPIRICAL_HIGH)
     bottom_line_inflated = bottom_line * inflation
+    # The unbounded spin term, expressed against the headline precision so
+    # the manuscript compares like with like.
+    spin = results_io.read_results("spin_contamination")
+    spin_nsigma_headline = {tag: abs(spin[f"lt_rate_chi{tag}"]) / bottom_line_inflated
+                            for tag in ("90", "100")}
     print(f"Empirical sqrt(chi_r^2) inflation x{inflation:.2f} (chi_r^2 = {CHI2R_EMPIRICAL_HIGH}) -> "
           f"{bottom_line_inflated:.5f} deg/yr, "
           f"{fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line_inflated:.0f} sigma detection")
@@ -163,6 +168,8 @@ def main():
             (bottom_line_inflated / fit_orbit.TRUE_OMEGA_DOT_DEG_YR * 100, ".2f"),
         "bottom_line_inflated_detection_nsigma":
             (fit_orbit.TRUE_OMEGA_DOT_DEG_YR / bottom_line_inflated, ".0f"),
+        "spin_nsigma_headline_low": (spin_nsigma_headline["90"], ".1f"),
+        "spin_nsigma_headline_high": (spin_nsigma_headline["100"], ".1f"),
         "offset_x_uas": (best[7] * 1000, ".1f"), "offset_y_uas": (best[8] * 1000, ".1f"),
         "m_ratio": (best[9], ".4f"), "d_ratio": (best[10], ".4f"),
     }

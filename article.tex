@@ -1,28 +1,33 @@
-\documentclass{aastex701}
+\documentclass[fleqn,usenatbib]{mnras}
 
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{graphicx}
+\usepackage{hyperref}
 \input{numbers.tex}
 
-\shorttitle{Catching Up with S301}
-\shortauthors{Catanzarite}
+\title[Catching Up with S301]{Catching Up with the Fastest Star in the Galaxy: A Two-Passage GRAVITY+ Campaign to Detect S301's Schwarzschild Precession}
+
+\author[J. Catanzarite]{J. Catanzarite$^{1,2}$\thanks{E-mail: jcatanz3@jhu.edu}
+\\
+$^{1}$Johns Hopkins University, Whiting School of Engineering\\
+$^{2}$Nova Scholar Education
+}
+
+\pubyear{2026}
 
 \begin{document}
-
-\title{Catching Up with the Fastest Star in the Galaxy: A Two-Passage GRAVITY+ Campaign to Detect S301's Schwarzschild Precession}
-
-\author{J. Catanzarite}
-\affiliation{Johns Hopkins University, Whiting School of Engineering}
-\affiliation{Nova Scholar Education}
-\email{jcatanz3@jhu.edu}
-
-\correspondingauthor{J. Catanzarite, \href{mailto:jcatanz3@jhu.edu}{jcatanz3@jhu.edu}}
+\label{firstpage}
+\pagerange{\pageref{firstpage}--\pageref{lastpage}}
+\maketitle
 
 \begin{abstract}
 S301 is the fastest star known. It orbits Sgr~A$^*$ every 8.68~yr on an $e = 0.9832$ orbit that carries it within 136 Schwarzschild radii at \lightcurveVpKms{}~km~s$^{-1}$ \citep{gravity2026}. An orbit like that must precess, by the same Schwarzschild effect that turns Mercury's perihelion, whatever the spin of the black hole. We ask whether an astrometry-only GRAVITY+ campaign covering the 2031.8 and 2040.5 periapsis passages can catch it. We validate a relativistic light-curve model, design a \campaignNEpochs{}-epoch Fisher-optimal cadence with a periapsis floor, fit a seven-parameter orbit including the light-travel-time delay, and build a systematic error budget. With white noise at the 207~$\mu$as achieved on S301, the fit recovers the injected rate, \fitTruthOmegaDotDegYr{}~deg~yr$^{-1}$, as $\fitFitOmegaDotDegYr \pm \fitSigmaOmegaDotDegYr$~deg~yr$^{-1}$ ($\pm\precisionForecastOmegaDotSigma$ at the forecast 100~$\mu$as). Real astrometric noise is not white. We add per-run calibration offsets and a wandering Sgr~A$^*$ photocentre at GRAVITY's published amplitudes, marginalize over the reference zero point, mass and distance, add the bounded systematics in quadrature, and inflate by the excess scatter of real GRAVITY orbit fits. What survives is \budgetBottomLineInflated{}~deg~yr$^{-1}$, a \budgetBottomLineInflatedDetectionNsigma{}$\sigma$ detection. The Sun hides the first periapsis for \conjunctionGapTotalDays{}~d, at a cost to the period and periapsis epoch but not to the precession rate. Radial velocities are out of reach at S301's magnitude; photometry only validates the light-curve model. The spin of Sgr~A$^*$ could shift the rate by \spinLtPctChiNineZero{}--\spinLtPctChiOneZeroZero{}~per~cent and cannot be bounded, so the campaign is a spin-agnostic test of general relativity, and a forecast until the star comes round.
 \end{abstract}
 
-\keywords{Galactic Center --- Supermassive black holes --- Astrometry --- General relativity --- Orbit determination --- Observational astronomy}
+\begin{keywords}
+Galaxy: centre -- gravitation -- black hole physics -- astrometry -- relativistic processes -- stars: kinematics and dynamics
+\end{keywords}
 
 \section{Introduction}
 
@@ -37,33 +42,37 @@ We answer by building the complete pipeline an observing proposal would need: th
 
 All ground-truth parameters come from \citet{gravity2026}, Extended Data Table~2, Solution~1 (Table~\ref{tab:params}); a second, nearly degenerate solution is published but not used. The discovery fit already includes the R{\o}mer (light-travel-time) delay and Schwarzschild precession, so these elements are defined in the same relativistic model we use. At periapsis S301 passes 136~$R_S$ from Sgr~A$^*$ at \lightcurveVpKms{}~km~s$^{-1}$, more than 8~per~cent of $c$, closer and faster than any other known star. For comparison, S2 reaches $\approx$7650~km~s$^{-1}$ at its own periapsis \citep{gravity2018}; the fastest star previously claimed near Sgr~A$^*$, S4714, reaches $23\,900 \pm 8\,800$~km~s$^{-1}$ \citep{peissker2020}; and the fastest hypervelocity star known, S5-HVS1, is leaving the Galaxy at $1755 \pm 50$~km~s$^{-1}$ \citep{koposov2020}. S301 is the fastest known star in the Galaxy. Its effective temperature is unpublished; we adopt \lightcurveTEff{}~K from standard F1.5V tables, which affects only the light-curve amplitude. The mass and distance of Sgr~A$^*$ are those of \citet{gravity2022massdist}: $M_\bullet = (4.297\pm0.012)\times10^6\,M_\odot$ and $R_0 = 8277\pm9$~pc (statistical), with systematic uncertainties of $\approx40{,}000\,M_\odot$ and $\approx30$~pc.
 
-\begin{deluxetable}{lcc}
-\tablecaption{Adopted S301 parameters \citep{gravity2026}, Solution 1. \label{tab:params}}
-\tablehead{\colhead{Parameter} & \colhead{Value} & \colhead{Uncertainty}}
-\startdata
+\begin{table}
+\caption{Adopted S301 parameters \citep{gravity2026}, Solution 1.}
+\label{tab:params}
+\begin{tabular}{lcc}
+\hline
+Parameter & Value & Uncertainty \\
+\hline
 Period $P$                 & 8.680 yr        & 0.110 yr \\
 Eccentricity $e$           & 0.9832          & 0.0010 \\
 Inclination $i$            & $124.09^\circ$  & $1.10^\circ$ \\
 Node $\Omega$              & $73.8^\circ$    & $3.5^\circ$ \\
 Argument of periapsis $\omega$ & $293.4^\circ$ & $2.2^\circ$ \\
 Periapsis epoch $t_0$      & 2023.126 yr     & 0.010 yr \\
-Semi-major axis $a$        & 83.0 mas (687 AU) & \nodata \\
-Sgr~A$^*$ mass $M_\bullet$ & $4.297\times10^6\,M_\odot$ & \nodata \\
-Distance $R_0$             & 8277 pc         & \nodata \\
+Semi-major axis $a$        & 83.0 mas (687 AU) & -- \\
+Sgr~A$^*$ mass $M_\bullet$ & $4.297\times10^6\,M_\odot$ & -- \\
+Distance $R_0$             & 8277 pc         & -- \\
 $K$ magnitude $m_K$        & 19.3            & 0.3 \\
-\enddata
-\end{deluxetable}
+\hline
+\end{tabular}
+\end{table}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.55\linewidth]{output/sgra_eht_shadow.jpg}
+\includegraphics[width=0.7\columnwidth]{output/sgra_eht_shadow.jpg}
 \caption{Sgr~A$^*$ itself, for scale: the Event Horizon Telescope image of the black hole's shadow, ring diameter $51.8\pm2.3$~$\mu$as \citep{eht2022}, about 1600 times smaller than S301's 83~mas orbit and far below the astrometric resolution of this campaign. Image credit: EHT Collaboration, released by the European Southern Observatory (ESO) as eso2208-eht-mwa (2022-05-12), licensed CC~BY~4.0.}
 \label{fig:ehtshadow}
 \end{figure}
 
 \begin{figure}
 \centering
-\includegraphics[width=0.85\linewidth]{output/s301_field_context.png}
+\includegraphics[width=\columnwidth]{output/s301_field_context.png}
 \caption{The crowded innermost Galactic Centre in the near-infrared (a real image), with the S2/Sgr~A$^*$ zoom inset from the original release. S301 was discovered in 2026, after this 2017 image, and is not resolved in it; the schematic annotation shows that its 83~mas orbit lies in the same innermost few tens of mas, the crowding relevant to Section~\ref{sec:confusion}. Image credit: ESO/MPE/S.\ Gillessen et al., released as ann17051 (2017-08-09), licensed CC~BY~4.0.}
 \label{fig:context}
 \end{figure}
@@ -80,12 +89,12 @@ The predicted periapsis signature is an asymmetric beaming spike (Fig.~\ref{fig:
 
 The dimming deserves care, because it is not the dimming we first imagined. Sgr~A$^*$ neither swallows nor deflects a measurable share of S301's light: at 136~$R_S$ the horizon subtends a negligible fraction of the star's sky, and Section~\ref{sec:lensing} shows that light bending amounts to an astrometric shift of at most \lensingMaxShiftUas{}~$\mu$as at a handful of epochs. The fading after periapsis is gravity acting on the light in a subtler way. Each photon loses energy climbing out of the potential well, on top of the Doppler de-boosting of a receding source; the black hole taxes the photons it lets through rather than taking them. There is no occultation to model, because Sgr~A$^*$ is compact and blocks nothing.
 
-\begin{figure}
+\begin{figure*}
 \centering
-\includegraphics[width=\linewidth]{output/s301_lightcurve.png}
+\includegraphics[width=0.72\textwidth]{output/s301_lightcurve.png}
 \caption{Simulated relativistic $K$-band light curve of S301 over one orbit (top), the periapsis passage (middle), and the relativistic and classical spectral shifts near periapsis (bottom). The lower panels show a generic passage in time from periapsis; precession changes only the orbit's orientation on the sky, so the shape is the same for either real passage. The bottom panel is a model-internal quantity (SR: special-relativistic Doppler shift; GR: gravitational redshift) that explains the magnitude curves above it; no instrument in this campaign measures a spectral shift.}
 \label{fig:lightcurve}
-\end{figure}
+\end{figure*}
 
 \subsection{Instrument and observables}
 \label{sec:campaign}
@@ -111,20 +120,23 @@ Table~\ref{tab:cadence} gives each design's bootstrap precision, the analytic Cr
 
 The floor has a history. An earlier version of the code, with no season filter and an unsafeguarded Kepler solver, produced a Design~B that piled epochs at the ends of the campaign, skipped periapsis and failed its own bootstrap. That pitfall of an unfiltered candidate grid on a nonlinear periodic problem does not recur in the current code; we keep the floor as insurance. \citet{piran2026}'s multi-star design faces a different constraint, synchronizing observations across several stars to subtract Newtonian confusion; with one star and one observable, periapsis coverage is what matters.
 
-\begin{deluxetable}{lcccccc}
-\tabletypesize{\small}
-\tablecaption{Cadence designs at $N=\campaignNEpochs{}$: bootstrap $1\sigma$ uncertainties (\designNBoot{} resamples) for Designs A--D, the Cram\'er--Rao bound for the adopted Design D, and the published uncertainties. Epochs within $\pm$\campaignDenseHalfWidthDays{}~d of a periapsis: A \designNDenseA{}, B \designNDenseB{}, C \designNDenseC{}, D \designNDenseD{}. \label{tab:cadence}}
-\tablehead{\colhead{Parameter} & \colhead{A} & \colhead{B} & \colhead{C} & \colhead{D} & \colhead{D (CRB)} & \colhead{Published}}
-\startdata
+\begin{table*}
+\caption{Cadence designs at $N=\campaignNEpochs{}$: bootstrap $1\sigma$ uncertainties (\designNBoot{} resamples) for Designs A--D, the Cram\'er--Rao bound for the adopted Design D, and the published uncertainties. Epochs within $\pm$\campaignDenseHalfWidthDays{}~d of a periapsis: A \designNDenseA{}, B \designNDenseB{}, C \designNDenseC{}, D \designNDenseD{}.}
+\label{tab:cadence}
+\begin{tabular}{lcccccc}
+\hline
+Parameter & A & B & C & D & D (CRB) & Published \\
+\hline
 $P$ (yr)                 & \designSigmaCapPYrA{} & \designSigmaCapPYrB{} & \designSigmaCapPYrC{} & \designSigmaCapPYrD{} & \designCrbCapPYrD{} & 0.1100 \\
 $e$                      & \designSigmaEA{} & \designSigmaEB{} & \designSigmaEC{} & \designSigmaED{} & \designCrbED{} & 0.0010 \\
 $i$ (deg)                & \designSigmaIDegA{} & \designSigmaIDegB{} & \designSigmaIDegC{} & \designSigmaIDegD{} & \designCrbIDegD{} & 1.1000 \\
 $\Omega$ (deg)           & \designSigmaCapOmegaDegA{} & \designSigmaCapOmegaDegB{} & \designSigmaCapOmegaDegC{} & \designSigmaCapOmegaDegD{} & \designCrbCapOmegaDegD{} & 3.5000 \\
 $\omega$ (deg)           & \designSigmaOmegaDegA{} & \designSigmaOmegaDegB{} & \designSigmaOmegaDegC{} & \designSigmaOmegaDegD{} & \designCrbOmegaDegD{} & 2.2000 \\
 $t_0$ (yr)               & \designSigmaTPeriYrA{} & \designSigmaTPeriYrB{} & \designSigmaTPeriYrC{} & \designSigmaTPeriYrD{} & \designCrbTPeriYrD{} & 0.0100 \\
-$\dot\omega$ (deg yr$^{-1}$) & \designSigmaOmegaDotDegYrA{} & \designSigmaOmegaDotDegYrB{} & \designSigmaOmegaDotDegYrC{} & \designSigmaOmegaDotDegYrD{} & \designCrbOmegaDotDegYrD{} & \nodata \\
-\enddata
-\end{deluxetable}
+$\dot\omega$ (deg yr$^{-1}$) & \designSigmaOmegaDotDegYrA{} & \designSigmaOmegaDotDegYrB{} & \designSigmaOmegaDotDegYrC{} & \designSigmaOmegaDotDegYrD{} & \designCrbOmegaDotDegYrD{} & -- \\
+\hline
+\end{tabular}
+\end{table*}
 
 \subsection{Solar conjunction}
 \label{sec:conjunction}
@@ -149,32 +161,37 @@ the Mercury-perihelion formula applied to S301. We inject no Lense--Thirring ter
 
 The adopted campaign has \campaignNEpochs{} epochs between \campaignEpochMin{} and \campaignEpochMax{}. Of these, \campaignNDense{} (\campaignDensePct{}~per~cent) fall within $\pm$\campaignDenseHalfWidthDays{}~d of a periapsis, above Design~D's realized floor, because the Fisher search placed some of its flexible budget near periapsis too. The remaining \campaignNSparse{} epochs (\campaignSparsePct{}~per~cent) form a few tight clusters separated by multi-year gaps (Fig.~\ref{fig:fitorbit}), in 2033 and 2037--2038 rather than immediately after passage~1; Section~\ref{sec:cadencetests} tests whether that is wasteful.
 
-Table~\ref{tab:finalfit} gives the fit. Every parameter is recovered within \fitPullMax{}$\sigma$ of the truth, and the fitted sky-plane track (Fig.~\ref{fig:fitorbit}, top) shows the periapsis direction rotated between passages, the geometric signature of precession. Several uncertainties are far tighter than the published ones ($\fitSigmaCapOmegaDeg^\circ$ against $3.5^\circ$ on $\Omega$, for example) because of three idealizations: the forecast precision at every epoch, two full passages the 2026 data set does not yet have, and fixed $M_\bullet$ and $R_0$, which pin the orbit's angular scale (Section~\ref{sec:massdist}). The comparison is not a claim to outperform the discovery data.
+Table~\ref{tab:finalfit} gives the fit. Every parameter is recovered within \fitPullMax{}$\sigma$ of the truth, and the fitted sky-plane track (Fig.~\ref{fig:fitorbit}, top) shows the periapsis direction rotated between passages, the geometric signature of precession. Several uncertainties are far tighter than the published ones ($\fitSigmaCapOmegaDeg^\circ$ against $3.5^\circ$ on $\Omega$, for example) because of three idealizations: the same precision at every epoch, two full passages the 2026 data set does not yet have, and fixed $M_\bullet$ and $R_0$, which pin the orbit's angular scale (Section~\ref{sec:massdist}). The comparison is not a claim to outperform the discovery data.
 
 If GRAVITY+ reaches its forecast precision (\precisionForecastUas{}~$\mu$as instead of \precisionAchievedUas{}~$\mu$as), the same campaign gives $\dot\omega = \precisionForecastOmegaDot \pm \precisionForecastOmegaDotSigma$~deg~yr$^{-1}$, a \precisionForecastDetectionNsigma{}$\sigma$ detection instead of \precisionAchievedDetectionNsigma{}$\sigma$, with the orientation angles improved in proportion ($\sigma_\Omega = \precisionForecastSigmaCapOmegaDeg^\circ$). Precision scales linearly with the per-epoch error, so Table~\ref{tab:finalfit} can be rescaled to whatever GRAVITY+ delivers in 2031. These are white-noise figures; Section~\ref{sec:budget} is where they meet reality.
 
 The fitted $\dot\omega$ is a free parameter, determined by geometry with no reference to equation~(\ref{eq:precession}). As a check, for each bootstrap resample we evaluate that formula on the resample's own fitted $(P, e)$, still blind to any published or injected value: the prediction is $\fitPnFromFitMean \pm \fitPnFromFitSigma$~deg~yr$^{-1}$, and its per-resample difference from the fitted $\dot\omega$ is $\fitPnDiffMean \pm \fitPnDiffSigma$~deg~yr$^{-1}$, \fitPnDiffNsigma{}$\sigma$ from zero (the difference is taken per resample because $P$, $e$ and $\dot\omega$ come from the same correlated resamples). Geometry and theory agree without either referring to the other's answer.
 
-\begin{deluxetable}{lcccc}
-\tablecaption{Final result: Design D cadence, astrometry only, \campaignAstrometryUas{}~$\mu$as per epoch, \fitNBootstrap{} bootstrap resamples. \label{tab:finalfit}}
-\tablehead{\colhead{Parameter} & \colhead{Truth} & \colhead{Fitted} & \colhead{$\sigma$} & \colhead{Published $\sigma$}}
-\startdata
+\begin{table}
+\small
+\caption{Final result: Design D cadence, astrometry only, \campaignAstrometryUas{}~$\mu$as per epoch, \fitNBootstrap{} bootstrap resamples.}
+\label{tab:finalfit}
+\begin{tabular}{lcccc}
+\hline
+Parameter & Truth & Fitted & $\sigma$ & Published $\sigma$ \\
+\hline
 $P$ (yr)                 & \fitTruthCapPYr{}    & \fitFitCapPYr{}    & \fitSigmaCapPYr{} & 0.1100 \\
 $e$                      & \fitTruthE{}    & \fitFitE{}    & \fitSigmaE{} & 0.0010 \\
 $i$ (deg)                & \fitTruthIDeg{}  & \fitFitIDeg{}  & \fitSigmaIDeg{} & 1.1000 \\
 $\Omega$ (deg)           & \fitTruthCapOmegaDeg{}   & \fitFitCapOmegaDeg{}   & \fitSigmaCapOmegaDeg{} & 3.5000 \\
 $\omega$ (deg)           & \fitTruthOmegaDeg{}  & \fitFitOmegaDeg{}  & \fitSigmaOmegaDeg{} & 2.2000 \\
 $t_0$ (yr)               & \fitTruthTPeriYr{} & \fitFitTPeriYr{} & \fitSigmaTPeriYr{} & 0.0100 \\
-$\dot\omega$ (deg yr$^{-1}$) & \fitTruthOmegaDotDegYr{} & \fitFitOmegaDotDegYr{}   & \fitSigmaOmegaDotDegYr{} & \nodata \\
-\enddata
-\end{deluxetable}
+$\dot\omega$ (deg yr$^{-1}$) & \fitTruthOmegaDotDegYr{} & \fitFitOmegaDotDegYr{}   & \fitSigmaOmegaDotDegYr{} & -- \\
+\hline
+\end{tabular}
+\end{table}
 
-\begin{figure}
+\begin{figure*}
 \centering
-\includegraphics[width=\linewidth]{output/fit_orbit.png}
+\includegraphics[width=0.72\textwidth]{output/fit_orbit.png}
 \caption{Top: fitted sky-plane track against the synthetic GRAVITY+ astrometry, coloured by epoch, showing the two passages of the precessing orbit. Bottom: simulated $K$-band photometry against the injected truth curve (not used in the fit). An animated version (\texttt{s301\_precession.mp4}, an ancillary file of this submission, also at \url{https://github.com/jcatanza/s301-schwarzschild-precession/blob/master/output/s301_precession.mp4}) extrapolates the same precession rate over 20 orbits ($\sim$174~yr) to make the rosette visible; the two orbits analysed here are highlighted and the extrapolation is labelled on screen throughout.}
 \label{fig:fitorbit}
-\end{figure}
+\end{figure*}
 
 \subsection{Testing the cadence}
 \label{sec:cadencetests}
@@ -191,12 +208,12 @@ Every astrometric epoch also yields a $K$-band brightness, which we do not fit. 
 \section{Systematic error budget}
 \label{sec:budget}
 
-The uncertainties in Table~\ref{tab:finalfit} assume white noise: every epoch an independent Gaussian draw, every error averaging down as $\sqrt{N}$. This section asks what else can go wrong, in three tiers. Terms we can model are fitted and marginalized (the R{\o}mer delay, the Sgr~A$^*$ zero point, the mass and distance). Terms we can bound but not fit are injected into the synthetic data, refitted with the naive model, and carried as biases (extended mass, lensing, confusion) or as excess scatter (systematics correlated across epochs). For whatever remains unnamed we apply the excess scatter that real GRAVITY orbit fits have shown over their formal errors. Every amplitude is anchored to a published figure. Table~\ref{tab:errorbudget} collects the terms and Section~\ref{sec:bottomline} combines them.
+The uncertainties in Table~\ref{tab:finalfit} assume white noise: every epoch an independent Gaussian draw, every error averaging down as $\sqrt{N}$. This section asks what else can go wrong, in three tiers. Terms we can model go into the fit, exactly (the R{\o}mer delay) or as nuisance parameters that are marginalized (the Sgr~A$^*$ zero point, the mass and distance). Terms we can bound but not fit are injected into the synthetic data, refitted with the naive model, and carried as biases (extended mass, lensing, confusion) or as excess scatter (systematics correlated across epochs). For whatever remains unnamed we apply the excess scatter that real GRAVITY orbit fits have shown over their formal errors. Every amplitude is anchored to a published figure. Table~\ref{tab:errorbudget} collects the terms and Section~\ref{sec:bottomline} combines them.
 
 \subsection{R{\o}mer delay}
 \label{sec:roemer}
 
-Every position we record is old news. The light left S301 up to $2a/c \approx \roemerMaxSwingDays{}$~d before it reached us, and because the star moves along the line of sight, the delay itself changes around the orbit. That swing is comparable to the $\pm$\campaignDenseHalfWidthDays{}~d periapsis windows; over the campaign the correction ranges from \roemerLtMinDays{} to \roemerLtMaxDays{}~d (RMS \roemerLtRmsDays{}~d). The pipeline includes it (Section~\ref{sec:fit}), so Table~\ref{tab:finalfit} is unaffected. Ignoring it would matter: a light-time-unaware model fitted to light-time-correct, noise-free data biases $\dot\omega$ by \roemerNaiveOmegaDotBias{}~deg~yr$^{-1}$ (\roemerNaiveOmegaDotBiasPct{}~per~cent of the signal, \roemerNaiveOmegaDotBiasNsigma{}$\sigma$) and $i$, $\Omega$ and $\omega$ by \roemerNaiveIBias{}$^\circ$, \roemerNaiveCapOmegaBias{}$^\circ$ and \roemerNaiveOmegaBias{}$^\circ$ (\roemerNaiveAngleNsigmaMin{}--\roemerNaiveAngleNsigmaMax{}$\sigma$). The correction is a deterministic function of the orbit being fitted and adds no free parameter: the aware model reproduces the noise-free data to machine precision ($\roemerAwareOmegaDotResidual$~deg~yr$^{-1}$ residual), and on noisy data its bootstrap precision is \roemerSigmaRatio{}$\times$ the unaware model's. The correction is exact in bias and free in precision.
+Every position we record is old news, and not all of it equally old. Light from the far side of the orbit reaches us up to $2a/c \approx \roemerMaxSwingDays{}$~d later than light from the near side, and because the star moves along the line of sight, the delay changes around the orbit. That swing is comparable to the $\pm$\campaignDenseHalfWidthDays{}~d periapsis windows; over the campaign the correction ranges from \roemerLtMinDays{} to \roemerLtMaxDays{}~d (RMS \roemerLtRmsDays{}~d). The pipeline includes it (Section~\ref{sec:fit}), so Table~\ref{tab:finalfit} is unaffected. Ignoring it would matter: a light-time-unaware model fitted to light-time-correct, noise-free data biases $\dot\omega$ by \roemerNaiveOmegaDotBias{}~deg~yr$^{-1}$ (\roemerNaiveOmegaDotBiasPct{}~per~cent of the signal, \roemerNaiveOmegaDotBiasNsigma{}$\sigma$) and $i$, $\Omega$ and $\omega$ by \roemerNaiveIBias{}$^\circ$, \roemerNaiveCapOmegaBias{}$^\circ$ and \roemerNaiveOmegaBias{}$^\circ$ (\roemerNaiveAngleNsigmaMin{}--\roemerNaiveAngleNsigmaMax{}$\sigma$). The correction is a deterministic function of the orbit being fitted and adds no free parameter: the aware model reproduces the noise-free data to machine precision ($\roemerAwareOmegaDotResidual$~deg~yr$^{-1}$ residual), and on noisy data its bootstrap precision is \roemerSigmaRatio{}$\times$ the unaware model's. The correction is exact in bias and free in precision.
 
 \subsection{The Sgr~A$^*$ reference zero point}
 \label{sec:refframe}
@@ -210,12 +227,12 @@ Injecting a one-sigma offset (\refframeInjectedOffsetComponentFid{}~$\mu$as per 
 \subsection{Mass and distance priors}
 \label{sec:massdist}
 
-Table~\ref{tab:finalfit} holds $M_\bullet$ and $R_0$ fixed, which pins the orbit's angular scale ($a/R_0$ with $a^3 = GM_\bullet P^2/4\pi^2$) by the period alone. Real S-star fits float both. Astrometry alone constrains only $GM_\bullet/R_0^3$, the mass--distance degeneracy that radial velocities normally break, so we refit with $M_\bullet$ and $R_0$ free under Gaussian priors from \citet{gravity2022massdist} (statistical and systematic combined: \massdistSigmaMPct{} and \massdistSigmaRZeroPct{}~per~cent). The precision on $P$ is nearly unchanged (\massdistRatioCapPYr{}$\times$), because the period comes from timing; $e$, $i$ and $\omega$ widen to \massdistRatioE{}, \massdistRatioIDeg{} and \massdistRatioOmegaDeg{}$\times$ their fixed-scale values, and $\dot\omega$ to \massdistRatioOmegaDotDegYr{}$\times$ ($\massdistFitOmegaDot \pm \massdistSigmaOmegaDotDegYr$~deg~yr$^{-1}$, a shift of \massdistOmegaDotShiftNsigma{}$\sigma$). The fixed scale was over-constraining the orbit's shape and orientation, as a referee anticipated, while the precession rate is only modestly affected. The recovered ratios ($M/M_{\rm pub} = \massdistMRatio \pm \massdistMRatioSigma$, $R_0/R_{0,{\rm pub}} = \massdistDRatio \pm \massdistDRatioSigma$) return the priors, as astrometry-only data must.
+Table~\ref{tab:finalfit} holds $M_\bullet$ and $R_0$ fixed, which pins the orbit's angular scale ($a/R_0$ with $a^3 = GM_\bullet P^2/4\pi^2$) by the period alone. Real S-star fits float both. Astrometry alone constrains only $GM_\bullet/R_0^3$, the mass--distance degeneracy that radial velocities normally break, so we refit with $M_\bullet$ and $R_0$ free under Gaussian priors from \citet{gravity2022massdist} (statistical and systematic combined: \massdistSigmaMPct{} and \massdistSigmaRZeroPct{}~per~cent). The precision on $P$ is nearly unchanged (\massdistRatioCapPYr{}$\times$), because the period comes from timing; $e$, $i$ and $\omega$ widen to \massdistRatioE{}, \massdistRatioIDeg{} and \massdistRatioOmegaDeg{}$\times$ their fixed-scale values, and $\dot\omega$ to \massdistRatioOmegaDotDegYr{}$\times$ ($\massdistFitOmegaDot \pm \massdistSigmaOmegaDotDegYr$~deg~yr$^{-1}$, a shift of \massdistOmegaDotShiftNsigma{}$\sigma$). The fixed scale was over-constraining the orbit's shape and orientation, as expected, while the precession rate is only modestly affected. The recovered ratios ($M/M_{\rm pub} = \massdistMRatio \pm \massdistMRatioSigma$, $R_0/R_{0,{\rm pub}} = \massdistDRatio \pm \massdistDRatioSigma$) return the priors, as astrometry-only data must.
 
 \subsection{Extended mass}
 \label{sec:extmass}
 
-Undetected extended mass inside S301's orbit shifts the periapsis backwards and biases the apsidal precession low \citep{rubilar2001}. We reproduce their post-Newtonian treatment: a point mass plus a Plummer distribution ($\alpha=5$), integrated through two periapsis passages with their Eq.~A.7 equation of motion, measuring the rotation of the eccentricity vector between them. With no extended mass the integrator matches equation~(\ref{eq:precession}) to \extmassPointmassAgreementPct{}~per~cent, the second-post-Newtonian scale $(v/c)^2\approx0.7$~per~cent at S301's periapsis speed; the bias is a difference between two runs, so this residual largely cancels. For the mass and core radius we take \citet{gravity2022massdist}'s multi-star constraint: Plummer scale length $0.3''\approx\extmassRcMpc{}$~mpc with enclosed mass $\lesssim$\extmassMExtOneMsun{}~$M_\odot$ (1$\sigma$) or $\lesssim$\extmassMExtThreeMsun{}~$M_\odot$ (3$\sigma$). The bias on $\dot\omega$ is \extmassBiasRateOne{}~deg~yr$^{-1}$ at the 1$\sigma$ bound (\extmassBiasPctOne{}~per~cent of the signal, \extmassBiasNsigmaOne{}$\sigma$ of the random precision) and \extmassBiasRateThree{}~deg~yr$^{-1}$ at 3$\sigma$ (\extmassBiasPctThree{}~per~cent, \extmassBiasNsigmaThree{}$\sigma$). S301's periapsis (\extmassRpMpc{}~mpc) lies so deep inside any plausible core that little of the bounded mass is enclosed. \citet{piran2026} model a different quantity, the nodal precession from a flattened disc competing with the spin signal, but likewise find S301 about ten times better protected than S2.
+Undetected extended mass inside S301's orbit shifts the periapsis backwards and biases the apsidal precession low \citep{rubilar2001}. We reproduce their post-Newtonian treatment: a point mass plus a Plummer distribution ($\alpha=5$), integrated through two periapsis passages with their Eq.~A.7 equation of motion, measuring the rotation of the eccentricity vector between them. With no extended mass the integrator matches equation~(\ref{eq:precession}) to \extmassPointmassAgreementPct{}~per~cent, the second-post-Newtonian scale $(v/c)^2\approx0.7$~per~cent at S301's periapsis speed; the bias is a difference between two runs, so this residual largely cancels. For the mass and core radius we take \citet{gravity2022massdist}'s multi-star constraint: Plummer scale length $0.3''\approx\extmassRcMpc{}$~mpc (milliparsec) with enclosed mass $\lesssim$\extmassMExtOneMsun{}~$M_\odot$ (1$\sigma$) or $\lesssim$\extmassMExtThreeMsun{}~$M_\odot$ (3$\sigma$). The bias on $\dot\omega$ is \extmassBiasRateOne{}~deg~yr$^{-1}$ at the 1$\sigma$ bound (\extmassBiasPctOne{}~per~cent of the signal, \extmassBiasNsigmaOne{}$\sigma$ of the random precision) and \extmassBiasRateThree{}~deg~yr$^{-1}$ at 3$\sigma$ (\extmassBiasPctThree{}~per~cent, \extmassBiasNsigmaThree{}$\sigma$). S301's periapsis (\extmassRpMpc{}~mpc) lies so deep inside any plausible core that little of the bounded mass is enclosed. \citet{piran2026} model a different quantity, the nodal precession from a flattened disc competing with the spin signal, but likewise find S301 about ten times better protected than S2.
 
 A smooth profile misses one risk. At S301's radius the discovery paper finds heavy-tailed perturbations from a few massive bodies, so that orbital evolution ``would be dominated by large, non-local jumps'' \citep[Methods]{gravity2026}, with relaxation and collision time-scales $\gtrsim 10^7$~yr against a precession time-scale of $1.6\times10^3$~yr. Over two passages the expected stochastic change in $\omega$ is orders of magnitude below the signal, but a single close encounter is a rare, unbounded event that no smooth budget captures. We flag it without modelling it.
 
@@ -244,11 +261,13 @@ Every term above can be bounded. The spin of Sgr~A$^*$ cannot: for a spin aligne
 \subsection{Combined budget and headline precision}
 \label{sec:bottomline}
 
-\begin{deluxetable}{llll}
-\tabletypesize{\small}
-\tablecaption{Systematic error budget for $\dot\omega$ (deg yr$^{-1}$). \label{tab:errorbudget}}
-\tablehead{\colhead{Term} & \colhead{Type} & \colhead{Effect} & \colhead{Status}}
-\startdata
+\begin{table*}
+\caption{Systematic error budget for $\dot\omega$ (deg yr$^{-1}$).}
+\label{tab:errorbudget}
+\begin{tabular}{llll}
+\hline
+Term & Type & Effect & Status \\
+\hline
 Photon noise, \campaignAstrometryUas{}~$\mu$as & Random & $\pm\fitSigmaOmegaDotDegYr{}$ & Baseline (Table~\ref{tab:finalfit}) \\
 Photon noise, \precisionForecastUas{}~$\mu$as & Random & $\pm\precisionForecastOmegaDotSigma{}$ & If GRAVITY+ meets its forecast \\
 R{\o}mer delay, if ignored & Geometric & \roemerNaiveOmegaDotBias{} (\roemerNaiveOmegaDotBiasNsigma{}$\sigma$) & Not incurred: in the model \\
@@ -265,27 +284,30 @@ Correlated systematics, \corrnoiseCommonModeUas{} + \corrnoiseRedNoiseUas{}~$\mu
 \textbf{Bottom line} & & $\pm\budgetBottomLine{}$ ($\times$\budgetBottomLineRatio{}, \budgetBottomLinePctOfSignal{}\% of signal) & With correlated systematics \\
 Empirical inflation, $\sqrt{\chi^2_r} = \budgetInflationHigh{}$ & Unknown unknowns & $\pm\budgetBottomLineInflated{}$ (\budgetBottomLineInflatedPctOfSignal{}\% of signal) & \textbf{Headline: \budgetBottomLineInflatedDetectionNsigma{}$\sigma$} \\
 Sgr~A$^*$ spin, $\chi=0.9$--1 & Degeneracy & +\spinLtRateChiNineZero{} to +\spinLtRateChiOneZeroZero{} (\spinLtNsigmaRefChiNineZero{}--\spinLtNsigmaRefChiOneZeroZero{}$\sigma$) & Unbounded; out of scope \\
-\enddata
-\tablecomments{Sections~\ref{sec:roemer}--\ref{sec:spincontam} give each term's sources and method, in the same order. Ignored R{\o}mer delay would also bias $i,\Omega,\omega$ by \roemerNaiveAngleNsigmaMin{}--\roemerNaiveAngleNsigmaMax{}$\sigma$. The white-noise bottom line is the joint 11-parameter bootstrap (orbit, reference offset, $M_\bullet$, $R_0$) combined in quadrature with the 3$\sigma$ extended-mass bias, the lensing bias and the confusion-inflated variance; the bottom line adds the correlated-systematics excess of Section~\ref{sec:corrnoise}; the headline multiplies it by the $\sqrt{\chi^2_r}$ of the four-star GRAVITY fit of \citet{gravity2022massdist}.}
-\end{deluxetable}
+\hline
+\end{tabular}
+\medskip
+
+\small\textit{Notes.} Sections~\ref{sec:roemer}--\ref{sec:spincontam} give each term's sources and method, in the same order. Ignored R{\o}mer delay would also bias $i,\Omega,\omega$ by \roemerNaiveAngleNsigmaMin{}--\roemerNaiveAngleNsigmaMax{}$\sigma$. The white-noise bottom line is the joint 11-parameter bootstrap (orbit, reference offset, $M_\bullet$, $R_0$) combined in quadrature with the 3$\sigma$ extended-mass bias, the lensing bias and the confusion-inflated variance; the bottom line adds the correlated-systematics excess of Section~\ref{sec:corrnoise}; the headline multiplies it by the $\sqrt{\chi^2_r}$ of the four-star GRAVITY fit of \citet{gravity2022massdist}.
+\end{table*}
 
 Multiplying the separate precision costs of the reference offset (\refframeJointSigmaRatioFid{}$\times$) and the mass--distance priors (\massdistRatioOmegaDotDegYr{}$\times$) would assume they are independent. Instead we fit all four nuisance parameters jointly with the orbit (11 parameters) and bootstrap: the marginalized precision is \budgetCombinedSigma{}~deg~yr$^{-1}$, \budgetCombinedRatio{}$\times$ the random-only value. Adding the bounded biases in quadrature (extended mass at the 3$\sigma$ bound, lensing, and the confusion-inflated variance) gives the white-noise bottom line, $\pm$\budgetBottomLineWhite{}~deg~yr$^{-1}$. Carrying the correlated-systematics excess of Section~\ref{sec:corrnoise} in the same way gives $\pm$\budgetBottomLine{}~deg~yr$^{-1}$, \budgetBottomLinePctOfSignal{}~per~cent of the signal; correlated systematics supply \budgetCorrelatedSharePct{}~per~cent of that variance.
 
-One allowance remains, for what this budget has not named. Real GRAVITY orbit fits scatter more than their formal errors predict: the S2 precession fit has reduced $\chi^2 = 1.5$ \citep{gravity2020} and the four-star fit of \citet{gravity2022massdist} has $\chi^2_r = 2.17$. Precision scales linearly with the per-epoch error, so inflating by $\sqrt{\chi^2_r}$ = \budgetInflationLow{}--\budgetInflationHigh{} gives, at the conservative end, $\pm$\budgetBottomLineInflated{}~deg~yr$^{-1}$: \budgetBottomLineInflatedPctOfSignal{}~per~cent of the signal, a \budgetBottomLineInflatedDetectionNsigma{}$\sigma$ detection. That is the number we would defend in front of a time-allocation committee, and it is the headline of this paper. The S301 discovery fit itself shows no such excess ($\chi^2 = 26$ for 34 degrees of freedom at the 207~$\mu$as floor; \citealt{gravity2026}), so the inflation is an envelope rather than a prediction. More telescope time still helps the white-noise term (doubling the budget to \cadenceDoubledN{} epochs improves it by \cadenceDoubledPctGain{}~per~cent, consistent with $\sqrt{N}$), but the correlated terms average down only with the number of runs and seasons, which argues for spreading a fixed budget over more independent visits rather than longer ones. Nothing in the budget bounds the spin term, which at published spin values is \spinLtNsigmaRefChiNineZero{}--\spinLtNsigmaRefChiOneZeroZero{}$\sigma$ of the reference-marginalized precision. That term makes the result a \emph{spin-agnostic} test (Section~\ref{sec:scope}); closing the gap is \citet{piran2026}'s multi-star programme, beyond this pipeline.
+One allowance remains, for what this budget has not named. Real GRAVITY orbit fits scatter more than their formal errors predict: the S2 precession fit has reduced $\chi^2 = 1.5$ \citep{gravity2020} and the four-star fit of \citet{gravity2022massdist} has $\chi^2_r = 2.17$. Precision scales linearly with the per-epoch error, so inflating by $\sqrt{\chi^2_r}$ = \budgetInflationLow{}--\budgetInflationHigh{} gives, at the conservative end, $\pm$\budgetBottomLineInflated{}~deg~yr$^{-1}$: \budgetBottomLineInflatedPctOfSignal{}~per~cent of the signal, a \budgetBottomLineInflatedDetectionNsigma{}$\sigma$ detection. That is the number we would defend in front of a time-allocation committee, and it is the headline of this paper. The S301 discovery fit itself shows no such excess ($\chi^2 = 26$ for 34 degrees of freedom at the 207~$\mu$as floor; \citealt{gravity2026}), so the inflation is an envelope rather than a prediction. More telescope time still helps the white-noise term (doubling the budget to \cadenceDoubledN{} epochs improves it by \cadenceDoubledPctGain{}~per~cent, consistent with $\sqrt{N}$), but the correlated terms average down only with the number of runs and seasons, which argues for spreading a fixed budget over more independent visits rather than longer ones. Nothing in the budget bounds the spin term, which at published spin values is \budgetSpinNsigmaHeadlineLow{}--\budgetSpinNsigmaHeadlineHigh{}$\sigma$ of the headline precision. That term makes the result a \emph{spin-agnostic} test (Section~\ref{sec:scope}); closing the gap is \citet{piran2026}'s multi-star programme, beyond this pipeline.
 
 \section{Discussion}
 \label{sec:discussion}
 
 \subsection{Why GRAVITY+ and not another instrument}
 
-No operating alternative matches GRAVITY+ for this measurement, and the comparison comes down to resolution. The 2.4~m aperture of the Roman Space Telescope has a diffraction limit of order 223~mas, larger than S301's entire 83~mas orbit. The 6.5~m aperture of JWST reaches $\sim$85~mas, comparable to the orbit itself. The $\sim$130~m baseline of GRAVITY+ reaches $\sim$100~$\mu$as. Only the last resolves the orbit's shape, let alone its precession.
+No operating alternative matches GRAVITY+ for this measurement, and the comparison comes down to resolution. The 2.4~m aperture of the Roman Space Telescope has a diffraction limit of order 223~mas, larger than S301's entire 83~mas orbit. The 6.5~m aperture of JWST reaches $\sim$85~mas, comparable to the orbit itself. The $\sim$130~m baseline of GRAVITY+ gives a diffraction limit of order 3~mas and astrometry at the 100--200~$\mu$as level. Only the last resolves the orbit's shape, let alone its precession.
 
 \subsection{Prospects for a velocity channel}
 \label{sec:rv}
 
 A simulated radial-velocity channel at ERIS precision (\rvtestErisRvSigma{}~km~s$^{-1}$) changes $\dot\omega$'s precision by \rvtestErisPctChangeOmegaDot{}~per~cent, within bootstrap noise, so no ERIS time is requested. Roman's slitless spectroscopy ($R\approx461$--890) fails regardless of integration time because its point spread function is not adaptive-optics-corrected in this crowded field. JWST/NIRSpec has the resolution \citep{shajib2025} but reported operational problems in the Galactic Centre (saturation on bright cluster members, micro-shutter cross-talk, guide-star misidentification; \citealt{yusefzadeh2025}) and no published precision for a source this faint.
 
-The ELT is the real prospect. The discovery team plans MICADO spectroscopy, which they expect ``will have no problem'' measuring S301's velocity, and their spin forecast assumes 1~km~s$^{-1}$ \citep{gravity2026}. Our estimate is more cautious: the background-limited scaling of Section~\ref{sec:campaign}, applied to HARMONI's 39~m aperture and $R\approx17{,}385$ $K$-band modes \citep{harmoni2024}, predicts $\sigma_{\rm RV}\approx\rvtestHarmoniRvSigma{}$~km~s$^{-1}$ (signal-to-noise ratio of order \rvtestHarmoniSnr{}), a factor $\sim$20 short of the MICADO figure. Neither number rests on an achieved observation, and the MICADO figure is stated without a sensitivity calculation. Either would be useful: with the HARMONI figure a velocity channel tightens $P$, $e$ and $t_0$ by tens of per cent and the orientation angles by a quarter to a third, but changes $\dot\omega$'s precision by only \rvtestHarmoniPctChangeOmegaDot{}~per~cent, because two-passage astrometry already constrains the precession rate tightly. ESO's schedule puts ELT first light in 2029 and HARMONI science operations from late 2030 \citep{eso2026}, so passage~1 (October 2031) is a stretch goal for any ELT instrument and passage~2 (2040.5) is comfortable. A velocity channel by passage~2 is worth planning for, chiefly to break the mass--distance degeneracy of Section~\ref{sec:massdist}.
+The ELT is the real prospect. The discovery team plans MICADO spectroscopy, which they expect ``will have no problem'' measuring S301's velocity, and their spin forecast assumes 1~km~s$^{-1}$ \citep{gravity2026}. Our estimate is more cautious: the background-limited scaling of Section~\ref{sec:campaign}, applied to HARMONI's 39~m aperture and $R\approx17{,}385$ $K$-band modes \citep{harmoni2024}, predicts $\sigma_{\rm RV}\approx\rvtestHarmoniRvSigma{}$~km~s$^{-1}$ (signal-to-noise ratio of order \rvtestHarmoniSnr{}), a factor $\sim$20 short of the MICADO figure. Neither number rests on an achieved observation, and the MICADO figure is stated without a sensitivity calculation. Either would be useful: with the HARMONI figure a velocity channel tightens $P$, $e$ and $t_0$ by tens of per cent and the orientation angles by a quarter to a third, but changes $\dot\omega$'s precision by \rvtestHarmoniPctChangeOmegaDot{}~per~cent, within bootstrap noise, because two-passage astrometry already constrains the precession rate tightly. ESO's schedule puts ELT first light in 2029 and HARMONI science operations from late 2030 \citep{eso2026}, so passage~1 (October 2031) is a stretch goal for any ELT instrument and passage~2 (2040.5) is comfortable. A velocity channel by passage~2 is worth planning for, chiefly to break the mass--distance degeneracy of Section~\ref{sec:massdist}.
 
 \subsection{Scope of the test}
 \label{sec:scope}
@@ -320,7 +342,8 @@ Simulation code implementation, data analysis, and manuscript drafting for this 
 \section*{Data Availability}
 All code, results files, figures and the precession animation, from which every number in this paper is generated, are available at \url{https://github.com/jcatanza/s301-schwarzschild-precession} (code under the MIT licence; manuscript, figures and animation under CC~BY~4.0). No observational data were used; the orbital elements are those published by \citet{gravity2026}.
 
+\bibliographystyle{mnras}
 \bibliography{references}
-\bibliographystyle{aasjournalv7}
 
+\label{lastpage}
 \end{document}

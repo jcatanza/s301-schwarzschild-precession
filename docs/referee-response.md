@@ -65,7 +65,7 @@ The report's central worry — that the precision claim rests on white noise —
 - HARMONI scaling assumption ($S/N \propto D^2$, background-limited, diffraction-limited Strehl) stated in §6.2.
 - The ~130 m baseline is now introduced in §3.2 where GRAVITY+ is described.
 - Table 4 rows are ordered as the subsections and the note says which rows subsume which; the "SR/GR" caption ambiguity fixed (GR no longer used for both "gravitational redshift" and "general relativity").
-- Keywords left as UAT terms while the class is `aastex701`; to be replaced on the switch to the `mnras` class.
+- Manuscript now uses the `mnras` class with MNRAS controlled-list keywords (Galaxy: centre; gravitation; black hole physics; astrometry; relativistic processes; stars: kinematics and dynamics).
 
 ## Two report items not adopted
 
